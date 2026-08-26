@@ -1,6 +1,23 @@
+<div align="center">
+
 # PAP Online
 
-## Programa de Apoio Psicopedagógico da Universidade de Fortaleza
+### Programa de Apoio Psicopedagógico da Universidade de Fortaleza
+
+<p>
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+</p>
+
+<p>
+  <img src="https://img.shields.io/badge/Status-Em_Desenvolvimento-F59E0B?style=flat-square">
+</p>
+
+</div>
+
+---
+
+## 🎯 Objetivo
 
 O **PAP Online** é um sistema web desenvolvido como proposta de digitalização e modernização do acesso aos serviços do **Programa de Apoio Psicopedagógico (PAP) da Universidade de Fortaleza (Unifor)**.
 
@@ -12,39 +29,23 @@ O sistema busca centralizar essas informações e serviços em uma plataforma we
 
 ---
 
-## 🎯 Objetivo
+## 🛠️ Tecnologias
 
-O principal objetivo do PAP Online é criar uma plataforma web que facilite o acesso dos estudantes aos serviços de apoio psicopedagógico da universidade.
+<p>
+  <img src="https://skillicons.dev/icons?i=java,spring" alt="Java e Spring">
+</p>
 
-A plataforma pretende reunir, em um único ambiente:
-
-- Informações sobre o PAP;
-- Solicitação de atendimentos;
-- Agendamento e acompanhamento de atendimentos;
-- Comunicação entre estudantes e profissionais;
-- Solicitações de adaptações acadêmicas;
-- Acompanhamento de solicitações;
-- Gerenciamento de profissionais e horários;
-- Organização dos atendimentos.
-
-O sistema será desenvolvido como uma **aplicação 100% web**, sem dependência de aplicativo mobile.
+| Tecnologia |
+|:---|
+| ☕ **Java** |
+| 🍃 **Spring Boot** |
+| 🌐 **Spring Web** |
 
 ---
 
 ## 💡 Por que o PAP Online é viável?
 
-A proposta é viável porque busca solucionar um problema presente no ambiente universitário: a dificuldade de tornar os serviços de apoio psicopedagógico conhecidos e acessíveis aos estudantes.
-
-Muitos alunos podem não saber:
-
-- O que é o PAP;
-- Quais serviços são oferecidos;
-- Quem pode procurar atendimento;
-- Como solicitar ajuda;
-- Como realizar um agendamento;
-- Como acompanhar uma solicitação;
-- Como solicitar adaptações acadêmicas;
-- Como entrar em contato com a equipe.
+A proposta busca solucionar um problema presente no ambiente universitário: a dificuldade de tornar os serviços de apoio psicopedagógico conhecidos e acessíveis aos estudantes.
 
 Uma plataforma web pode funcionar como um **ponto central de acesso ao PAP**, reunindo informações e serviços em um único local.
 
@@ -55,8 +56,6 @@ Além de facilitar os processos já existentes, o sistema pode atuar como uma fe
 ## 🌱 Visibilidade do PAP
 
 Um dos principais diferenciais da proposta é utilizar o sistema não apenas para gerenciar atendimentos, mas também para **aumentar a visibilidade do PAP dentro da Universidade de Fortaleza**.
-
-Atualmente, um estudante que não conhece o programa pode não saber que existe um serviço especializado de apoio psicopedagógico disponível para ele.
 
 O PAP Online poderá apresentar, de forma clara e acessível:
 
@@ -72,17 +71,11 @@ O PAP Online poderá apresentar, de forma clara e acessível:
 
 Dessa forma, o sistema pode funcionar como uma **porta de entrada para o PAP**, permitindo que mais estudantes descubram os serviços oferecidos pela universidade.
 
-A ideia é que o estudante não precise conhecer previamente o funcionamento do programa para conseguir encontrar informações e entender como buscar apoio.
-
 ---
 
 ## 🌎 Impacto na sociedade
 
 O PAP Online busca contribuir para uma comunidade acadêmica mais **informada, inclusiva e acolhedora**.
-
-Questões relacionadas à saúde mental, dificuldades acadêmicas e necessidades específicas podem impactar diretamente a vida universitária de um estudante.
-
-Quando o acesso ao suporte é simples e as informações estão disponíveis de maneira clara, torna-se mais fácil para o aluno identificar que existe ajuda disponível e buscar o atendimento adequado.
 
 O sistema pode contribuir para:
 
@@ -100,30 +93,20 @@ O sistema **não pretende substituir os profissionais do PAP**. Seu objetivo é 
 
 ## 👥 Usuários do sistema
 
-O sistema considera inicialmente três perfis principais.
-
 ### 👨‍🎓 Estudante
-
-O estudante será um dos principais usuários da plataforma.
-
-Entre suas possíveis ações estão:
 
 - Acessar informações sobre o PAP;
 - Solicitar atendimento;
 - Visualizar profissionais disponíveis;
 - Consultar horários;
 - Agendar atendimento;
-- Consultar o histórico de atendimentos;
+- Consultar histórico de atendimentos;
 - Acompanhar solicitações;
 - Solicitar adaptações acadêmicas;
 - Enviar documentos;
 - Entrar em contato com profissionais.
 
 ### 🧑‍⚕️ Profissional do PAP
-
-O profissional poderá utilizar a plataforma para organizar e acompanhar seus atendimentos.
-
-Entre suas possíveis ações estão:
 
 - Visualizar sua agenda;
 - Consultar atendimentos;
@@ -133,10 +116,6 @@ Entre suas possíveis ações estão:
 - Comunicar-se com estudantes.
 
 ### 🧑‍💼 Administrador/Gestor
-
-O administrador será responsável pelo gerenciamento geral da plataforma.
-
-Entre suas possíveis ações estão:
 
 - Gerenciar estudantes;
 - Gerenciar profissionais;
@@ -148,9 +127,7 @@ Entre suas possíveis ações estão:
 
 ---
 
-## ⚙️ Requisitos básicos
-
-Como o projeto ainda está em sua fase inicial, os requisitos abaixo representam o **escopo básico inicial**.
+## ⚙️ Funcionalidades
 
 ### 🔐 Autenticação
 
@@ -181,7 +158,7 @@ Como o projeto ainda está em sua fase inicial, os requisitos abaixo representam
 - Criação de solicitação;
 - Descrição da necessidade do estudante;
 - Envio de documentação;
-- Acompanhamento do status da solicitação;
+- Acompanhamento do status;
 - Análise por profissional ou gestor.
 
 ### 💬 Comunicação
@@ -192,8 +169,6 @@ Como o projeto ainda está em sua fase inicial, os requisitos abaixo representam
 
 ### 📢 Informações sobre o PAP
 
-A plataforma deverá apresentar informações de forma simples e acessível, incluindo:
-
 - O que é o PAP;
 - Serviços oferecidos;
 - Público atendido;
@@ -201,25 +176,6 @@ A plataforma deverá apresentar informações de forma simples e acessível, inc
 - Como entrar em contato;
 - Perguntas frequentes;
 - Orientações gerais.
-
-Essa funcionalidade é importante para que o sistema também cumpra um papel de **divulgação e aproximação do PAP com os estudantes**.
-
----
-
-## 📌 Escopo inicial
-
-A primeira versão do PAP Online terá como foco principal:
-
-1. Apresentar o PAP e seus serviços;
-2. Permitir o acesso dos estudantes à plataforma;
-3. Facilitar a solicitação de atendimentos;
-4. Organizar os agendamentos;
-5. Permitir o acompanhamento dos atendimentos;
-6. Facilitar a comunicação entre estudantes e equipe;
-7. Permitir o gerenciamento básico pelo administrador;
-8. Oferecer um fluxo para solicitações de adaptação.
-
-O projeto poderá receber novas funcionalidades conforme os requisitos forem definidos e o desenvolvimento avançar.
 
 ---
 
@@ -233,17 +189,12 @@ A proposta busca demonstrar como uma solução digital pode ser utilizada para m
 
 ## 👨‍💻 Equipe
 
-### João Pedro Teixeira Guimarães
-**Ciência da Computação**
-
-### Suzani Jia Yi Wang
-**Ciência da Computação**
-
-### Arthur Braz Masrua
-**Ciência da Computação**
-
-### Paulo Haskley Queiroz de Lima
-**Análise e Desenvolvimento de Sistemas**
+| Nome | Curso |
+|---|---|
+| **João Pedro Teixeira Guimarães** | Ciência da Computação |
+| **Suzani Jia Yi Wang** | Ciência da Computação |
+| **Arthur Braz Masrua** | Ciência da Computação |
+| **Paulo Haskley Queiroz de Lima** | Análise e Desenvolvimento de Sistemas |
 
 ---
 
@@ -261,4 +212,15 @@ O projeto está em desenvolvimento e poderá evoluir conforme os requisitos e ne
 
 ---
 
-**PAP Online — Tecnologia aproximando estudantes do apoio que eles precisam.**
+<div align="center">
+
+### PAP Online
+
+**Tecnologia aproximando estudantes do apoio que eles precisam.**
+
+<br>
+
+<img src="https://img.shields.io/badge/Made_with-Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Made with Java">
+<img src="https://img.shields.io/badge/Powered_by-Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Powered by Spring Boot">
+
+</div>
