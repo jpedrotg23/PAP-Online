@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PAP Online | Login</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="auth-bg"><main class="auth-card login-card">
+  <div class="brand"><span class="brand-mark">PAP</span><strong>PAP Online</strong></div>
+  <header class="auth-heading"><h1>Bem-vindo de volta</h1><p>Acesse sua conta para continuar</p></header>
+  <form id="loginForm">
+    <label>E-mail ou telefone<input type="text" required placeholder="nome@edu.unifor.br"></label>
+    <label>Senha<div class="password-wrap"><input id="loginPassword" type="password" required placeholder="Digite sua senha"><button class="eye" type="button" data-toggle="loginPassword" aria-label="Mostrar senha">◉</button></div></label>
+    <div class="form-between"><label class="check-label"><input type="checkbox"> Lembrar de mim</label><a href="recuperar-1.html">Esqueci minha senha</a></div>
+    <button class="primary-btn" type="submit">Entrar</button>
+  </form>
+  <p class="auth-footer">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+  <p class="notice" id="loginNotice" role="status"></p>
+</main><script src="js/app.js"></script></body></html>
