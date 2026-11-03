@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Meu perfil</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="aluno-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="aluno-agendar.html"><span class="portal-nav-icon">▦</span><span>Agendar</span></a><a class="portal-nav-link" href="aluno-adaptacoes.html"><span class="portal-nav-icon">♧</span><span>Adaptações</span></a><a class="portal-nav-link" href="aluno-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="aluno-historico.html"><span class="portal-nav-icon">▤</span><span>Histórico</span></a><a class="portal-nav-link active" href="aluno-perfil.html"><span class="portal-nav-icon">♙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Meu perfil</h1><p>Gerencie suas informações pessoais e de acesso.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<section class="portal-profile-summary"><span class="portal-profile-avatar">AL</span><div><h2>Aluno</h2><p>Contato não informado</p><div class="portal-tag-row"><span class="portal-pill info">Estudante</span><span class="portal-pill purple">Vínculo não carregado</span><span class="portal-pill success">Situação não carregada</span></div></div></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Informações pessoais</h2><p>Confira seus dados cadastrais.</p></div></div>
+<form class="portal-form" data-demo-form ><div class="portal-form-grid"><label>Nome completo<input value="Dados não carregados" data-profile-field readonly></label><label>Matrícula Unifor<input value="Matrícula não carregada" readonly><small>Identificação institucional.</small></label><label>E-mail institucional<input type="email" value="Contato não informado" readonly><small>Gerenciado pela Unifor.</small></label><label>Telefone<input value="Dados não carregados" data-profile-field readonly></label><label>Curso<input value="Informação não disponível" readonly></label><label>Tipo de vínculo<input value="Aluno" readonly></label></div><div class="portal-form-actions"><span class="portal-help-text">Alguns dados são gerenciados pela instituição.</span><button class="portal-outline-button" type="button" data-profile-cancel>Cancelar</button><button class="portal-button" type="button" data-profile-edit>Editar</button></div><p class="portal-form-feedback" role="status"></p></form></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Segurança</h2><p>Altere sua senha para manter sua conta protegida.</p></div></div><form class="portal-form" data-demo-form ><div class="portal-form-grid"><label>Senha atual<input type="password" required placeholder="Digite sua senha atual"></label><label>Nova senha<input type="password" minlength="8" required placeholder="Mínimo de 8 caracteres"></label><label>Confirmar nova senha<input type="password" required placeholder="Repita a nova senha"></label></div><div class="portal-form-actions"><span class="portal-help-text">Use uma senha forte e não a compartilhe.</span><button class="portal-button" type="submit">Alterar senha</button></div><p class="portal-form-feedback" role="status"></p></form></section></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

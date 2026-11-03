@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Alunos</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="admin-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="admin-profissionais.html"><span class="portal-nav-icon">♙</span><span>Profissionais</span></a><a class="portal-nav-link active" href="admin-alunos.html"><span class="portal-nav-icon">♧</span><span>Alunos</span></a><a class="portal-nav-link" href="admin-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="admin-relatorios.html"><span class="portal-nav-icon">▤</span><span>Relatórios</span></a><a class="portal-nav-link" href="admin-notificacoes.html"><span class="portal-nav-icon">♢</span><span>Notificações</span></a><a class="portal-nav-link" href="admin-perfil.html"><span class="portal-nav-icon">⚙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Alunos</h1><p>Consulte os estudantes cadastrados e seus vínculos com o PAP.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<div class="portal-panel"><div class="portal-panel-head"><div><h2>Estudantes cadastrados</h2><p>Consulte informações institucionais e situação dos cadastros.</p></div><span class="portal-pill info">Dados não disponíveis</span></div>
+<div class="portal-filter-row"><input class="portal-search" type="search" placeholder="Buscar por nome ou matrícula..." data-search=".portal-data-row"><select class="portal-filter-select" data-filter-select><option value="all">Todos os vínculos</option><option value="active">Ativo</option><option value="review">Em revisão</option><option value="inactive">Inativo</option></select></div>
+<div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>Estudante</th><th>Matrícula</th><th>Curso</th><th>Solicitações</th><th>Vínculo</th><th>Ações</th></tr></thead><tbody><tr><td class="portal-empty-table" colspan="10">Nenhum registro disponível.</td></tr></tbody></table></div></div>
+<div class="portal-panel"><div class="portal-panel-head"><div><h2>Privacidade e acesso</h2><p>As informações acadêmicas e pessoais devem ser consultadas somente por pessoas autorizadas.</p></div></div><p class="portal-info-box">Esta A tela utiliza somente dados autorizados recebidos do backend.</p></div></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

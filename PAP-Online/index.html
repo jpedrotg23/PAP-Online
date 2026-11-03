@@ -4,11 +4,12 @@
   <div class="brand"><span class="brand-mark">PAP</span><strong>PAP Online</strong></div>
   <header class="auth-heading"><h1>Bem-vindo de volta</h1><p>Acesse sua conta para continuar</p></header>
   <form id="loginForm">
-    <label>E-mail ou telefone<input type="text" required placeholder="nome@edu.unifor.br"></label>
+    <fieldset class="access-role-fieldset"><legend>Entrar como</legend><div class="access-role-options"><label><input type="radio" name="accessRole" value="student" required><span><b>Aluno</b><small>Acesso ao ambiente do estudante</small></span></label><label><input type="radio" name="accessRole" value="professional" required><span><b>Profissional</b><small>Acesso à agenda e solicitações</small></span></label><label><input type="radio" name="accessRole" value="admin" required><span><b>Administrador</b><small>Área administrativa institucional</small></span></label></div></fieldset>
+    <label>E-mail ou telefone<input type="text" required id="loginIdentifier" placeholder="Informe seu e-mail ou telefone"></label>
     <label>Senha<div class="password-wrap"><input id="loginPassword" type="password" required placeholder="Digite sua senha"><button class="eye" type="button" data-toggle="loginPassword" aria-label="Mostrar senha">◉</button></div></label>
     <div class="form-between"><label class="check-label"><input type="checkbox"> Lembrar de mim</label><a href="recuperar-1.html">Esqueci minha senha</a></div>
     <button class="primary-btn" type="submit">Entrar</button>
   </form>
   <p class="auth-footer">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
   <p class="notice" id="loginNotice" role="status"></p>
-</main><script src="js/app.js"></script></body></html>
+</main><script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/app.js"></script></body></html>

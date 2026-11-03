@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Mensagens</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="aluno-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="aluno-agendar.html"><span class="portal-nav-icon">▦</span><span>Agendar</span></a><a class="portal-nav-link" href="aluno-adaptacoes.html"><span class="portal-nav-icon">♧</span><span>Adaptações</span></a><a class="portal-nav-link active" href="aluno-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="aluno-historico.html"><span class="portal-nav-icon">▤</span><span>Histórico</span></a><a class="portal-nav-link" href="aluno-perfil.html"><span class="portal-nav-icon">♙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Mensagens</h1><p>Converse com a equipe do Programa de Apoio Psicopedagógico.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<div class="portal-chat-layout">
+  <aside class="portal-chat-list"><div class="portal-chat-list-head"><h2>Conversas</h2><span class="portal-pill info">Dados não disponíveis</span></div><input class="portal-search" type="search" placeholder="Buscar conversa..." data-search=".portal-contact"><div class="portal-contacts">
+
+
+
+  </div></aside>
+  <section class="portal-chat-window"><div class="portal-chat-top"><span class="portal-avatar" id="portalChatAvatar">—</span><div><b id="portalChatName">Conversa não carregada</b><small>Dados do PAP não carregados</small></div><button class="portal-icon-button" type="button" data-pending-backend="As informações do atendimento serão carregadas pelo back-end">ⓘ</button></div>
+    <div class="portal-chat-messages portal-empty" id="portalChatMessages"><b>Nenhuma mensagem disponível</b><p>As conversas serão carregadas pelo backend.</p></div></div>
+    <form class="portal-chat-compose" data-chat-form><input id="portalChatInput" required placeholder="Digite sua mensagem..." aria-label="Mensagem"><button class="portal-button" type="submit">Enviar</button></form>
+  </section>
+</div></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Painel administrativo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link active" href="admin-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="admin-profissionais.html"><span class="portal-nav-icon">♙</span><span>Profissionais</span></a><a class="portal-nav-link" href="admin-alunos.html"><span class="portal-nav-icon">♧</span><span>Alunos</span></a><a class="portal-nav-link" href="admin-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="admin-relatorios.html"><span class="portal-nav-icon">▤</span><span>Relatórios</span></a><a class="portal-nav-link" href="admin-notificacoes.html"><span class="portal-nav-icon">♢</span><span>Notificações</span></a><a class="portal-nav-link" href="admin-perfil.html"><span class="portal-nav-icon">⚙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Painel administrativo</h1><p>Acompanhe os principais indicadores e atividades do PAP.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<div class="portal-welcome-row"><div><h2>Visão geral do PAP</h2><p>Resumo administrativo da plataforma.</p></div><span class="portal-date">Dados não disponíveis</span></div>
+<div class="portal-stats portal-stats-3"><div class="portal-empty"><b>Indicadores indisponíveis</b><p>Os dados serão exibidos quando estiverem disponíveis pelo backend.</p></div></div>
+<div class="portal-grid-home">
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Atividades recentes</h2><p>Registros carregados pelo backend.</p></div></div><div class="portal-empty"><b>Nenhuma atividade disponível</b><p>Os eventos administrativos serão exibidos quando estiverem disponíveis.</p></div></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Acesso rápido</h2><p>Gerencie as áreas do sistema.</p></div></div><div class="portal-quick-links"><a href="admin-profissionais.html"><span class="portal-quick-icon">♙</span><span><b>Gerenciar profissionais</b><small>Cadastro e situação da equipe</small></span><i>›</i></a><a href="admin-alunos.html"><span class="portal-quick-icon">♧</span><span><b>Gerenciar alunos</b><small>Consultar cadastros</small></span><i>›</i></a><a href="admin-notificacoes.html"><span class="portal-quick-icon">♢</span><span><b>Publicar aviso</b><small>Enviar comunicado institucional</small></span><i>›</i></a></div></section>
+</div>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Solicitações recentes</h2><p>Pedidos que precisam de acompanhamento administrativo.</p></div><a class="portal-text-link" href="admin-relatorios.html">Acessar relatórios</a></div><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>Protocolo</th><th>Estudante</th><th>Tipo</th><th>Data</th><th>Status</th></tr></thead><tbody><tr><td class="portal-empty-table" colspan="5">Nenhum registro disponível.</td></tr></tbody></table></div></section>
+</section>
+          </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

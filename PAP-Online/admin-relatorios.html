@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Relatórios</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="admin-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="admin-profissionais.html"><span class="portal-nav-icon">♙</span><span>Profissionais</span></a><a class="portal-nav-link" href="admin-alunos.html"><span class="portal-nav-icon">♧</span><span>Alunos</span></a><a class="portal-nav-link" href="admin-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link active" href="admin-relatorios.html"><span class="portal-nav-icon">▤</span><span>Relatórios</span></a><a class="portal-nav-link" href="admin-notificacoes.html"><span class="portal-nav-icon">♢</span><span>Notificações</span></a><a class="portal-nav-link" href="admin-perfil.html"><span class="portal-nav-icon">⚙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Relatórios</h1><p>Acompanhe indicadores gerais de atendimento e utilização do PAP.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<div class="portal-panel"><div class="portal-panel-head"><div><h2>Indicadores do PAP</h2><p>Resumo indisponível até a integração com o backend</p></div><div class="portal-filter-row"><select class="portal-filter-select"><option>Últimos 30 dias</option><option>Este semestre</option><option>Este ano</option></select><button class="portal-outline-button" type="button" data-pending-backend="Exportação ficará disponível após integração com o back-end">Exportar</button></div></div>
+<div class="portal-stats portal-stats-3"><div class="portal-empty"><b>Indicadores indisponíveis</b><p>Os dados serão exibidos quando estiverem disponíveis pelo backend.</p></div></div><div class="portal-report-grid"><section class="portal-panel"><div class="portal-panel-head"><div><h2>Atendimentos por mês</h2><p>Quantidade de atendimentos registrados.</p></div></div><div class="portal-empty"><b>Dados de gráfico indisponíveis</b><p>Os indicadores serão exibidos quando houver dados disponíveis.</p></div></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Solicitações por situação</h2><p>Distribuição dos pedidos recebidos.</p></div></div><div class="portal-empty"><b>Dados de relatório indisponíveis</b><p>Os indicadores serão exibidos quando houver dados disponíveis.</p></div></section></div>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Relatórios disponíveis</h2><p>Selecione um relatório para consultar os dados detalhados.</p></div></div><div class="portal-report-list"><article><span class="portal-quick-icon">▤</span><div><b>Atendimentos por período</b><small>Resumo de atendimentos realizados e agendados.</small></div><button class="portal-link-button" data-pending-backend="Relatório disponível após integração">Visualizar</button></article><article><span class="portal-quick-icon">♧</span><div><b>Solicitações de adaptação</b><small>Quantidade de solicitações por situação.</small></div><button class="portal-link-button" data-pending-backend="Relatório disponível após integração">Visualizar</button></article><article><span class="portal-quick-icon">♙</span><div><b>Utilização por profissional</b><small>Distribuição de atendimentos por profissional.</small></div><button class="portal-link-button" data-pending-backend="Relatório disponível após integração">Visualizar</button></article></div></section></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

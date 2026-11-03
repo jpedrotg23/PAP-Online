@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Meu perfil</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="admin-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="admin-profissionais.html"><span class="portal-nav-icon">♙</span><span>Profissionais</span></a><a class="portal-nav-link" href="admin-alunos.html"><span class="portal-nav-icon">♧</span><span>Alunos</span></a><a class="portal-nav-link" href="admin-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="admin-relatorios.html"><span class="portal-nav-icon">▤</span><span>Relatórios</span></a><a class="portal-nav-link" href="admin-notificacoes.html"><span class="portal-nav-icon">♢</span><span>Notificações</span></a><a class="portal-nav-link active" href="admin-perfil.html"><span class="portal-nav-icon">⚙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Meu perfil</h1><p>Gerencie suas informações de gestão e de acesso.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<section class="portal-profile-summary admin-profile-summary"><span class="portal-profile-avatar">CP</span><div><h2>Dados não carregados</h2><p>Contato não informado</p><div class="portal-tag-row"><span class="portal-pill info">Administrador</span><span class="portal-pill purple">Gestão do PAP</span><span class="portal-pill success">Situação não carregada</span></div></div></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Informações de gestão</h2><p>Dados institucionais da coordenação do PAP.</p></div></div><form class="portal-form" data-demo-form ><div class="portal-form-grid"><label class="span-2">Nome do setor<input value="Dados não carregados" data-profile-field readonly></label><label>E-mail institucional<input type="email" value="Contato não informado" readonly><small>Gerenciado pela Unifor — não pode ser alterado.</small></label><label>Telefone do setor<input value="Dados não carregados" data-profile-field readonly></label><label>Cargo<input value="Dados não carregados" readonly></label><label>Vínculo com a Unifor<input value="Dados não carregados" readonly></label></div><div class="portal-form-actions"><span class="portal-help-text">Dados institucionais da coordenação.</span><button class="portal-outline-button" type="button" data-profile-cancel>Cancelar</button><button class="portal-button" type="button" data-profile-edit>Editar</button></div><p class="portal-form-feedback" role="status"></p></form></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Permissões de acesso</h2><p>Ações que sua conta está autorizada a executar no sistema.</p></div></div><div class="portal-permissions"><article><span>✓</span><div><b>Gerenciar profissionais</b><small>Cadastrar, editar e desativar profissionais.</small></div></article><article><span>✓</span><div><b>Visualizar dados dos alunos</b><small>Acessar informações de alunos e históricos autorizados.</small></div></article><article><span>✓</span><div><b>Gerar relatórios e métricas</b><small>Exportar dados e acompanhar indicadores.</small></div></article><article><span>✓</span><div><b>Publicar notificações institucionais</b><small>Enviar avisos e comunicados para os usuários.</small></div></article><article><span>✓</span><div><b>Comunicação com a equipe</b><small>Enviar e receber mensagens de profissionais.</small></div></article></div></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Segurança</h2><p>Altere sua senha periodicamente para manter sua conta protegida.</p></div></div><form class="portal-form" data-demo-form ><div class="portal-form-grid"><label class="span-2">Senha atual<input type="password" required placeholder="Digite sua senha atual"></label><label>Nova senha<input type="password" minlength="8" required placeholder="Mínimo de 8 caracteres"><small>Mínimo 8 caracteres, com maiúsculas, minúsculas e números.</small></label><label>Confirmar nova senha<input type="password" required placeholder="Repita a nova senha"></label></div><div class="portal-form-actions"><span></span><button class="portal-button" type="submit">Alterar senha</button></div><p class="portal-form-feedback" role="status"></p></form></section>
+<section class="portal-danger-zone"><div><b>Transferir gestão do PAP</b><p>Ao transferir a gestão, outra pessoa passará a ser responsável pelas atividades administrativas do PAP.</p></div><button class="portal-danger-button" type="button" data-pending-backend="A transferência de gestão deverá ser validada e realizada pelo back-end">Transferir gestão</button></section></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>

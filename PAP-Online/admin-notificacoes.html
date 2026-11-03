@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Notificações</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portais.css">
+</head>
+<body class="portal-body">
+  <div class="portal-app">
+    <aside class="portal-sidebar">
+      <div class="portal-brand"><span class="portal-brand-mark">PAP</span><strong>PAP Online</strong></div>
+      <nav class="portal-navigation" aria-label="Menu principal"><a class="portal-nav-link" href="admin-inicial.html"><span class="portal-nav-icon">⌂</span><span>Início</span></a><a class="portal-nav-link" href="admin-profissionais.html"><span class="portal-nav-icon">♙</span><span>Profissionais</span></a><a class="portal-nav-link" href="admin-alunos.html"><span class="portal-nav-icon">♧</span><span>Alunos</span></a><a class="portal-nav-link" href="admin-mensagens.html"><span class="portal-nav-icon">✉</span><span>Mensagens</span></a><a class="portal-nav-link" href="admin-relatorios.html"><span class="portal-nav-icon">▤</span><span>Relatórios</span></a><a class="portal-nav-link active" href="admin-notificacoes.html"><span class="portal-nav-icon">♢</span><span>Notificações</span></a><a class="portal-nav-link" href="admin-perfil.html"><span class="portal-nav-icon">⚙</span><span>Perfil</span></a></nav>
+      <button class="portal-exit" type="button" data-role-logout><span class="portal-nav-icon">↪</span><span>Sair</span></button>
+    </aside>
+    <main class="portal-main">
+      <header class="portal-topbar">
+        <div class="portal-heading"><h1>Notificações</h1><p>Publique comunicados institucionais e acompanhe os avisos enviados.</p></div>
+        <div class="portal-top-actions">
+          <div class="portal-user-chip"><span class="portal-avatar" data-user-avatar>US</span><span><b data-user-name>Usuário</b><small data-user-detail>Dados não carregados</small></span></div>
+          <button class="portal-notification" type="button" data-pending-backend="As notificações serão conectadas ao back-end" aria-label="Notificações">♧</button>
+        </div>
+      </header>
+      <section class="portal-content">
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Publicar comunicado</h2><p>Crie avisos para os estudantes e profissionais do PAP.</p></div></div>
+<form class="portal-form" data-demo-form ><div class="portal-form-grid"><label>Título do comunicado<input required placeholder="Ex.: Horário especial de atendimento"></label><label>Categoria<select required><option value="">Selecione...</option><option>Institucional</option><option>Evento</option><option>Manutenção</option><option>Orientação</option></select></label><label>Público destinatário<select required><option value="">Selecione...</option><option>Todos os usuários</option><option>Estudantes</option><option>Profissionais</option></select></label><label>Data de publicação<input type="date" required></label><label class="span-2">Mensagem<textarea rows="4" required placeholder="Escreva o conteúdo do comunicado..."></textarea></label></div><div class="portal-form-actions"><span class="portal-help-text">Revise o conteúdo antes de publicar.</span><button class="portal-button" type="submit">Publicar comunicado</button></div><p class="portal-form-feedback" role="status"></p></form></section>
+<section class="portal-panel"><div class="portal-panel-head"><div><h2>Comunicados publicados</h2><p>Histórico de avisos carregado pelo backend</p></div><select class="portal-filter-select"><option>Todos os comunicados</option><option>Ativos</option><option>Arquivados</option></select></div>
+
+
+
+</section></section>
+
+    </main>
+  </div>
+
+
+<script src="js/api-config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/portais.js"></script></body></html>
