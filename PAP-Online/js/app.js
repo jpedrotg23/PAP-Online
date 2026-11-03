@@ -1,8 +1,106 @@
-﻿document.querySelectorAll('[data-toggle]').forEach(button=>button.addEventListener('click',()=>{const input=document.getElementById(button.dataset.toggle);if(input)input.type=input.type==='password'?'text':'password';}));
-const login=document.getElementById('loginForm');if(login)login.addEventListener('submit',async event=>{event.preventDefault();const role=login.querySelector('[name="accessRole"]:checked')?.value;const notice=document.getElementById('loginNotice');const identifier=document.getElementById('loginIdentifier');const password=document.getElementById('loginPassword');if(!role){if(notice)notice.textContent='Selecione o tipo de acesso desejado.';return;}if(!identifier?.value.trim()||!password?.value){if(notice)notice.textContent='Preencha o e-mail ou telefone e a senha.';return;}if(window.PAPAuth.isLocalHost()&&!window.PAPAuth.isBackendConfigured()){window.PAPAuth.startPreview(role);return;}window.PAPAuth.clearPreview();try{const identity=await window.PAPApi.auth.login({identifier:identifier.value,password:password.value,requestedRole:role});const authorized=window.PAPAuth.getBackendRole(identity);if(!authorized)window.PAPAuth.showNotice('A conta não possui um perfil autorizado. Entre em contato com a instituição.');else if(authorized!==role)window.PAPAuth.showNotice('O perfil da conta não corresponde ao tipo de acesso selecionado.');else window.PAPAuth.redirectForProfile(identity);}catch(error){window.PAPAuth.showNotice(error.message==='BACKEND_NOT_CONFIGURED'?'A autenticação ainda não está conectada ao backend. Solicite à equipe técnica a configuração da API.':error.status===401?'Credenciais inválidas.':error.message||'Não foi possível acessar o servidor.');}});
-const signup=document.getElementById('signupForm');if(signup)signup.addEventListener('submit',event=>{event.preventDefault();const p=document.getElementById('newPassword'),c=document.getElementById('confirmPassword'),n=document.getElementById('signupNotice');if(p&&c&&p.value!==c.value){if(n)n.textContent='As senhas não coincidem.';return;}if(n)n.textContent='O cadastro público precisa ser conectado ao backend antes de criar uma conta de estudante.';});
-const np=document.getElementById('newPassword');if(np)np.addEventListener('input',()=>{const value=np.value,score=[value.length>=8,/[A-Z]/.test(value),/[a-z]/.test(value),/[0-9]/.test(value)].filter(Boolean).length;document.getElementById('strengthBar')?.style.setProperty('width',score*25+'%');const text=document.getElementById('strengthText');if(text)text.textContent=['Muito fraca','Fraca','Média','Boa','Forte'][score];});
-const recover=document.getElementById('recoverForm');if(recover)recover.addEventListener('submit',e=>{e.preventDefault();const n=document.getElementById('recoverNotice');if(n)n.textContent='A recuperação de senha depende da integração com o backend.';});
-const code=document.getElementById('codeForm');if(code){const inputs=[...document.querySelectorAll('.code-inputs input')];inputs.forEach((input,i)=>input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,1);if(input.value&&inputs[i+1])inputs[i+1].focus();}));code.addEventListener('submit',e=>{e.preventDefault();const n=document.getElementById('codeNotice');if(n)n.textContent='A validação do código depende da integração com o backend.';});}
-const reset=document.getElementById('resetForm');if(reset)reset.addEventListener('submit',e=>{e.preventDefault();const n=document.getElementById('resetNotice'),p=document.getElementById('resetPassword'),c=document.getElementById('resetConfirm');if(n)n.textContent=p.value===c.value?'A alteração da senha depende da integração com o backend.':'As senhas não coincidem.';});
-document.querySelectorAll('[data-pending-backend]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();const live=button.closest('form')?.querySelector('[role="status"]')||document.getElementById('loginNotice');if(live)live.textContent=button.dataset.pendingBackend||'Esta operação depende da integração com o backend.';}));
+document.querySelectorAll('[data-toggle]').forEach(button => button.addEventListener('click', () => {
+  const input = document.getElementById(button.dataset.toggle);
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}));
+
+const login = document.getElementById('loginForm');
+if (login) login.addEventListener('submit', async event => {
+  event.preventDefault();
+  const role = login.querySelector('[name="accessRole"]:checked')?.value;
+  const notice = document.getElementById('loginNotice');
+  const identifier = document.getElementById('loginIdentifier');
+  const password = document.getElementById('loginPassword');
+
+  if (!role) {
+    if (notice) notice.textContent = 'Selecione o tipo de acesso desejado.';
+    return;
+  }
+  if (!identifier?.value.trim() || !password?.value) {
+    if (notice) notice.textContent = 'Preencha o e-mail ou telefone e a senha.';
+    return;
+  }
+
+  if (window.PAPAuth.canUsePreview()) {
+    window.PAPAuth.startPreview(role);
+    return;
+  }
+
+  window.PAPAuth.clearPreview();
+  try {
+    const identity = await window.PAPApi.auth.login({
+      identifier: identifier.value,
+      password: password.value,
+      requestedRole: role
+    });
+    const authorized = window.PAPAuth.getBackendRole(identity);
+    if (!authorized) window.PAPAuth.showNotice('A conta não possui um perfil autorizado. Entre em contato com a instituição.');
+    else if (authorized !== role) window.PAPAuth.showNotice('O perfil da conta não corresponde ao tipo de acesso selecionado.');
+    else window.PAPAuth.redirectForProfile(identity);
+  } catch (error) {
+    window.PAPAuth.showNotice(
+      error.message === 'BACKEND_NOT_CONFIGURED'
+        ? 'A autenticação ainda não está conectada ao backend. Solicite à equipe técnica a configuração da API.'
+        : error.status === 401
+          ? 'Credenciais inválidas.'
+          : error.message || 'Não foi possível acessar o servidor.'
+    );
+  }
+});
+
+const signup = document.getElementById('signupForm');
+if (signup) signup.addEventListener('submit', event => {
+  event.preventDefault();
+  const p = document.getElementById('newPassword');
+  const c = document.getElementById('confirmPassword');
+  const n = document.getElementById('signupNotice');
+  if (p && c && p.value !== c.value) {
+    if (n) n.textContent = 'As senhas não coincidem.';
+    return;
+  }
+  if (n) n.textContent = 'O cadastro público precisa ser conectado ao backend antes de criar uma conta de estudante.';
+});
+
+const np = document.getElementById('newPassword');
+if (np) np.addEventListener('input', () => {
+  const value = np.value;
+  const score = [value.length >= 8, /[A-Z]/.test(value), /[a-z]/.test(value), /[0-9]/.test(value)].filter(Boolean).length;
+  document.getElementById('strengthBar')?.style.setProperty('width', score * 25 + '%');
+  const text = document.getElementById('strengthText');
+  if (text) text.textContent = ['Muito fraca', 'Fraca', 'Média', 'Boa', 'Forte'][score];
+});
+
+const recover = document.getElementById('recoverForm');
+if (recover) recover.addEventListener('submit', e => {
+  e.preventDefault();
+  const n = document.getElementById('recoverNotice');
+  if (n) n.textContent = 'A recuperação de senha depende da integração com o backend.';
+});
+
+const code = document.getElementById('codeForm');
+if (code) {
+  const inputs = [...document.querySelectorAll('.code-inputs input')];
+  inputs.forEach((input, i) => input.addEventListener('input', () => {
+    input.value = input.value.replace(/\D/g, '').slice(0, 1);
+    if (input.value && inputs[i + 1]) inputs[i + 1].focus();
+  }));
+  code.addEventListener('submit', e => {
+    e.preventDefault();
+    const n = document.getElementById('codeNotice');
+    if (n) n.textContent = 'A validação do código depende da integração com o backend.';
+  });
+}
+
+const reset = document.getElementById('resetForm');
+if (reset) reset.addEventListener('submit', e => {
+  e.preventDefault();
+  const n = document.getElementById('resetNotice');
+  const p = document.getElementById('resetPassword');
+  const c = document.getElementById('resetConfirm');
+  if (n) n.textContent = p.value === c.value ? 'A alteração da senha depende da integração com o backend.' : 'As senhas não coincidem.';
+});
+
+document.querySelectorAll('[data-pending-backend]').forEach(button => button.addEventListener('click', event => {
+  event.preventDefault();
+  const live = button.closest('form')?.querySelector('[role="status"]') || document.getElementById('loginNotice');
+  if (live) live.textContent = button.dataset.pendingBackend || 'Esta operação depende da integração com o backend.';
+}));

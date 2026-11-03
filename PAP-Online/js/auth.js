@@ -37,16 +37,32 @@
   }
 
   function isLocalHost() {
-    return ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+    const hostname = String(location.hostname || '').replace(/^\[|\]$/g, '');
+    return ['localhost', '127.0.0.1', '::1'].includes(hostname);
+  }
+
+  function isProjectGitHubPages() {
+    return location.hostname === 'jpedrotg23.github.io'
+      && (location.pathname === '/PAP-Online/' || location.pathname.startsWith('/PAP-Online/'));
+  }
+
+  function isPreviewEnvironment() {
+    return isLocalHost() || isProjectGitHubPages();
   }
 
   function isBackendConfigured() {
-    return Boolean(window.PAP_CONFIG && window.PAP_CONFIG.API_BASE_URL);
+    return Boolean(window.PAP_CONFIG && String(window.PAP_CONFIG.API_BASE_URL || '').trim());
+  }
+
+  function canUsePreview() {
+    return isPreviewEnvironment()
+      && Boolean(window.PAP_CONFIG && window.PAP_CONFIG.ENABLE_PREVIEW === true)
+      && !isBackendConfigured();
   }
 
   function getPreviewRole() {
     try {
-      if (!isLocalHost() || isBackendConfigured() || sessionStorage.getItem(PREVIEW_MODE_KEY) !== 'true') return null;
+      if (!canUsePreview() || sessionStorage.getItem(PREVIEW_MODE_KEY) !== 'true') return null;
       return normalizeRole(sessionStorage.getItem(PREVIEW_ROLE_KEY));
     } catch (_) {
       return null;
@@ -61,7 +77,7 @@
   }
 
   function startPreview(role) {
-    if (!isLocalHost() || isBackendConfigured()) return false;
+    if (!canUsePreview()) return false;
     const normalizedRole = normalizeRole(role);
     if (!normalizedRole) return false;
     try {
@@ -87,17 +103,28 @@
     notice.className = isError ? 'notice notice-error' : 'notice notice-success';
   }
 
+  function showPreviewBanner() {
+    if (!getPreviewRole() || document.getElementById('pap-preview-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'pap-preview-banner';
+    banner.textContent = 'MODO DE DEMONSTRAÇÃO — BACKEND NÃO CONECTADO';
+    banner.setAttribute('role', 'status');
+    banner.style.cssText = 'position:fixed;z-index:9999;left:50%;bottom:12px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:7px 12px;border:1px solid #d7a94a;border-radius:999px;background:#fff8df;color:#765a16;font-size:10px;font-weight:700;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.08)';
+    document.body.appendChild(banner);
+  }
+
   async function checkSession() {
-    if (!isLocalHost() || isBackendConfigured()) clearPreview();
     const previewRole = getPreviewRole();
+    if (!canUsePreview()) clearPreview();
 
     if (previewRole) {
+      showPreviewBanner();
       if (!fileRole) location.href = ROUTES[previewRole];
       else if (previewRole !== fileRole) location.href = ROUTES[previewRole];
       return;
     }
 
-    if (!fileRole || !window.PAPApi) return;
+    if (!fileRole || !window.PAPApi || !isBackendConfigured()) return;
 
     try {
       const identity = await window.PAPApi.auth.session();
@@ -137,6 +164,7 @@
     showNotice,
     isLocalHost,
     isBackendConfigured,
+    canUsePreview,
     getPreviewRole,
     clearPreview,
     startPreview
