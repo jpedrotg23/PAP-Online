@@ -25,21 +25,30 @@ A proposta surgiu a partir da percepção de que muitos estudantes podem não co
 
 O sistema busca centralizar essas informações e serviços em uma plataforma web simples, acessível e organizada, aproximando o PAP dos estudantes e facilitando o trabalho dos profissionais responsáveis pelos atendimentos.
 
-> 🚧 **Status: Em desenvolvimento**
+> 🚧 **Status: Em desenvolvimento. O frontend está publicado; o backend ainda será iniciado pela equipe responsável.**
 
 ---
 
-## 🛠️ Tecnologias
+## 🛠️ Tecnologias e arquitetura planejada
 
-<p>
-  <img src="https://skillicons.dev/icons?i=java,spring" alt="Java e Spring">
-</p>
+O projeto está dividido em duas partes:
 
-| Tecnologia |
-|:---|
-| ☕ **Java** |
-| 🍃 **Spring Boot** |
-| 🌐 **Spring Web** |
+| Camada | Tecnologias | Estado |
+|:---|:---|:---|
+| **Frontend** | HTML5, CSS3 e JavaScript | Implementado e publicado |
+| **Backend** | Java, Spring Boot e Spring Web | Planejado; desenvolvimento ainda não iniciado |
+
+A equipe de backend utilizará Java com Spring Boot e Spring Web para disponibilizar uma API HTTP/REST consumida pelo frontend. O uso de Spring Security é uma opção recomendada para a implementação de autenticação e autorização, mas deverá ser confirmado pela equipe de backend.
+
+**Importante:** Java, Spring Boot e Spring Web representam a stack definida para o backend. Eles ainda não estão implementados neste repositório. O código atualmente disponível na pasta `PAP-Online/` é o frontend estático em HTML, CSS e JavaScript.
+
+## 🌐 Acessar o frontend
+
+- **Demonstração publicada:** https://jpedrotg23.github.io/PAP-Online/
+- **Repositório:** https://github.com/jpedrotg23/PAP-Online
+- **Documentação de integração:** [PAP-Online/CONTRATO-BACKEND.md](PAP-Online/CONTRATO-BACKEND.md)
+
+O modo demonstrativo permite navegar pelas áreas de aluno, profissional e administrador sem autenticação real. Ele serve somente para apresentação do frontend e não deve ser utilizado para dados pessoais ou operações reais.
 
 ---
 
@@ -127,7 +136,7 @@ O sistema **não pretende substituir os profissionais do PAP**. Seu objetivo é 
 
 ---
 
-## ⚙️ Funcionalidades
+## ⚙️ Funcionalidades previstas
 
 ### 🔐 Autenticação
 
