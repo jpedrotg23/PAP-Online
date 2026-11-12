@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Agendar atendimento</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    /* ============ Stepper ============ */
+    .agendar-stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 15px 20px;
+      background: #fff;
+      border: 1px solid var(--portal-line);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .agendar-stepper .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8995a9;
+      white-space: nowrap;
+    }
+    .agendar-stepper .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #f1f4f9;
+      color: #7c8ba4;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .agendar-stepper .step.current { color: #2059dc; }
+    .agendar-stepper .step.current .step-num {
+      background: #2059dc;
+      color: #fff;
+    }
+    .agendar-stepper .step.done { color: #0b8b61; }
+    .agendar-stepper .step.done .step-num {
+      background: #e5f6ef;
+      color: #0b8b61;
+    }
+    .agendar-stepper .divisor {
+      flex: 1;
+      height: 1px;
+      background: #e4eaf2;
+      min-width: 20px;
+    }
+
+    /* ============ Reveal animado ============ */
+    .reveal {
+      animation: revealUp 0.35s ease both;
+    }
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============ Áreas ============ */
+    .area-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .area-card {
+      padding: 18px 20px;
+      border: 1.5px solid var(--portal-line);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+    .area-card:hover {
+      border-color: #7ba1f5;
+      background: #f7faff;
+    }
+    .area-card.selecionada {
+      border-color: #2059dc;
+      background: #f0f5ff;
+      box-shadow: 0 0 0 3px rgba(32,89,220,.10);
+    }
+    .area-card-icone {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #e8f0ff;
+      color: #2059dc;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .area-card-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--portal-text);
+      margin: 0 0 5px;
+      text-transform: capitalize;
+    }
+    .area-card-descricao {
+      font-size: 12px;
+      color: var(--portal-muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ============ Profissionais ============ */
+    .profissionais-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .prof-card {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px;
+      border: 1.5px solid var(--portal-line);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+    .prof-card:hover {
+      border-color: #7ba1f5;
+      background: #f7faff;
+    }
+    .prof-card.selecionado {
+      border-color: #2059dc;
+      background: #f0f5ff;
+      box-shadow: 0 0 0 3px rgba(32,89,220,.10);
+    }
+    .prof-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #3b7bea;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .prof-info { flex: 1; min-width: 0; }
+    .prof-nome {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--portal-text);
+      margin: 0 0 3px;
+      line-height: 1.3;
+    }
+    .prof-detalhe {
+      font-size: 11px;
+      color: var(--portal-muted);
+      line-height: 1.4;
+    }
+
+    /* ============ Horários ============ */
+    .horarios-grupos {
+      display: grid;
+      gap: 12px;
+    }
+    .dia-grupo {
+      border: 1px solid var(--portal-line);
+      border-radius: 11px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    .dia-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--portal-text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dia-header .badge-qtd {
+      font-size: 10px;
+      font-weight: 600;
+      color: #2059dc;
+      background: #e8f0ff;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+    .slots-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .slot-btn {
+      padding: 8px 15px;
+      border: 1.5px solid #dfe6f1;
+      border-radius: 8px;
+      background: #fff;
+      color: #34415a;
+      font: 600 12px Inter, Arial, sans-serif;
+      cursor: pointer;
+      transition: border-color .12s, background .12s, color .12s;
+    }
+    .slot-btn:hover {
+      border-color: #7ba1f5;
+      background: #f7faff;
+      color: #2059dc;
+    }
+    .slot-btn.selecionado {
+      background: #2059dc;
+      color: #fff;
+      border-color: #2059dc;
+    }
+
+    /* ============ Modalidade ============ */
+    .modalidade-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .modal-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border: 1.5px solid var(--portal-line);
+      border-radius: 11px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .15s, background .15s;
+    }
+    .modal-card:hover { border-color: #7ba1f5; background: #f7faff; }
+    .modal-card.selecionada {
+      border-color: #2059dc;
+      background: #f0f5ff;
+      box-shadow: 0 0 0 3px rgba(32,89,220,.10);
+    }
+    .modal-icone {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: #e8f0ff;
+      color: #2059dc;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .modal-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--portal-text);
+      margin: 0;
+    }
+    .modal-descricao {
+      font-size: 11px;
+      color: var(--portal-muted);
+      margin: 2px 0 0;
+    }
+
+    /* ============ Confirmação ============ */
+    .confirmacao-box {
+      border: 2px solid #2059dc;
+      border-radius: 14px;
+      padding: 22px 24px;
+      background: linear-gradient(180deg, #f7faff, #fff);
+    }
+    .confirmacao-titulo {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--portal-text);
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .confirmacao-titulo::before {
+      content: "✓";
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2059dc;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .confirmacao-itens {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .confirmacao-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #e4eaf2;
+    }
+    .confirmacao-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .confirmacao-item dt {
+      color: var(--portal-muted);
+      font-weight: 500;
+    }
+    .confirmacao-item dd {
+      color: var(--portal-text);
+      font-weight: 700;
+      text-align: right;
+      margin: 0;
+    }
+    .confirmacao-acoes {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* ============ Estado vazio ============ */
+    .estado-vazio {
+      padding: 24px;
+      text-align: center;
+      border: 1px dashed #dfe6f1;
+      border-radius: 12px;
+      color: var(--portal-muted);
+      font-size: 12px;
+      background: #fbfcfe;
+    }
+    .estado-vazio b { color: #34415a; display: block; margin-bottom: 5px; font-size: 13px; }
+
+    /* ============ Sucesso final ============ */
+    .sucesso-card {
+      border: 2px solid #0b8b61;
+      border-radius: 14px;
+      padding: 28px 26px;
+      background: linear-gradient(180deg, #f0faf5, #fff);
+      text-align: center;
+    }
+    .sucesso-card .sucesso-icone {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #e5f6ef;
+      color: #0b8b61;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      font-weight: 800;
+      margin: 0 auto 14px;
+    }
+    .sucesso-card h3 {
+      font-size: 17px;
+      color: var(--portal-text);
+      margin: 0 0 6px;
+    }
+    .sucesso-card p {
+      font-size: 12px;
+      color: var(--portal-muted);
+      margin: 0 0 18px;
+      line-height: 1.55;
+    }
+    .sucesso-card .protocolo {
+      display: inline-block;
+      padding: 6px 14px;
+      background: #fff;
+      border: 1px solid #b8e4d3;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0b8b61;
+      margin-bottom: 18px;
+    }
+
+    /* ============ Responsivo ============ */
+    @media (max-width: 760px) {
+      .area-cards,
+      .profissionais-grid,
+      .modalidade-grid {
+        grid-template-columns: 1fr;
+      }
+      .agendar-stepper {
+        overflow-x: auto;
+        font-size: 11px;
+      }
+      .agendar-stepper .step { font-size: 10px; }
+      .confirmacao-acoes { flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link active" href="/aluno/aluno-agendar.html">
+        <span class="portal-nav-icon">▦</span><span>Agendar</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-adaptacoes.html">
+        <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-historico.html">
+        <span class="portal-nav-icon">▤</span><span>Histórico</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-perfil.html">
+        <span class="portal-nav-icon">♙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Agendar atendimento</h1>
+        <p>Encontre um profissional e escolha o melhor horário para você.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Alerta global -->
+      <div id="alertaGlobal" class="portal-info-box" style="display:none;margin-bottom:4px;"></div>
+
+      <!-- Stepper -->
+      <div class="agendar-stepper">
+        <div class="step current" id="step1">
+          <span class="step-num">1</span>
+          <span>Área de atendimento</span>
+        </div>
+        <div class="divisor"></div>
+        <div class="step" id="step2">
+          <span class="step-num">2</span>
+          <span>Profissional e horário</span>
+        </div>
+        <div class="divisor"></div>
+        <div class="step" id="step3">
+          <span class="step-num">3</span>
+          <span>Confirmação</span>
+        </div>
+      </div>
+
+      <!-- ============ 1. ÁREA ============ -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>1. Escolha a área de atendimento</h2>
+            <p>Selecione o serviço que você procura.</p>
+          </div>
+        </div>
+        <div id="areaCards" class="area-cards">
+          <div class="estado-vazio">
+            <b>Carregando áreas…</b>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 2. PROFISSIONAL + HORÁRIO ============ -->
+      <section class="portal-panel" id="secaoProfissional" style="display:none">
+        <div class="portal-panel-head">
+          <div>
+            <h2>2. Escolha o profissional e o horário</h2>
+            <p>Selecione quem vai te atender e qual horário prefere.</p>
+          </div>
+        </div>
+
+        <div id="profissionaisGrid" class="profissionais-grid" style="margin-bottom:20px">
+          <div class="estado-vazio"><b>Carregando profissionais…</b></div>
+        </div>
+
+        <div id="blocoHorarios" style="display:none;margin-top:20px">
+          <div class="portal-panel-head" style="margin-bottom:14px">
+            <div>
+              <h2 style="font-size:14px">Horários disponíveis</h2>
+              <p>Escolha o dia e o horário de sua preferência.</p>
+            </div>
+          </div>
+          <div id="horariosGrupos" class="horarios-grupos">
+            <div class="estado-vazio"><b>Carregando horários…</b></div>
+          </div>
+        </div>
+
+        <div id="blocoModalidade" style="display:none;margin-top:24px">
+          <div class="portal-panel-head" style="margin-bottom:14px">
+            <div>
+              <h2 style="font-size:14px">Modalidade</h2>
+              <p>Como você prefere ser atendido?</p>
+            </div>
+          </div>
+          <div class="modalidade-grid">
+            <button type="button" class="modal-card" data-modalidade="PRESENCIAL">
+              <span class="modal-icone">📍</span>
+              <div>
+                <p class="modal-titulo">Presencial</p>
+                <p class="modal-descricao">Bloco D · Sala 204</p>
+              </div>
+            </button>
+            <button type="button" class="modal-card" data-modalidade="REMOTO">
+              <span class="modal-icone">💻</span>
+              <div>
+                <p class="modal-titulo">Remoto</p>
+                <p class="modal-descricao">Google Meet</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 3. CONFIRMAÇÃO ============ -->
+      <section class="portal-panel" id="secaoConfirmacao" style="display:none">
+        <div class="portal-panel-head">
+          <div>
+            <h2>3. Confirme seu agendamento</h2>
+            <p>Revise os dados antes de enviar.</p>
+          </div>
+        </div>
+
+        <div class="confirmacao-box">
+          <h3 class="confirmacao-titulo">Resumo do agendamento</h3>
+          <dl class="confirmacao-itens">
+            <div class="confirmacao-item">
+              <dt>Área</dt>
+              <dd id="confArea">—</dd>
+            </div>
+            <div class="confirmacao-item">
+              <dt>Profissional</dt>
+              <dd id="confProfissional">—</dd>
+            </div>
+            <div class="confirmacao-item">
+              <dt>Data</dt>
+              <dd id="confData">—</dd>
+            </div>
+            <div class="confirmacao-item">
+              <dt>Horário</dt>
+              <dd id="confHorario">—</dd>
+            </div>
+            <div class="confirmacao-item">
+              <dt>Modalidade</dt>
+              <dd id="confModalidade">—</dd>
+            </div>
+          </dl>
+          <div class="confirmacao-acoes">
+            <button type="button" class="portal-outline-button" id="btnVoltar">
+              Voltar
+            </button>
+            <button type="button" class="portal-button" id="btnConfirmar">
+              Confirmar agendamento
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SUCESSO ============ -->
+      <section class="portal-panel" id="secaoSucesso" style="display:none">
+        <div class="sucesso-card">
+          <div class="sucesso-icone">✓</div>
+          <h3>Agendamento confirmado!</h3>
+          <p>Seu atendimento foi registrado. Você receberá um lembrete 24 horas antes.</p>
+          <div class="protocolo" id="protocoloSucesso">—</div>
+          <div class="confirmacao-acoes" style="justify-content:center">
+            <a class="portal-outline-button" href="/aluno/aluno-inicial.html">Ir para o início</a>
+            <a class="portal-button" href="/aluno/aluno-historico.html">Ver histórico</a>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET  /areas
+    //   GET  /profissionais
+    //   GET  /horarios/profissional/{id}/disponiveis
+    //   POST /atendimentos
+
+    const state = {
+      usuario: null,
+      areas: [],
+      profissionais: [],
+      horarios: [],
+      areaSelecionada: null,
+      profissionalSelecionado: null,
+      slotSelecionado: null,
+      modalidade: null
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function normalizarHora(hora) {
+      if (!hora) return '00:00';
+      return hora.length > 5 ? hora.substring(0, 5) : hora;
+    }
+
+    function formatarDataLonga(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('pt-BR', {
+        weekday: 'short', day: '2-digit', month: 'long'
+      });
+    }
+
+    function formatarDiaSemana(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('pt-BR', { weekday: 'short' })
+              .replace('.', '').toUpperCase();
+    }
+
+    function mostrarAlerta(mensagem, tipo = 'info') {
+      const el = document.getElementById('alertaGlobal');
+      if (!el) return;
+      el.textContent = mensagem;
+      el.style.display = 'block';
+      el.style.background = tipo === 'erro' ? '#fdecea' : tipo === 'sucesso' ? '#e7f6f0' : '#f0f5ff';
+      el.style.color = tipo === 'erro' ? '#b42318' : tipo === 'sucesso' ? '#067647' : '#3b5a9a';
+      el.style.border = '1px solid ' + (tipo === 'erro' ? '#f7c9c4' : tipo === 'sucesso' ? '#b8e4d3' : '#c7d9f5');
+    }
+
+    function esconderAlerta() {
+      const el = document.getElementById('alertaGlobal');
+      if (el) el.style.display = 'none';
+    }
+
+    function atualizarStepper(etapa) {
+      ['step1', 'step2', 'step3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('current', 'done');
+        if (i + 1 < etapa) el.classList.add('done');
+        else if (i + 1 === etapa) el.classList.add('current');
+      });
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Aluno');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Carregar áreas ----------
+    async function carregarAreas() {
+      const container = document.getElementById('areaCards');
+      try {
+        const r = await fetch('/areas', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.areas = await r.json();
+
+        if (!state.areas.length) {
+          container.innerHTML = `<div class="estado-vazio"><b>Nenhuma área disponível</b>As áreas de atendimento ainda não foram cadastradas.</div>`;
+          return;
+        }
+
+        const icones = {
+          'PSICOLOGIA': '🧠',
+          'PSICOPEDAGOGIA': '📚'
+        };
+
+        container.innerHTML = state.areas.map(a => `
+        <button type="button" class="area-card" data-area-id="${a.id}">
+          <div class="area-card-icone">${icones[a.nome] || '◈'}</div>
+          <h3 class="area-card-titulo">${escapeHtml(a.nome.toLowerCase())}</h3>
+          <p class="area-card-descricao">${escapeHtml(a.descricao || '')}</p>
+        </button>
+      `).join('');
+
+        container.querySelectorAll('.area-card').forEach(btn => {
+          btn.addEventListener('click', () => selecionarArea(Number(btn.dataset.areaId)));
+        });
+      } catch (e) {
+        console.error('Erro ao carregar áreas', e);
+        container.innerHTML = `<div class="estado-vazio"><b>Não foi possível carregar as áreas</b>Tente novamente mais tarde.</div>`;
+      }
+    }
+
+    // ---------- 4. Selecionar área ----------
+    async function selecionarArea(areaId) {
+      esconderAlerta();
+      state.areaSelecionada = state.areas.find(a => a.id === areaId) || null;
+      if (!state.areaSelecionada) return;
+
+      document.querySelectorAll('.area-card').forEach(el => {
+        el.classList.toggle('selecionada', Number(el.dataset.areaId) === areaId);
+      });
+
+      document.getElementById('secaoProfissional').style.display = '';
+      document.getElementById('secaoProfissional').classList.add('reveal');
+      atualizarStepper(2);
+
+      // Reset dos passos seguintes
+      state.profissionalSelecionado = null;
+      state.slotSelecionado = null;
+      state.modalidade = null;
+      document.getElementById('blocoHorarios').style.display = 'none';
+      document.getElementById('blocoModalidade').style.display = 'none';
+      document.getElementById('secaoConfirmacao').style.display = 'none';
+      document.querySelectorAll('.modal-card').forEach(el => el.classList.remove('selecionada'));
+
+      await carregarProfissionais();
+      document.getElementById('secaoProfissional').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ---------- 5. Carregar profissionais ----------
+    async function carregarProfissionais() {
+      const container = document.getElementById('profissionaisGrid');
+      container.innerHTML = `<div class="estado-vazio"><b>Carregando profissionais…</b></div>`;
+
+      try {
+        const r = await fetch('/profissionais', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const todos = await r.json();
+
+        // Filtro "best-effort" por cargo (o backend não tem relação direta área↔profissional)
+        const areaNome = state.areaSelecionada.nome;
+        const filtrados = todos.filter(p => {
+          const cargo = (p.cargo || '').toLowerCase();
+          if (areaNome === 'PSICOLOGIA') return cargo.includes('psicolog');
+          if (areaNome === 'PSICOPEDAGOGIA') return cargo.includes('psicopedagog');
+          return true;
+        });
+
+        state.profissionais = filtrados.length ? filtrados : todos;
+
+        if (!state.profissionais.length) {
+          container.innerHTML = `<div class="estado-vazio"><b>Nenhum profissional disponível</b>Não há profissionais cadastrados para esta área.</div>`;
+          return;
+        }
+
+        container.innerHTML = state.profissionais.map(p => `
+        <button type="button" class="prof-card" data-prof-id="${p.id}">
+          <span class="prof-avatar">${iniciais(p.nome)}</span>
+          <div class="prof-info">
+            <p class="prof-nome">${escapeHtml(p.nome)}</p>
+            <p class="prof-detalhe">${escapeHtml(p.crp || 'CRP não informado')} · ${escapeHtml(p.cargo || 'Profissional')}</p>
+          </div>
+        </button>
+      `).join('');
+
+        container.querySelectorAll('.prof-card').forEach(btn => {
+          btn.addEventListener('click', () => selecionarProfissional(Number(btn.dataset.profId)));
+        });
+      } catch (e) {
+        console.error('Erro ao carregar profissionais', e);
+        container.innerHTML = `<div class="estado-vazio"><b>Não foi possível carregar os profissionais</b>Tente novamente mais tarde.</div>`;
+      }
+    }
+
+    // ---------- 6. Selecionar profissional ----------
+    async function selecionarProfissional(profId) {
+      esconderAlerta();
+      state.profissionalSelecionado = state.profissionais.find(p => p.id === profId) || null;
+      if (!state.profissionalSelecionado) return;
+
+      document.querySelectorAll('.prof-card').forEach(el => {
+        el.classList.toggle('selecionado', Number(el.dataset.profId) === profId);
+      });
+
+      // Reset
+      state.slotSelecionado = null;
+      state.modalidade = null;
+      document.getElementById('secaoConfirmacao').style.display = 'none';
+      document.getElementById('blocoModalidade').style.display = 'none';
+      document.querySelectorAll('.modal-card').forEach(el => el.classList.remove('selecionada'));
+
+      document.getElementById('blocoHorarios').style.display = '';
+      document.getElementById('blocoHorarios').classList.add('reveal');
+      await carregarHorarios();
+    }
+
+    // ---------- 7. Carregar horários ----------
+    async function carregarHorarios() {
+      const container = document.getElementById('horariosGrupos');
+      container.innerHTML = `<div class="estado-vazio"><b>Carregando horários…</b></div>`;
+
+      try {
+        const r = await fetch(`/horarios/profissional/${state.profissionalSelecionado.id}/disponiveis`, {
+          credentials: 'include'
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.horarios = await r.json();
+
+        if (!state.horarios.length) {
+          container.innerHTML = `<div class="estado-vazio"><b>Nenhum horário disponível</b>Este profissional ainda não publicou horários. Tente outro profissional ou volte mais tarde.</div>`;
+          return;
+        }
+
+        // Agrupa por data
+        const grupos = {};
+        state.horarios.forEach(h => {
+          if (!grupos[h.data]) grupos[h.data] = [];
+          grupos[h.data].push(h);
+        });
+
+        const datasOrdenadas = Object.keys(grupos).sort();
+
+        container.innerHTML = datasOrdenadas.map(data => {
+          const horariosDoDia = grupos[data].sort((a, b) =>
+                  normalizarHora(a.horaInicio).localeCompare(normalizarHora(b.horaInicio))
+          );
+          return `
+          <div class="dia-grupo">
+            <div class="dia-header">
+              ${formatarDiaSemana(data)} · ${formatarDataLonga(data)}
+              <span class="badge-qtd">${horariosDoDia.length} horário${horariosDoDia.length > 1 ? 's' : ''}</span>
+            </div>
+            <div class="slots-grid">
+              ${horariosDoDia.map(h => `
+                <button type="button" class="slot-btn"
+                        data-data="${h.data}"
+                        data-horario-id="${h.id}"
+                        data-inicio="${normalizarHora(h.horaInicio)}"
+                        data-fim="${normalizarHora(h.horaFim)}">
+                  ${normalizarHora(h.horaInicio)}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        }).join('');
+
+        container.querySelectorAll('.slot-btn').forEach(btn => {
+          btn.addEventListener('click', () => selecionarSlot(btn));
+        });
+      } catch (e) {
+        console.error('Erro ao carregar horários', e);
+        container.innerHTML = `<div class="estado-vazio"><b>Não foi possível carregar os horários</b>Tente novamente mais tarde.</div>`;
+      }
+    }
+
+    // ---------- 8. Selecionar slot ----------
+    function selecionarSlot(btn) {
+      esconderAlerta();
+      document.querySelectorAll('.slot-btn').forEach(el => el.classList.remove('selecionado'));
+      btn.classList.add('selecionado');
+
+      state.slotSelecionado = {
+        horarioId: Number(btn.dataset.horarioId),
+        data: btn.dataset.data,
+        inicio: btn.dataset.inicio,
+        fim: btn.dataset.fim
+      };
+
+      // Se modalidade já foi escolhida, atualiza confirmação
+      if (state.modalidade) {
+        mostrarConfirmacao();
+      } else {
+        document.getElementById('blocoModalidade').style.display = '';
+        document.getElementById('blocoModalidade').classList.add('reveal');
+        document.getElementById('blocoModalidade').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // ---------- 9. Selecionar modalidade ----------
+    function selecionarModalidade(modalidade) {
+      esconderAlerta();
+      state.modalidade = modalidade;
+      document.querySelectorAll('.modal-card').forEach(el => {
+        el.classList.toggle('selecionada', el.dataset.modalidade === modalidade);
+      });
+
+      if (state.slotSelecionado) {
+        mostrarConfirmacao();
+      }
+    }
+
+    // ---------- 10. Mostrar confirmação ----------
+    function mostrarConfirmacao() {
+      if (!state.areaSelecionada || !state.profissionalSelecionado || !state.slotSelecionado || !state.modalidade) {
+        return;
+      }
+
+      set('confArea', state.areaSelecionada.nome.charAt(0) + state.areaSelecionada.nome.slice(1).toLowerCase());
+      set('confProfissional', state.profissionalSelecionado.nome);
+      set('confData', formatarDataLonga(state.slotSelecionado.data));
+      set('confHorario', `${state.slotSelecionado.inicio} — ${state.slotSelecionado.fim}`);
+      set('confModalidade', state.modalidade === 'PRESENCIAL' ? 'Presencial · Bloco D · Sala 204' : 'Remoto · Google Meet');
+
+      document.getElementById('secaoConfirmacao').style.display = '';
+      document.getElementById('secaoConfirmacao').classList.add('reveal');
+      atualizarStepper(3);
+      document.getElementById('secaoConfirmacao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ---------- 11. Confirmar agendamento ----------
+    async function confirmarAgendamento() {
+      if (!state.areaSelecionada || !state.profissionalSelecionado || !state.slotSelecionado || !state.modalidade) {
+        mostrarAlerta('Selecione área, profissional, horário e modalidade.', 'erro');
+        return;
+      }
+
+      const btn = document.getElementById('btnConfirmar');
+      btn.disabled = true;
+      btn.textContent = 'Confirmando…';
+
+      const dataHoraInicio = `${state.slotSelecionado.data}T${state.slotSelecionado.inicio}:00`;
+      const dataHoraFim = `${state.slotSelecionado.data}T${state.slotSelecionado.fim}:00`;
+
+      const payload = {
+        alunoId: state.usuario.id,
+        profissionalId: state.profissionalSelecionado.id,
+        areaId: state.areaSelecionada.id,
+        horarioId: state.slotSelecionado.horarioId,
+        dataHoraInicio,
+        dataHoraFim,
+        modalidade: state.modalidade,
+        local: state.modalidade === 'PRESENCIAL' ? 'Bloco D · Sala 204' : 'Google Meet',
+        status: 'AGENDADO'
+      };
+
+      try {
+        const r = await fetch('/atendimentos', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || 'Erro ao agendar');
+        }
+
+        const criado = await r.json();
+
+        document.getElementById('secaoProfissional').style.display = 'none';
+        document.getElementById('secaoConfirmacao').style.display = 'none';
+        const secaoSucesso = document.getElementById('secaoSucesso');
+        secaoSucesso.style.display = '';
+        secaoSucesso.classList.add('reveal');
+        set('protocoloSucesso', 'Nº ' + criado.id);
+        atualizarStepper(4);
+
+        // Atualiza horários (marca como indisponível na UI)
+        state.slotSelecionado = null;
+        state.modalidade = null;
+        secaoSucesso.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        console.error('Erro ao confirmar agendamento', e);
+        mostrarAlerta(e.message || 'Não foi possível concluir o agendamento.', 'erro');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirmar agendamento';
+      }
+    }
+
+    // ---------- 12. Voltar ----------
+    function voltar() {
+      document.getElementById('secaoConfirmacao').style.display = 'none';
+      document.getElementById('blocoHorarios').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      atualizarStepper(2);
+    }
+
+    // ---------- 13. Eventos ----------
+    function ligarEventos() {
+      document.querySelectorAll('.modal-card').forEach(btn => {
+        btn.addEventListener('click', () => selecionarModalidade(btn.dataset.modalidade));
+      });
+      document.getElementById('btnConfirmar').addEventListener('click', confirmarAgendamento);
+      document.getElementById('btnVoltar').addEventListener('click', voltar);
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarAreas(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Relatórios</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    .pap-loading-overlay{
+      position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+      display:grid;place-items:center;color:#667085;
+      font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+    }
+
+    /* ========== Filtros ========== */
+    .rel-toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:20px;
+      padding:14px 18px;
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:12px;
+    }
+    .rel-toolbar label{
+      font-size:11px;
+      font-weight:600;
+      color:#3b4860;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .rel-toolbar select{
+      height:36px;
+      padding:0 12px;
+      border:1px solid #dfe6f1;
+      border-radius:8px;
+      background:#f8faff;
+      color:#34415a;
+      font:600 11px Inter,Arial,sans-serif;
+      cursor:pointer;
+    }
+    .rel-btn-exportar{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:0 16px;
+      height:36px;
+      border-radius:8px;
+      background:#fff;
+      color:#64738d;
+      border:1px solid #dfe6f1;
+      cursor:pointer;
+      font:700 11px Inter,Arial,sans-serif;
+      margin-left:auto;
+      transition:all .15s;
+    }
+    .rel-btn-exportar:hover{ border-color:#7ba1f5; color:#2059dc; }
+
+    /* ========== Stats ========== */
+    .rel-stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .rel-stat{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:18px;
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:12px;
+    }
+    .rel-stat-ico{
+      width:42px;
+      height:42px;
+      border-radius:11px;
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      flex-shrink:0;
+    }
+    .rel-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
+    .rel-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
+    .rel-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
+    .rel-stat-ico.red{ background:#ffeae8; color:#d42f26; }
+    .rel-stat-ico.purple{ background:#f0e8ff; color:#7732d9; }
+    .rel-stat small{
+      display:block;
+      font-size:10px;
+      color:#7e8ba2;
+      margin-bottom:4px;
+    }
+    .rel-stat strong{
+      font-size:22px;
+      color:var(--portal-text);
+      line-height:1;
+      display:block;
+      margin-bottom:3px;
+    }
+    .rel-stat em{
+      font-style:normal;
+      font-size:10px;
+      color:#94a0b3;
+    }
+
+    /* ========== Grid de gráficos ========== */
+    .rel-grid{
+      display:grid;
+      grid-template-columns:1.5fr 1fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .rel-card{
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:14px;
+      padding:22px 24px;
+    }
+    .rel-card h2{
+      font-size:14px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 5px;
+    }
+    .rel-card p{
+      font-size:11px;
+      color:#7e8ba2;
+      margin:0 0 20px;
+    }
+
+    /* ========== Gráfico de linha ========== */
+    .rel-chart{
+      height:220px;
+      position:relative;
+      padding-bottom:30px;
+    }
+    .rel-chart svg{
+      width:100%;
+      height:100%;
+      overflow:visible;
+    }
+    .rel-chart-eixo-y{
+      position:absolute;
+      left:0;top:0;bottom:30px;
+      width:32px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      font-size:9px;
+      color:#94a0b3;
+      text-align:right;
+      padding-right:6px;
+    }
+    .rel-chart-area{
+      position:absolute;
+      left:38px;right:0;top:0;bottom:30px;
+    }
+    .rel-chart-x{
+      position:absolute;
+      left:38px;right:0;bottom:0;
+      height:24px;
+      display:flex;
+      justify-content:space-around;
+      font-size:9px;
+      color:#94a0b3;
+      align-items:center;
+    }
+
+    /* ========== Barras horizontais ========== */
+    .rel-barras-h{
+      display:grid;
+      gap:14px;
+    }
+    .rel-barra-item{
+      display:grid;
+      gap:6px;
+    }
+    .rel-barra-topo{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      gap:8px;
+    }
+    .rel-barra-nome{
+      font-size:12px;
+      font-weight:600;
+      color:var(--portal-text);
+    }
+    .rel-barra-valor{
+      font-size:11px;
+      font-weight:700;
+      color:#52617a;
+    }
+    .rel-barra-trilha{
+      height:8px;
+      border-radius:99px;
+      background:#eef1f7;
+      overflow:hidden;
+    }
+    .rel-barra-fill{
+      height:100%;
+      border-radius:99px;
+      transition:width .4s ease;
+    }
+    .rel-barra-fill.blue{ background:#2059dc; }
+    .rel-barra-fill.green{ background:#0b8b61; }
+    .rel-barra-fill.orange{ background:#c35b0b; }
+    .rel-barra-fill.red{ background:#d42f26; }
+    .rel-barra-fill.purple{ background:#7732d9; }
+
+    /* ========== Lista ranking ========== */
+    .rel-ranking{
+      display:grid;
+      gap:0;
+    }
+    .rel-ranking-item{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:11px 0;
+      border-top:1px solid #eff2f7;
+    }
+    .rel-ranking-item:first-child{ border-top:0; padding-top:0; }
+    .rel-ranking-pos{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:#f1f4f9;
+      color:#64738d;
+      display:grid;
+      place-items:center;
+      font-size:10px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .rel-ranking-item:nth-child(1) .rel-ranking-pos{ background:#ffd700; color:#7c5e00; }
+    .rel-ranking-item:nth-child(2) .rel-ranking-pos{ background:#e0e0e0; color:#555; }
+    .rel-ranking-item:nth-child(3) .rel-ranking-pos{ background:#f0c8a0; color:#7c4a10; }
+    .rel-ranking-avatar{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:#3b7bea;
+      color:#fff;
+      display:grid;
+      place-items:center;
+      font-size:10px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .rel-ranking-info{
+      flex:1;
+      min-width:0;
+    }
+    .rel-ranking-nome{
+      font-size:12px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .rel-ranking-detalhe{
+      font-size:10px;
+      color:#94a0b3;
+      margin:0;
+    }
+    .rel-ranking-valor{
+      font-size:13px;
+      font-weight:700;
+      color:#2059dc;
+      flex-shrink:0;
+    }
+
+    /* ========== Empty ========== */
+    .rel-empty{
+      padding:30px 20px;
+      text-align:center;
+      border:1px dashed #dfe6f1;
+      border-radius:10px;
+      background:#fbfcfe;
+      color:#75829c;
+      font-size:11px;
+      line-height:1.6;
+    }
+    .rel-empty b{
+      display:block;
+      font-size:12px;
+      color:#34415a;
+      margin-bottom:4px;
+    }
+
+    /* ========== Tabela ========== */
+    .rel-tabela{
+      width:100%;
+      border-collapse:collapse;
+      text-align:left;
+    }
+    .rel-tabela th{
+      padding:10px 12px;
+      background:#f7f9fc;
+      border-bottom:1px solid #edf0f5;
+      font-size:10px;
+      font-weight:700;
+      color:#7e8ba2;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      white-space:nowrap;
+    }
+    .rel-tabela td{
+      padding:12px;
+      border-bottom:1px solid #edf0f5;
+      font-size:12px;
+      color:#52617a;
+    }
+    .rel-tabela tbody tr:last-child td{ border-bottom:0; }
+    .rel-tabela tbody tr:hover{ background:#fafbfe; }
+    .rel-tabela-numero{
+      font-weight:700;
+      color:var(--portal-text);
+      text-align:right;
+      font-variant-numeric:tabular-nums;
+    }
+
+    @media (max-width:1080px){
+      .rel-stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .rel-grid{ grid-template-columns:1fr; }
+    }
+    @media (max-width:760px){
+      .rel-stats{ grid-template-columns:1fr; }
+      .rel-btn-exportar{ width:100%; justify-content:center; margin-left:0; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/admin/admin-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-profissionais.html">
+        <span class="portal-nav-icon">♙</span><span>Profissionais</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-alunos.html">
+        <span class="portal-nav-icon">♧</span><span>Alunos</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link active" href="/admin/admin-relatorios.html">
+        <span class="portal-nav-icon">▤</span><span>Relatórios</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-notificacoes.html">
+        <span class="portal-nav-icon">♢</span><span>Notificações</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-perfil.html">
+        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Relatórios</h1>
+        <p>Acompanhe indicadores gerais de atendimento e utilização do PAP.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Toolbar -->
+      <div class="rel-toolbar">
+        <label>
+          Período
+          <select id="filtroPeriodo">
+            <option value="30d">Últimos 30 dias</option>
+            <option value="3m">Últimos 3 meses</option>
+            <option value="6m" selected>Últimos 6 meses</option>
+            <option value="12m">Últimos 12 meses</option>
+            <option value="all">Todo o período</option>
+          </select>
+        </label>
+        <label>
+          Área
+          <select id="filtroArea">
+            <option value="all">Todas as áreas</option>
+            <option value="Psicologia">Psicologia</option>
+            <option value="Psicopedagogia">Psicopedagogia</option>
+          </select>
+        </label>
+        <button class="rel-btn-exportar" type="button" id="btnExportar">
+          ↓ Exportar CSV
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="rel-stats">
+        <article class="rel-stat">
+          <span class="rel-stat-ico blue">▤</span>
+          <div>
+            <small>Atendimentos no período</small>
+            <strong id="statTotal">—</strong>
+            <em id="statTotalDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="rel-stat">
+          <span class="rel-stat-ico green">✓</span>
+          <div>
+            <small>Taxa de comparecimento</small>
+            <strong id="statComparecimento">—</strong>
+            <em id="statComparecimentoDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="rel-stat">
+          <span class="rel-stat-ico red">✕</span>
+          <div>
+            <small>Taxa de falta</small>
+            <strong id="statFalta">—</strong>
+            <em id="statFaltaDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="rel-stat">
+          <span class="rel-stat-ico purple">♧</span>
+          <div>
+            <small>Solicitações deferidas</small>
+            <strong id="statDeferidas">—</strong>
+            <em id="statDeferidasDetalhe">Carregando…</em>
+          </div>
+        </article>
+      </div>
+
+      <!-- Grid: gráfico de linha + distribuição -->
+      <div class="rel-grid">
+
+        <section class="rel-card">
+          <h2>Atendimentos por mês</h2>
+          <p id="subtituloGrafico">Quantidade de atendimentos registrados no período.</p>
+          <div class="rel-chart" id="graficoLinha">
+            <div class="rel-empty">
+              <b>Carregando…</b>
+              Buscando dados.
+            </div>
+          </div>
+        </section>
+
+        <section class="rel-card">
+          <h2>Distribuição por status</h2>
+          <p>Atendimentos agrupados pela situação atual.</p>
+          <div id="distribuicaoStatus">
+            <div class="rel-empty">
+              <b>Carregando…</b>
+              Buscando dados.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Grid: profissionais + cursos -->
+      <div class="rel-grid">
+
+        <section class="rel-card">
+          <h2>Profissionais por volume de atendimentos</h2>
+          <p>Top 5 profissionais com mais atendimentos no período.</p>
+          <div id="topProfissionais">
+            <div class="rel-empty">
+              <b>Carregando…</b>
+              Buscando dados.
+            </div>
+          </div>
+        </section>
+
+        <section class="rel-card">
+          <h2>Cursos com mais atendimentos</h2>
+          <p>Top 5 cursos dos alunos atendidos.</p>
+          <div id="topCursos">
+            <div class="rel-empty">
+              <b>Carregando…</b>
+              Buscando dados.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Tabela detalhada -->
+      <section class="rel-card">
+        <h2>Resumo por profissional</h2>
+        <p>Métricas individuais no período selecionado.</p>
+        <div style="overflow-x:auto">
+          <table class="rel-tabela">
+            <thead>
+            <tr>
+              <th>Profissional</th>
+              <th style="text-align:right">Atendimentos</th>
+              <th style="text-align:right">Realizados</th>
+              <th style="text-align:right">Faltas</th>
+              <th style="text-align:right">Cancelados</th>
+              <th style="text-align:right">Taxa presença</th>
+            </tr>
+            </thead>
+            <tbody id="tabelaProfissionais">
+            <tr>
+              <td colspan="6">
+                <div class="rel-empty">
+                  <b>Carregando…</b>
+                  Buscando dados.
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p class="portal-info-box">
+        Os relatórios gerenciais exibem apenas dados agregados, em conformidade com a LGPD e a Resolução CFP nº 11/2018.
+      </p>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET   /auth/session
+    //   GET   /atendimentos
+    //   GET   /solicitacoes
+    //   GET   /alunos
+    //   GET   /profissionais
+    //   GET   /notificacoes/usuario/{id}/count
+
+    const state = {
+      usuario: null,
+      atendimentos: [],
+      solicitacoes: [],
+      alunos: [],
+      profissionais: [],
+      alunosCache: {},
+      profissionaisCache: {},
+      filtroPeriodo: '6m',
+      filtroArea: 'all'
+    };
+
+    const STATUS_LABEL = {
+      AGENDADO: 'Agendado',
+      CONFIRMADO: 'Confirmado',
+      REALIZADO: 'Realizado',
+      CANCELADO: 'Cancelado',
+      FALTA: 'Falta'
+    };
+
+    const STATUS_COR = {
+      AGENDADO: 'blue',
+      CONFIRMADO: 'blue',
+      REALIZADO: 'green',
+      CANCELADO: 'red',
+      FALTA: 'orange'
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return '?';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function periodoInicio(filtro) {
+      const agora = new Date();
+      const d = new Date(agora);
+      switch (filtro) {
+        case '30d': d.setDate(agora.getDate() - 30); return d;
+        case '3m': d.setMonth(agora.getMonth() - 3); return d;
+        case '6m': d.setMonth(agora.getMonth() - 6); return d;
+        case '12m': d.setMonth(agora.getMonth() - 12); return d;
+        default: return new Date(0);
+      }
+    }
+
+    function filtrarPorPeriodo() {
+      const inicio = periodoInicio(state.filtroPeriodo);
+      return state.atendimentos.filter(a => new Date(a.dataHoraInicio) >= inicio);
+    }
+
+    function filtrarPorArea(lista) {
+      if (state.filtroArea === 'all') return lista;
+      // Deriva a área do cargo do profissional
+      return lista.filter(a => {
+        const prof = state.profissionaisCache[a.profissionalId];
+        if (!prof) return false;
+        const cargo = (prof.cargo || '').toLowerCase();
+        const alvo = state.filtroArea.toLowerCase();
+        return cargo.includes(alvo.substring(0, 6));
+      });
+    }
+
+    function dadosFiltrados() {
+      return filtrarPorArea(filtrarPorPeriodo());
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Administrador');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Carregar dados ----------
+    async function carregarDados() {
+      try {
+        const [rAtend, rSol, rAlunos, rProf] = await Promise.all([
+          fetch('/atendimentos', { credentials: 'include' }),
+          fetch('/solicitacoes', { credentials: 'include' }),
+          fetch('/alunos', { credentials: 'include' }),
+          fetch('/profissionais', { credentials: 'include' })
+        ]);
+
+        if (rAtend.ok) state.atendimentos = await rAtend.json();
+        if (rSol.ok) state.solicitacoes = await rSol.json();
+        if (rAlunos.ok) state.alunos = await rAlunos.json();
+        if (rProf.ok) state.profissionais = await rProf.json();
+
+        // Cache
+        state.alunos.forEach(a => { state.alunosCache[a.id] = a; });
+        state.profissionais.forEach(p => { state.profissionaisCache[p.id] = p; });
+
+        atualizarTudo();
+      } catch (e) {
+        console.error('Erro ao carregar dados', e);
+      }
+    }
+
+    // ---------- 4. Atualizar tudo ----------
+    function atualizarTudo() {
+      const atendimentos = dadosFiltrados();
+      atualizarStats(atendimentos);
+      renderizarGraficoMensal(atendimentos);
+      renderizarDistribuicaoStatus(atendimentos);
+      renderizarTopProfissionais(atendimentos);
+      renderizarTopCursos(atendimentos);
+      renderizarTabelaProfissionais(atendimentos);
+    }
+
+    // ---------- 5. Stats ----------
+    function atualizarStats(atendimentos) {
+      const total = atendimentos.length;
+      const realizados = atendimentos.filter(a => a.status === 'REALIZADO').length;
+      const faltas = atendimentos.filter(a => a.status === 'FALTA').length;
+
+      const base = realizados + faltas;
+      const taxaComp = base > 0 ? Math.round((realizados / base) * 100) : 0;
+      const taxaFalta = base > 0 ? Math.round((faltas / base) * 100) : 0;
+
+      // Solicitações deferidas no período (usa dataParecer)
+      const inicio = periodoInicio(state.filtroPeriodo);
+      const deferidas = state.solicitacoes.filter(s =>
+              s.status === 'DEFERIDA' && s.dataParecer && new Date(s.dataParecer) >= inicio
+      ).length;
+
+      set('statTotal', String(total));
+      set('statTotalDetalhe', total === 0 ? 'nenhum no período' : 'no período selecionado');
+
+      set('statComparecimento', taxaComp + '%');
+      set('statComparecimentoDetalhe', base > 0 ? `${realizados} de ${base} finalizados` : 'sem dados suficientes');
+
+      set('statFalta', taxaFalta + '%');
+      set('statFaltaDetalhe', faltas > 0 ? `${faltas} falta${faltas > 1 ? 's' : ''}` : 'sem faltas registradas');
+
+      set('statDeferidas', String(deferidas));
+      set('statDeferidasDetalhe', deferidas === 0 ? 'nenhuma no período' : 'com parecer favorável');
+    }
+
+    // ---------- 6. Gráfico mensal ----------
+    function renderizarGraficoMensal(atendimentos) {
+      const container = document.getElementById('graficoLinha');
+      set('subtituloGrafico',
+              state.filtroPeriodo === 'all'
+                      ? 'Quantidade de atendimentos por mês.'
+                      : `Atendimentos por mês no período selecionado.`);
+
+      if (!atendimentos.length) {
+        container.innerHTML = `
+        <div class="rel-empty">
+          <b>Nenhum atendimento no período</b>
+          Ajuste o filtro ou aguarde novos registros.
+        </div>`;
+        return;
+      }
+
+      // Agrupa por mês/ano
+      const grupos = {};
+      atendimentos.forEach(a => {
+        const d = new Date(a.dataHoraInicio);
+        const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        grupos[chave] = (grupos[chave] || 0) + 1;
+      });
+
+      // Gera últimos 6 meses (ou todos os existentes se período for 'all')
+      const meses = [];
+      const agora = new Date();
+      let numMeses = state.filtroPeriodo === 'all' ? Object.keys(grupos).length : 6;
+      if (state.filtroPeriodo === '12m') numMeses = 12;
+      if (state.filtroPeriodo === '3m') numMeses = 3;
+      if (state.filtroPeriodo === '30d') numMeses = 2;
+
+      for (let i = numMeses - 1; i >= 0; i--) {
+        const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+        const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const mesNome = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+        meses.push({ chave, nome: mesNome.charAt(0).toUpperCase() + mesNome.slice(1), valor: grupos[chave] || 0 });
+      }
+
+      const maxValor = Math.max(...meses.map(m => m.valor), 1);
+      const alturaGrafico = 180;
+      const larguraGrafico = 100;
+      const passoX = larguraGrafico / Math.max(meses.length - 1, 1);
+
+      // Constrói SVG
+      const pontos = meses.map((m, i) => {
+        const x = i * passoX;
+        const y = alturaGrafico - (m.valor / maxValor) * (alturaGrafico - 20);
+        return { x, y, valor: m.valor, nome: m.nome };
+      });
+
+      const pathLinha = pontos.map((p, i) =>
+              (i === 0 ? 'M' : 'L') + p.x.toFixed(2) + ',' + p.y.toFixed(2)
+      ).join(' ');
+
+      const pathArea = pathLinha
+              + ` L${larguraGrafico},${alturaGrafico} L0,${alturaGrafico} Z`;
+
+      // Linhas de grade
+      const linhasGrade = [0, 0.25, 0.5, 0.75, 1].map(pct => {
+        const y = alturaGrafico - pct * (alturaGrafico - 20);
+        return `<line x1="0" y1="${y}" x2="${larguraGrafico}" y2="${y}" stroke="#eef1f7" stroke-width="0.3"/>`;
+      }).join('');
+
+      const pontosCirculos = pontos.map(p =>
+              `<circle cx="${p.x}" cy="${p.y}" r="1" fill="#2059dc"/>`
+      ).join('');
+
+      // Eixo Y (valores)
+      const eixoY = [0, 0.25, 0.5, 0.75, 1].map(pct => {
+        const valor = Math.round(pct * maxValor);
+        return `<span>${valor}</span>`;
+      }).reverse().join('');
+
+      // Eixo X (meses)
+      const eixoX = meses.map(m => `<span>${m.nome}</span>`).join('');
+
+      container.innerHTML = `
+      <div class="rel-chart-eixo-y">${eixoY}</div>
+      <div class="rel-chart-area">
+        <svg viewBox="0 0 ${larguraGrafico} ${alturaGrafico}" preserveAspectRatio="none">
+          ${linhasGrade}
+          <path d="${pathArea}" fill="#e8f0ff" opacity="0.5"/>
+          <path d="${pathLinha}" fill="none" stroke="#2059dc" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+          ${pontosCirculos}
+        </svg>
+      </div>
+      <div class="rel-chart-x">${eixoX}</div>
+    `;
+    }
+
+    // ---------- 7. Distribuição por status ----------
+    function renderizarDistribuicaoStatus(atendimentos) {
+      const container = document.getElementById('distribuicaoStatus');
+
+      if (!atendimentos.length) {
+        container.innerHTML = `
+        <div class="rel-empty">
+          <b>Nenhum atendimento no período</b>
+          Ajuste o filtro.
+        </div>`;
+        return;
+      }
+
+      const total = atendimentos.length;
+      const contagem = {};
+      atendimentos.forEach(a => {
+        contagem[a.status] = (contagem[a.status] || 0) + 1;
+      });
+
+      const ordem = ['REALIZADO', 'CONFIRMADO', 'AGENDADO', 'CANCELADO', 'FALTA'];
+
+      container.innerHTML = `<div class="rel-barras-h">${ordem.map(status => {
+        const qtd = contagem[status] || 0;
+        if (qtd === 0) return '';
+        const pct = Math.round((qtd / total) * 100);
+        const cor = STATUS_COR[status];
+        return `
+        <div class="rel-barra-item">
+          <div class="rel-barra-topo">
+            <span class="rel-barra-nome">${STATUS_LABEL[status]}</span>
+            <span class="rel-barra-valor">${qtd} · ${pct}%</span>
+          </div>
+          <div class="rel-barra-trilha">
+            <div class="rel-barra-fill ${cor}" style="width:${pct}%"></div>
+          </div>
+        </div>
+      `;
+      }).join('')}</div>`;
+    }
+
+    // ---------- 8. Top profissionais ----------
+    function renderizarTopProfissionais(atendimentos) {
+      const container = document.getElementById('topProfissionais');
+
+      if (!atendimentos.length) {
+        container.innerHTML = `
+        <div class="rel-empty">
+          <b>Nenhum atendimento no período</b>
+          Ajuste o filtro.
+        </div>`;
+        return;
+      }
+
+      const contagem = {};
+      atendimentos.forEach(a => {
+        contagem[a.profissionalId] = (contagem[a.profissionalId] || 0) + 1;
+      });
+
+      const ranking = Object.entries(contagem)
+              .map(([id, total]) => {
+                const prof = state.profissionaisCache[Number(id)];
+                return {
+                  nome: prof?.nome || 'Profissional #' + id,
+                  crp: prof?.crp || '',
+                  total
+                };
+              })
+              .sort((a, b) => b.total - a.total)
+              .slice(0, 5);
+
+      container.innerHTML = `<div class="rel-ranking">${ranking.map((p, i) => `
+      <div class="rel-ranking-item">
+        <span class="rel-ranking-pos">${i + 1}</span>
+        <span class="rel-ranking-avatar">${iniciais(p.nome)}</span>
+        <div class="rel-ranking-info">
+          <p class="rel-ranking-nome">${escapeHtml(p.nome)}</p>
+          <p class="rel-ranking-detalhe">${escapeHtml(p.crp || 'CRP não informado')}</p>
+        </div>
+        <span class="rel-ranking-valor">${p.total}</span>
+      </div>
+    `).join('')}</div>`;
+    }
+
+    // ---------- 9. Top cursos ----------
+    function renderizarTopCursos(atendimentos) {
+      const container = document.getElementById('topCursos');
+
+      if (!atendimentos.length) {
+        container.innerHTML = `
+        <div class="rel-empty">
+          <b>Nenhum atendimento no período</b>
+          Ajuste o filtro.
+        </div>`;
+        return;
+      }
+
+      const contagem = {};
+      atendimentos.forEach(a => {
+        const aluno = state.alunosCache[a.alunoId];
+        const curso = aluno?.curso || 'Não informado';
+        contagem[curso] = (contagem[curso] || 0) + 1;
+      });
+
+      const ranking = Object.entries(contagem)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 5);
+
+      const max = ranking[0]?.[1] || 1;
+      const cores = ['blue', 'green', 'purple', 'orange', 'red'];
+
+      container.innerHTML = `<div class="rel-barras-h">${ranking.map(([curso, total], i) => {
+        const pct = Math.round((total / max) * 100);
+        return `
+        <div class="rel-barra-item">
+          <div class="rel-barra-topo">
+            <span class="rel-barra-nome">${escapeHtml(curso)}</span>
+            <span class="rel-barra-valor">${total}</span>
+          </div>
+          <div class="rel-barra-trilha">
+            <div class="rel-barra-fill ${cores[i] || 'blue'}" style="width:${pct}%"></div>
+          </div>
+        </div>
+      `;
+      }).join('')}</div>`;
+    }
+
+    // ---------- 10. Tabela por profissional ----------
+    function renderizarTabelaProfissionais(atendimentos) {
+      const tbody = document.getElementById('tabelaProfissionais');
+
+      if (!atendimentos.length) {
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="rel-empty">
+              <b>Nenhum atendimento no período</b>
+              Ajuste o filtro.
+            </div>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      // Agrupa por profissional
+      const porProf = {};
+      atendimentos.forEach(a => {
+        if (!porProf[a.profissionalId]) {
+          porProf[a.profissionalId] = { total: 0, realizados: 0, faltas: 0, cancelados: 0 };
+        }
+        const p = porProf[a.profissionalId];
+        p.total++;
+        if (a.status === 'REALIZADO') p.realizados++;
+        if (a.status === 'FALTA') p.faltas++;
+        if (a.status === 'CANCELADO') p.cancelados++;
+      });
+
+      const linhas = Object.entries(porProf)
+              .map(([id, dados]) => {
+                const prof = state.profissionaisCache[Number(id)];
+                const base = dados.realizados + dados.faltas;
+                const taxa = base > 0 ? Math.round((dados.realizados / base) * 100) : 0;
+                return {
+                  nome: prof?.nome || 'Profissional #' + id,
+                  crp: prof?.crp || '',
+                  ...dados,
+                  taxa
+                };
+              })
+              .sort((a, b) => b.total - a.total);
+
+      tbody.innerHTML = linhas.map(l => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:9px">
+            <span class="rel-ranking-avatar">${iniciais(l.nome)}</span>
+            <div>
+              <p style="font-weight:700;color:#102249;margin:0 0 2px;font-size:12px">${escapeHtml(l.nome)}</p>
+              <p style="font-size:10px;color:#94a0b3;margin:0">${escapeHtml(l.crp || '—')}</p>
+            </div>
+          </div>
+        </td>
+        <td class="rel-tabela-numero">${l.total}</td>
+        <td class="rel-tabela-numero">${l.realizados}</td>
+        <td class="rel-tabela-numero">${l.faltas}</td>
+        <td class="rel-tabela-numero">${l.cancelados}</td>
+        <td class="rel-tabela-numero">${l.taxa}%</td>
+      </tr>
+    `).join('');
+    }
+
+    // ---------- 11. Exportar CSV ----------
+    function exportarCSV() {
+      const atendimentos = dadosFiltrados();
+
+      if (!atendimentos.length) {
+        alert('Nenhum dado para exportar com os filtros atuais.');
+        return;
+      }
+
+      const linhas = [['ID', 'Data/Hora', 'Aluno', 'Profissional', 'Área', 'Modalidade', 'Status']];
+
+      atendimentos.forEach(a => {
+        const aluno = state.alunosCache[a.alunoId];
+        const prof = state.profissionaisCache[a.profissionalId];
+        linhas.push([
+          a.id,
+          new Date(a.dataHoraInicio).toLocaleString('pt-BR'),
+          aluno?.nome || 'ID ' + a.alunoId,
+          prof?.nome || 'ID ' + a.profissionalId,
+          prof?.cargo || '',
+          a.modalidade || '',
+          STATUS_LABEL[a.status] || a.status
+        ]);
+      });
+
+      const escapar = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const csv = linhas.map(linha => linha.map(escapar).join(';')).join('\r\n');
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `relatorio-pap-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- 12. Eventos ----------
+    function ligarEventos() {
+      document.getElementById('filtroPeriodo').addEventListener('change', (e) => {
+        state.filtroPeriodo = e.target.value;
+        atualizarTudo();
+      });
+
+      document.getElementById('filtroArea').addEventListener('change', (e) => {
+        state.filtroArea = e.target.value;
+        atualizarTudo();
+      });
+
+      document.getElementById('btnExportar').addEventListener('click', exportarCSV);
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarDados(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

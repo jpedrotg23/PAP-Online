@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PAP Online | Visão geral profissional</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portais.css">
+    <style>
+        .pap-loading-overlay{
+            position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+            display:grid;place-items:center;color:#667085;
+            font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+        }
+        .pro-empty-card{
+            min-height:150px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:flex-start;
+            border:1px dashed #dfe6f1;
+            border-radius:12px;
+            background:#fbfcfe;
+            padding:22px;
+            color:#75829c;
+        }
+        .pro-empty-card b{
+            font-size:13px;
+            color:#34415a;
+            margin-bottom:6px;
+        }
+        .pro-empty-card p{
+            font-size:12px;
+            line-height:1.55;
+            margin:0;
+        }
+        .pro-appointment-clickable{
+            cursor:pointer;
+            transition:border-color .15s;
+        }
+        .pro-appointment-clickable:hover{
+            border-color:#b9c8e6;
+        }
+        .pro-dashboard-grid .pro-panel{
+            display:flex;
+            flex-direction:column;
+        }
+        .pro-list-rows{
+            display:grid;
+            gap:0;
+        }
+        .pro-list-row{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:12px 0;
+            border-top:1px solid #eff2f7;
+        }
+        .pro-list-row:first-child{border-top:0}
+        .pro-list-row .pro-row-info{
+            flex:1;
+            min-width:0;
+        }
+        .pro-list-row .pro-row-title{
+            font-size:12px;
+            font-weight:700;
+            color:#102249;
+            margin:0 0 3px;
+            line-height:1.35;
+        }
+        .pro-list-row .pro-row-sub{
+            font-size:11px;
+            color:#8290a6;
+            margin:0;
+        }
+        .pro-list-row .pro-row-time{
+            font-size:10px;
+            color:#94a0b3;
+            white-space:nowrap;
+        }
+    </style>
+</head>
+<body class="pro-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="pro-sidebar">
+    <div class="pro-brand">
+        <span>PAP</span>
+        <b>PAP Online</b>
+    </div>
+    <nav>
+        <a class="side-link selected" href="/profissional/profissional-inicial.html">
+            <span class="nav-ico">⌂</span>Início
+        </a>
+        <a class="side-link" href="/profissional/profissional-agenda.html">
+            <span class="nav-ico">▣</span>Agenda
+        </a>
+        <a class="side-link" href="/profissional/profissional-mensagens.html">
+            <span class="nav-ico">▢</span>Mensagens
+        </a>
+        <a class="side-link" href="/profissional/profissional-solicitacoes.html">
+            <span class="nav-ico">♧</span>Solicitações
+        </a>
+        <a class="side-link" href="/profissional/profissional-perfil.html">
+            <span class="nav-ico">♙</span>Perfil
+        </a>
+    </nav>
+    <button class="exit-link" type="button" data-role-logout>
+        ↪ &nbsp; Sair
+    </button>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main class="pro-main">
+
+    <header class="pro-header">
+        <div>
+            <h1>Visão geral profissional</h1>
+            <p id="dataAtual">Carregando…</p>
+        </div>
+        <div class="pro-user">
+            <span class="avatar" id="userAvatar">—</span>
+            <div>
+                <b id="userName">Usuário</b>
+                <small id="userDetail">Dados não carregados</small>
+            </div>
+        </div>
+        <button class="bell" type="button" aria-label="Notificações">
+            ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+    </header>
+
+    <div class="pro-content">
+
+        <!-- Stats -->
+        <div class="pro-stats">
+            <article class="pro-stat">
+                <span class="stat-icon">▣</span>
+                <div>
+                    <small>Atendimentos hoje</small>
+                    <strong id="statHoje">—</strong>
+                </div>
+            </article>
+            <article class="pro-stat">
+                <span class="stat-icon">♧</span>
+                <div>
+                    <small>Solicitações em análise</small>
+                    <strong id="statSolicitacoes">—</strong>
+                </div>
+            </article>
+            <article class="pro-stat">
+                <span class="stat-icon">✉</span>
+                <div>
+                    <small>Notificações não lidas</small>
+                    <strong id="statNotificacoes">—</strong>
+                </div>
+            </article>
+            <article class="pro-stat">
+                <span class="stat-icon">▤</span>
+                <div>
+                    <small>Agenda da semana</small>
+                    <strong id="statSemana">—</strong>
+                </div>
+            </article>
+        </div>
+
+        <!-- Dashboard grid -->
+        <div class="pro-dashboard-grid">
+
+            <!-- Resumo da agenda -->
+            <section class="pro-panel">
+                <div class="pro-panel-head">
+                    <div>
+                        <h2>Resumo da agenda</h2>
+                        <p>Próximos atendimentos do profissional.</p>
+                    </div>
+                    <a class="section-head-link" href="/profissional/profissional-agenda.html">Ver agenda</a>
+                </div>
+                <div id="resumoAgenda">
+                    <div class="pro-empty-card">
+                        <b>Carregando…</b>
+                        <p>Buscando os próximos atendimentos.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solicitações recebidas -->
+            <section class="pro-panel">
+                <div class="pro-panel-head">
+                    <div>
+                        <h2>Solicitações recebidas</h2>
+                        <p>Pedidos que aguardam análise.</p>
+                    </div>
+                    <a class="section-head-link" href="/profissional/profissional-solicitacoes.html">Ver solicitações</a>
+                </div>
+                <div id="resumoSolicitacoes">
+                    <div class="pro-empty-card">
+                        <b>Carregando…</b>
+                        <p>Buscando solicitações em análise.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mensagens recentes -->
+            <section class="pro-panel">
+                <div class="pro-panel-head">
+                    <div>
+                        <h2>Mensagens recentes</h2>
+                        <p>Conversas com estudantes e equipe.</p>
+                    </div>
+                    <a class="section-head-link" href="/profissional/profissional-mensagens.html">Abrir mensagens</a>
+                </div>
+                <div id="resumoMensagens">
+                    <div class="pro-empty-card">
+                        <b>Carregando…</b>
+                        <p>Buscando conversas.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comunicados -->
+            <section class="pro-panel">
+                <div class="pro-panel-head">
+                    <div>
+                        <h2>Comunicados institucionais</h2>
+                        <p>Avisos publicados pela equipe PAP.</p>
+                    </div>
+                </div>
+                <div id="resumoAvisos">
+                    <div class="pro-empty-card">
+                        <b>Carregando…</b>
+                        <p>Buscando avisos publicados.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Acesso rápido -->
+        <section class="pro-panel" style="margin-top:18px">
+            <div class="pro-panel-head">
+                <div>
+                    <h2>Acesso rápido</h2>
+                    <p>Funcionalidades da área profissional.</p>
+                </div>
+            </div>
+            <div class="pro-quick-grid">
+                <a href="/profissional/profissional-agenda.html">
+                    <span class="feature-icon">▣</span>
+                    <span>
+            <b>Gerenciar agenda</b>
+            <small>Visualize períodos e atendimentos</small>
+          </span>
+                </a>
+                <a href="/profissional/profissional-solicitacoes.html">
+                    <span class="feature-icon">♧</span>
+                    <span>
+            <b>Analisar solicitações</b>
+            <small>Consulte pedidos de adaptação</small>
+          </span>
+                </a>
+                <a href="/profissional/profissional-mensagens.html">
+                    <span class="feature-icon">✉</span>
+                    <span>
+            <b>Responder mensagens</b>
+            <small>Acesse suas conversas</small>
+          </span>
+                </a>
+                <a href="/profissional/profissional-perfil.html">
+                    <span class="feature-icon">♙</span>
+                    <span>
+            <b>Atualizar perfil</b>
+            <small>Revise dados profissionais</small>
+          </span>
+                </a>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/pro.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        // Pré-requisitos no backend:
+        //   GET   /auth/session
+        //   GET   /profissionais/{id}
+        //   GET   /atendimentos/profissional/{id}
+        //   GET   /solicitacoes
+        //   GET   /avisos
+        //   GET   /notificacoes/usuario/{id}/count
+        //   GET   /conversas/profissional/{id}
+
+        const state = {
+            usuario: null,
+            profissional: null,
+            atendimentos: [],
+            solicitacoes: [],
+            avisos: [],
+            conversas: [],
+            profissionaisCache: {},
+            alunosCache: {}
+        };
+
+        // ---------- Helpers ----------
+        function set(id, valor) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = valor;
+        }
+
+        function iniciais(nome) {
+            if (!nome) return 'US';
+            const partes = nome.trim().split(/\s+/);
+            if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+            return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[s]);
+        }
+
+        function formatarHora(iso) {
+            return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatarData(iso) {
+            return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        }
+
+        function formatarDataHora(iso) {
+            const d = new Date(iso);
+            const hoje = new Date();
+            if (d.toDateString() === hoje.toDateString()) {
+                return 'Hoje · ' + formatarHora(iso);
+            }
+            const ontem = new Date(hoje);
+            ontem.setDate(hoje.getDate() - 1);
+            if (d.toDateString() === ontem.toDateString()) {
+                return 'Ontem · ' + formatarHora(iso);
+            }
+            return formatarData(iso) + ' · ' + formatarHora(iso);
+        }
+
+        function capitalizar(s) {
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+        }
+
+        // ---------- 1. Usuário logado ----------
+        async function carregarUsuario() {
+            try {
+                const r = await fetch('/auth/session', { credentials: 'include' });
+                if (!r.ok) return null;
+                state.usuario = await r.json();
+
+                set('userName', state.usuario.nome || 'Profissional');
+                set('userDetail', state.usuario.email || 'Dados não carregados');
+                const avatar = document.getElementById('userAvatar');
+                if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+
+                // Tenta carregar dados completos do profissional
+                try {
+                    const rp = await fetch(`/profissionais/${state.usuario.id}`, { credentials: 'include' });
+                    if (rp.ok) {
+                        state.profissional = await rp.json();
+                        if (state.profissional.crp) {
+                            set('userDetail', state.profissional.crp + (state.profissional.cargo ? ' · ' + state.profissional.cargo : ''));
+                        }
+                    }
+                } catch (_) {}
+
+                // Data atual
+                const d = new Date();
+                const dataLonga = d.toLocaleDateString('pt-BR', {
+                    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                });
+                set('dataAtual', dataLonga.charAt(0).toUpperCase() + dataLonga.slice(1));
+
+                return state.usuario;
+            } catch (e) {
+                console.error('Erro ao carregar usuário', e);
+                return null;
+            }
+        }
+
+        // ---------- 2. Notificações ----------
+        async function carregarNotificacoes() {
+            if (!state.usuario?.id) return;
+            try {
+                const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+                if (!r.ok) return;
+                const count = await r.json();
+                set('statNotificacoes', String(count));
+
+                const badge = document.getElementById('badgeNotificacoes');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count > 9 ? '9+' : String(count);
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (_) {
+                set('statNotificacoes', '0');
+            }
+        }
+
+        // ---------- 3. Atendimentos ----------
+        async function carregarAtendimentos() {
+            if (!state.usuario?.id) return;
+            try {
+                const r = await fetch(`/atendimentos/profissional/${state.usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                state.atendimentos = await r.json();
+
+                const hoje = new Date();
+                const emSeteDias = new Date();
+                emSeteDias.setDate(hoje.getDate() + 7);
+
+                const hojeStr = hoje.toDateString();
+
+                const deHoje = state.atendimentos.filter(a => {
+                    const d = new Date(a.dataHoraInicio);
+                    return d.toDateString() === hojeStr && (a.status === 'AGENDADO' || a.status === 'CONFIRMADO');
+                });
+
+                const daSemana = state.atendimentos.filter(a => {
+                    const d = new Date(a.dataHoraInicio);
+                    return d >= hoje && d <= emSeteDias && (a.status === 'AGENDADO' || a.status === 'CONFIRMADO');
+                });
+
+                set('statHoje', String(deHoje.length));
+                set('statSemana', String(daSemana.length));
+
+                renderizarResumoAgenda();
+            } catch (e) {
+                console.error('Erro ao carregar atendimentos', e);
+                set('statHoje', '—');
+                set('statSemana', '—');
+                document.getElementById('resumoAgenda').innerHTML = `
+        <div class="pro-empty-card">
+          <b>Não foi possível carregar</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+            }
+        }
+
+        function renderizarResumoAgenda() {
+            const container = document.getElementById('resumoAgenda');
+            const hoje = new Date();
+            const proximos = state.atendimentos
+                .filter(a => new Date(a.dataHoraInicio) >= hoje && (a.status === 'AGENDADO' || a.status === 'CONFIRMADO'))
+                .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio))
+                .slice(0, 4);
+
+            if (!proximos.length) {
+                container.innerHTML = `
+        <div class="pro-empty-card">
+          <b>Nenhum atendimento agendado</b>
+          <p>Sua agenda está livre nos próximos dias.</p>
+        </div>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="pro-list-rows">${proximos.map(a => `
+      <div class="pro-list-row">
+        <span class="avatar">${iniciais('Aluno ' + a.alunoId)}</span>
+        <div class="pro-row-info">
+          <p class="pro-row-title">Aluno #${a.alunoId}</p>
+          <p class="pro-row-sub">${capitalizar(a.modalidade)} · ${escapeHtml(a.local || 'Local não definido')}</p>
+        </div>
+        <span class="pro-row-time">${formatarDataHora(a.dataHoraInicio)}</span>
+      </div>
+    `).join('')}</div>`;
+        }
+
+        // ---------- 4. Solicitações ----------
+        async function carregarSolicitacoes() {
+            try {
+                const r = await fetch('/solicitacoes', { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                state.solicitacoes = await r.json();
+
+                const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE');
+                set('statSolicitacoes', String(emAnalise.length));
+
+                renderizarResumoSolicitacoes(emAnalise);
+            } catch (e) {
+                console.error('Erro ao carregar solicitações', e);
+                set('statSolicitacoes', '—');
+                document.getElementById('resumoSolicitacoes').innerHTML = `
+        <div class="pro-empty-card">
+          <b>Não foi possível carregar</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+            }
+        }
+
+        function renderizarResumoSolicitacoes(lista) {
+            const container = document.getElementById('resumoSolicitacoes');
+            const recentes = lista
+                .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
+                .slice(0, 4);
+
+            if (!recentes.length) {
+                container.innerHTML = `
+        <div class="pro-empty-card">
+          <b>Nenhuma solicitação em análise</b>
+          <p>Tudo em dia com os pedidos recebidos.</p>
+        </div>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="pro-list-rows">${recentes.map(s => `
+      <div class="pro-list-row">
+        <span class="pill orange">Em análise</span>
+        <div class="pro-row-info">
+          <p class="pro-row-title">${escapeHtml(s.titulo)}</p>
+          <p class="pro-row-sub">Protocolo ${escapeHtml(s.protocolo || '—')}</p>
+        </div>
+        <span class="pro-row-time">${formatarDataHora(s.dataEnvio)}</span>
+      </div>
+    `).join('')}</div>`;
+        }
+
+        // ---------- 5. Avisos ----------
+        async function carregarAvisos() {
+            const container = document.getElementById('resumoAvisos');
+            try {
+                const r = await fetch('/avisos', { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                state.avisos = await r.json();
+
+                const publicados = state.avisos
+                    .filter(a => a.status === 'PUBLICADO')
+                    .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm))
+                    .slice(0, 3);
+
+                if (!publicados.length) {
+                    container.innerHTML = `
+          <div class="pro-empty-card">
+            <b>Nenhum comunicado publicado</b>
+            <p>Novos avisos aparecerão aqui.</p>
+          </div>`;
+                    return;
+                }
+
+                container.innerHTML = `<div class="pro-list-rows">${publicados.map(a => `
+        <div class="pro-list-row">
+          <span class="pill ${a.destaque ? 'orange' : 'info'}">${escapeHtml(capitalizar(a.categoria || 'aviso'))}</span>
+          <div class="pro-row-info">
+            <p class="pro-row-title">${escapeHtml(a.titulo)}</p>
+            <p class="pro-row-sub">${escapeHtml((a.conteudo || '').substring(0, 80))}${(a.conteudo || '').length > 80 ? '…' : ''}</p>
+          </div>
+          <span class="pro-row-time">${formatarData(a.criadoEm)}</span>
+        </div>
+      `).join('')}</div>`;
+            } catch (e) {
+                console.error('Erro ao carregar avisos', e);
+                container.innerHTML = `
+        <div class="pro-empty-card">
+          <b>Não foi possível carregar</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+            }
+        }
+
+        // ---------- 6. Conversas (mensagens recentes) ----------
+        async function carregarConversas() {
+            const container = document.getElementById('resumoMensagens');
+            if (!state.usuario?.id) return;
+
+            try {
+                const r = await fetch(`/conversas/profissional/${state.usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                state.conversas = await r.json();
+
+                const recentes = state.conversas
+                    .sort((a, b) => new Date(b.atualizadoEm || b.criadoEm) - new Date(a.atualizadoEm || a.criadoEm))
+                    .slice(0, 3);
+
+                if (!recentes.length) {
+                    container.innerHTML = `
+          <div class="pro-empty-card">
+            <b>Nenhuma conversa disponível</b>
+            <p>As conversas aparecerão quando houver contato de alunos.</p>
+          </div>`;
+                    return;
+                }
+
+                // Busca nomes dos alunos (paralelo)
+                const nomes = await Promise.all(recentes.map(async c => {
+                    try {
+                        const ra = await fetch(`/alunos/${c.alunoId}`, { credentials: 'include' });
+                        if (ra.ok) {
+                            const aluno = await ra.json();
+                            return { id: c.id, nome: aluno.nome, conversa: c };
+                        }
+                    } catch (_) {}
+                    return { id: c.id, nome: 'Aluno #' + c.alunoId, conversa: c };
+                }));
+
+                container.innerHTML = `<div class="pro-list-rows">${nomes.map(item => `
+        <div class="pro-list-row">
+          <span class="avatar">${iniciais(item.nome)}</span>
+          <div class="pro-row-info">
+            <p class="pro-row-title">${escapeHtml(item.nome)}</p>
+            <p class="pro-row-sub">Conversa iniciada em ${formatarData(item.conversa.criadoEm)}</p>
+          </div>
+          <span class="pro-row-time">${formatarDataHora(item.conversa.atualizadoEm || item.conversa.criadoEm)}</span>
+        </div>
+      `).join('')}</div>`;
+            } catch (e) {
+                console.error('Erro ao carregar conversas', e);
+                container.innerHTML = `
+        <div class="pro-empty-card">
+          <b>Não foi possível carregar</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+            }
+        }
+
+        // ---------- Inicialização ----------
+        document.addEventListener('DOMContentLoaded', async () => {
+            const u = await carregarUsuario();
+            if (!u) return;
+
+            await Promise.allSettled([
+                carregarAtendimentos(),
+                carregarSolicitacoes(),
+                carregarAvisos(),
+                carregarConversas(),
+                carregarNotificacoes()
+            ]);
+        });
+    })();
+</script>
+
+</body>
+</html>

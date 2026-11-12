@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Painel administrativo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    .pap-loading-overlay{
+      position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+      display:grid;place-items:center;color:#667085;
+      font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+    }
+
+    /* Ajustes específicos do dashboard admin */
+    .portal-stat-icon.red{ background:#ffeae8; color:#d42f26; }
+
+    .admin-empty{
+      padding:30px 20px;
+      text-align:center;
+      border:1px dashed #dfe6f1;
+      border-radius:12px;
+      background:#fbfcfe;
+      color:#75829c;
+      font-size:12px;
+      line-height:1.6;
+    }
+    .admin-empty b{
+      display:block;
+      font-size:13px;
+      color:#34415a;
+      margin-bottom:6px;
+    }
+
+    /* Atividades recentes */
+    .admin-atividade{
+      display:flex;
+      align-items:flex-start;
+      gap:11px;
+      padding:12px 0;
+      border-top:1px solid #eff2f7;
+    }
+    .admin-atividade:first-child{ border-top:0; padding-top:0; }
+    .admin-atividade-ico{
+      width:34px;
+      height:34px;
+      border-radius:9px;
+      display:grid;
+      place-items:center;
+      font-size:15px;
+      flex-shrink:0;
+    }
+    .admin-atividade-ico.blue{ background:#e8f0ff; color:#2059dc; }
+    .admin-atividade-ico.green{ background:#e5f6ef; color:#0b8b61; }
+    .admin-atividade-ico.orange{ background:#fff1df; color:#c35b0b; }
+    .admin-atividade-ico.purple{ background:#f0e8ff; color:#7732d9; }
+    .admin-atividade-ico.red{ background:#ffeae8; color:#d42f26; }
+    .admin-atividade-conteudo{ flex:1; min-width:0; }
+    .admin-atividade-titulo{
+      font-size:12px;
+      font-weight:600;
+      color:#102249;
+      margin:0 0 3px;
+      line-height:1.4;
+    }
+    .admin-atividade-titulo b{ font-weight:700; }
+    .admin-atividade-hora{
+      font-size:10px;
+      color:#94a0b3;
+    }
+
+    /* Tabela de solicitações recentes */
+    .admin-tabela-status{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 9px;
+      border-radius:99px;
+      font-size:10px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .admin-tabela-status.EM_ANALISE{ background:#fff1df; color:#c35b0b; }
+    .admin-tabela-status.ENVIADA{ background:#eaf1ff; color:#2059dc; }
+    .admin-tabela-status.DEFERIDA{ background:#e5f6ef; color:#0b8b61; }
+    .admin-tabela-status.INDEFERIDA{ background:#ffeae8; color:#d42f26; }
+    .admin-tabela-status.PENDENTE_DOCUMENTACAO{ background:#f0e8ff; color:#7732d9; }
+
+    .admin-protocolo{
+      font-family:monospace;
+      font-size:11px;
+      color:#94a0b3;
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link active" href="/admin/admin-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-profissionais.html">
+        <span class="portal-nav-icon">♙</span><span>Profissionais</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-alunos.html">
+        <span class="portal-nav-icon">♧</span><span>Alunos</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-relatorios.html">
+        <span class="portal-nav-icon">▤</span><span>Relatórios</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-notificacoes.html">
+        <span class="portal-nav-icon">♢</span><span>Notificações</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-perfil.html">
+        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Painel administrativo</h1>
+        <p>Acompanhe os principais indicadores e atividades do PAP.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Welcome -->
+      <div class="portal-welcome-row">
+        <div>
+          <h2>Visão geral do PAP</h2>
+          <p id="dataAtual">Resumo administrativo da plataforma.</p>
+        </div>
+        <span class="portal-date" id="saudacaoAdmin">Carregando…</span>
+      </div>
+
+      <!-- Stats (4 cards) -->
+      <div class="portal-stats portal-stats-4">
+        <article class="portal-stat">
+          <span class="portal-stat-icon blue">♧</span>
+          <div>
+            <small>Alunos cadastrados</small>
+            <strong id="statAlunos">—</strong>
+            <em id="statAlunosDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="portal-stat">
+          <span class="portal-stat-icon purple">♙</span>
+          <div>
+            <small>Profissionais</small>
+            <strong id="statProfissionais">—</strong>
+            <em id="statProfissionaisDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="portal-stat">
+          <span class="portal-stat-icon green">▤</span>
+          <div>
+            <small>Atendimentos no mês</small>
+            <strong id="statAtendimentos">—</strong>
+            <em id="statAtendimentosDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="portal-stat">
+          <span class="portal-stat-icon orange">◷</span>
+          <div>
+            <small>Solicitações em análise</small>
+            <strong id="statSolicitacoes">—</strong>
+            <em id="statSolicitacoesDetalhe">Carregando…</em>
+          </div>
+        </article>
+      </div>
+
+      <!-- Grid: atividades + acesso rápido -->
+      <div class="portal-grid-home">
+
+        <section class="portal-panel">
+          <div class="portal-panel-head">
+            <div>
+              <h2>Atividades recentes</h2>
+              <p>Últimas movimentações no sistema.</p>
+            </div>
+          </div>
+          <div id="atividadesRecentes">
+            <div class="admin-empty">
+              <b>Carregando…</b>
+              Buscando atividades.
+            </div>
+          </div>
+        </section>
+
+        <section class="portal-panel">
+          <div class="portal-panel-head">
+            <div>
+              <h2>Acesso rápido</h2>
+              <p>Gerencie as áreas do sistema.</p>
+            </div>
+          </div>
+          <div class="portal-quick-links">
+            <a href="/admin/admin-profissionais.html">
+              <span class="portal-quick-icon">♙</span>
+              <span><b>Gerenciar profissionais</b><small>Cadastro e situação da equipe</small></span>
+              <i>›</i>
+            </a>
+            <a href="/admin/admin-alunos.html">
+              <span class="portal-quick-icon">♧</span>
+              <span><b>Gerenciar alunos</b><small>Consultar cadastros</small></span>
+              <i>›</i>
+            </a>
+            <a href="/admin/admin-notificacoes.html">
+              <span class="portal-quick-icon">♢</span>
+              <span><b>Publicar aviso</b><small>Enviar comunicado institucional</small></span>
+              <i>›</i>
+            </a>
+            <a href="/admin/admin-relatorios.html">
+              <span class="portal-quick-icon">▤</span>
+              <span><b>Ver relatórios</b><small>Indicadores e métricas</small></span>
+              <i>›</i>
+            </a>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Solicitações recentes -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>Solicitações recentes</h2>
+            <p>Pedidos que precisam de acompanhamento administrativo.</p>
+          </div>
+          <a class="portal-text-link" href="/admin/admin-relatorios.html">Acessar relatórios</a>
+        </div>
+        <div class="portal-table-wrap">
+          <table class="portal-table">
+            <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Estudante</th>
+              <th>Tipo</th>
+              <th>Data</th>
+              <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tabelaSolicitacoes">
+            <tr>
+              <td class="portal-empty-table" colspan="5">
+                Carregando…
+                <small>Buscando solicitações recentes.</small>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET   /auth/session
+    //   GET   /alunos
+    //   GET   /profissionais
+    //   GET   /atendimentos
+    //   GET   /solicitacoes
+    //   GET   /notificacoes/usuario/{id}/count
+
+    const state = {
+      usuario: null,
+      alunos: [],
+      profissionais: [],
+      atendimentos: [],
+      solicitacoes: [],
+      alunosCache: {}
+    };
+
+    const STATUS_INFO = {
+      ENVIADA: 'Enviada',
+      EM_ANALISE: 'Em análise',
+      DEFERIDA: 'Deferida',
+      INDEFERIDA: 'Indeferida',
+      PENDENTE_DOCUMENTACAO: 'Pendente'
+    };
+
+    const TIPO_INFO = {
+      PROVA: 'Prova',
+      PRAZO: 'Prazo',
+      MATERIAL: 'Material',
+      DISPENSA: 'Dispensa',
+      LOCAL_PROVA: 'Local de prova',
+      OUTRO: 'Outro'
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function fmtData(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('pt-BR', {
+        day: '2-digit', month: '2-digit', year: '2-digit'
+      });
+    }
+
+    function fmtDataHora(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      const hoje = new Date();
+      const ontem = new Date(hoje);
+      ontem.setDate(hoje.getDate() - 1);
+
+      if (d.toDateString() === hoje.toDateString()) {
+        return 'Hoje · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+      if (d.toDateString() === ontem.toDateString()) {
+        return 'Ontem · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+      return fmtData(iso) + ' · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function fmtRelativo(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const agora = new Date();
+      const diff = (agora - d) / 1000;   // segundos
+
+      if (diff < 60) return 'agora há pouco';
+      if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`;
+      if (diff < 604800) return `há ${Math.floor(diff / 86400)} d`;
+      return fmtData(iso);
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+
+        set('userName', state.usuario.nome || 'Administrador');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+
+        const primeiroNome = (state.usuario.nome || 'Administrador').split(' ')[0];
+        set('saudacaoAdmin', 'Olá, ' + primeiroNome);
+
+        const dataAtual = new Date().toLocaleDateString('pt-BR', {
+          weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+        });
+        set('dataAtual', dataAtual.charAt(0).toUpperCase() + dataAtual.slice(1));
+
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Alunos ----------
+    async function carregarAlunos() {
+      try {
+        const r = await fetch('/alunos', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.alunos = await r.json();
+        set('statAlunos', String(state.alunos.length));
+        set('statAlunosDetalhe', state.alunos.length === 1 ? 'cadastrado' : 'cadastrados');
+
+        // Cache local
+        state.alunos.forEach(a => { state.alunosCache[a.id] = a; });
+      } catch (e) {
+        console.error('Erro ao carregar alunos', e);
+        set('statAlunos', '—');
+        set('statAlunosDetalhe', 'Erro');
+      }
+    }
+
+    // ---------- 4. Profissionais ----------
+    async function carregarProfissionais() {
+      try {
+        const r = await fetch('/profissionais', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.profissionais = await r.json();
+        set('statProfissionais', String(state.profissionais.length));
+        set('statProfissionaisDetalhe', state.profissionais.length === 1 ? 'ativo' : 'ativos');
+      } catch (e) {
+        console.error('Erro ao carregar profissionais', e);
+        set('statProfissionais', '—');
+        set('statProfissionaisDetalhe', 'Erro');
+      }
+    }
+
+    // ---------- 5. Atendimentos ----------
+    async function carregarAtendimentos() {
+      try {
+        const r = await fetch('/atendimentos', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.atendimentos = await r.json();
+
+        const agora = new Date();
+        const mesAtual = agora.getMonth();
+        const anoAtual = agora.getFullYear();
+
+        const doMes = state.atendimentos.filter(a => {
+          const d = new Date(a.dataHoraInicio);
+          return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+        });
+
+        set('statAtendimentos', String(doMes.length));
+        set('statAtendimentosDetalhe', 'no mês atual');
+      } catch (e) {
+        console.error('Erro ao carregar atendimentos', e);
+        set('statAtendimentos', '—');
+        set('statAtendimentosDetalhe', 'Erro');
+      }
+    }
+
+    // ---------- 6. Solicitações ----------
+    async function carregarSolicitacoes() {
+      try {
+        const r = await fetch('/solicitacoes', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.solicitacoes = await r.json();
+
+        const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE');
+        set('statSolicitacoes', String(emAnalise.length));
+        set('statSolicitacoesDetalhe', emAnalise.length === 0 ? 'nada pendente' : 'aguardando parecer');
+
+        renderizarTabelaSolicitacoes();
+      } catch (e) {
+        console.error('Erro ao carregar solicitações', e);
+        set('statSolicitacoes', '—');
+        set('statSolicitacoesDetalhe', 'Erro');
+      }
+    }
+
+    // ---------- 7. Tabela de solicitações ----------
+    function renderizarTabelaSolicitacoes() {
+      const tbody = document.getElementById('tabelaSolicitacoes');
+      const recentes = state.solicitacoes
+              .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
+              .slice(0, 5);
+
+      if (!recentes.length) {
+        tbody.innerHTML = `
+        <tr>
+          <td class="portal-empty-table" colspan="5">
+            Nenhuma solicitação registrada
+            <small>Os pedidos aparecerão aqui quando forem criados.</small>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = recentes.map(s => {
+        const aluno = state.alunosCache[s.alunoId];
+        const nome = aluno?.nome || 'Aluno #' + s.alunoId;
+        const status = STATUS_INFO[s.status] || s.status;
+        const tipo = TIPO_INFO[s.tipo] || s.tipo || '—';
+
+        return `
+        <tr>
+          <td><span class="admin-protocolo">${escapeHtml(s.protocolo || '—')}</span></td>
+          <td>${escapeHtml(nome)}</td>
+          <td>${escapeHtml(tipo)}</td>
+          <td>${fmtData(s.dataEnvio)}</td>
+          <td><span class="admin-tabela-status ${s.status}">${escapeHtml(status)}</span></td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    // ---------- 8. Atividades recentes ----------
+    function renderizarAtividades() {
+      const container = document.getElementById('atividadesRecentes');
+      const atividades = [];
+
+      // Últimos atendimentos (5 mais recentes com status REALIZADO ou AGENDADO)
+      const ultimosAtendimentos = state.atendimentos
+              .sort((a, b) => new Date(b.criadoEm || b.dataHoraInicio) - new Date(a.criadoEm || a.dataHoraInicio))
+              .slice(0, 3);
+
+      ultimosAtendimentos.forEach(a => {
+        const aluno = state.alunosCache[a.alunoId];
+        const nome = aluno?.nome || 'Aluno';
+        atividades.push({
+          tipo: 'atendimento',
+          icone: '▤',
+          cor: 'blue',
+          titulo: `Novo atendimento agendado para <b>${escapeHtml(nome)}</b>`,
+          data: a.criadoEm || a.dataHoraInicio
+        });
+      });
+
+      // Últimas solicitações
+      const ultimasSolicitacoes = state.solicitacoes
+              .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
+              .slice(0, 3);
+
+      ultimasSolicitacoes.forEach(s => {
+        const aluno = state.alunosCache[s.alunoId];
+        const nome = aluno?.nome || 'Aluno';
+        const cor = s.status === 'DEFERIDA' ? 'green'
+                : s.status === 'INDEFERIDA' ? 'red'
+                        : s.status === 'EM_ANALISE' ? 'orange'
+                                : 'purple';
+        atividades.push({
+          tipo: 'solicitacao',
+          icone: '♧',
+          cor: cor,
+          titulo: `Solicitação de adaptação de <b>${escapeHtml(nome)}</b>`,
+          data: s.dataEnvio
+        });
+      });
+
+      // Ordena por data
+      atividades.sort((a, b) => new Date(b.data) - new Date(a.data));
+      const top = atividades.slice(0, 5);
+
+      if (!top.length) {
+        container.innerHTML = `
+        <div class="admin-empty">
+          <b>Nenhuma atividade recente</b>
+          As movimentações aparecerão aqui quando houver cadastros e solicitações.
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = top.map(a => `
+      <div class="admin-atividade">
+        <span class="admin-atividade-ico ${a.cor}">${a.icone}</span>
+        <div class="admin-atividade-conteudo">
+          <p class="admin-atividade-titulo">${a.titulo}</p>
+          <span class="admin-atividade-hora">${fmtRelativo(a.data)}</span>
+        </div>
+      </div>
+    `).join('');
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      // Carrega tudo em paralelo, mas alunos primeiro (para o cache)
+      await carregarAlunos();
+
+      await Promise.allSettled([
+        carregarProfissionais(),
+        carregarAtendimentos(),
+        carregarSolicitacoes(),
+        carregarNotificacoes()
+      ]);
+
+      renderizarAtividades();
+    });
+  })();
+</script>
+
+</body>
+</html>

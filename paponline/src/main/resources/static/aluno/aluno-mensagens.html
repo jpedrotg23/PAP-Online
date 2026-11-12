@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Mensagens</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    /* Empty state centralizado dentro da área de mensagens */
+    .chat-empty-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      color: #75829c;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .chat-empty-wrap .chat-empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #e8f0ff;
+      color: #2059dc;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+    .chat-empty-wrap b {
+      font-size: 14px;
+      color: #34415a;
+      margin-bottom: 6px;
+    }
+    .chat-empty-wrap p { margin: 0 0 16px; max-width: 320px; }
+
+    /* Header da lista com botão + Nova conversa */
+    .chat-list-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-nova-conversa {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 7px;
+      background: #2059dc;
+      color: #fff;
+      font: 700 11px Inter, Arial, sans-serif;
+      border: 0;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-nova-conversa:hover { filter: brightness(1.08); }
+
+    /* Contato com badge de não lidas */
+    .portal-contact .unread-count {
+      background: #d92d20;
+      color: #fff;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 0 4px;
+      margin-left: 4px;
+    }
+
+    /* Hora abaixo do balão */
+    .chat-time {
+      font-size: 9px;
+      color: #98a3b5;
+      margin-top: 4px;
+      padding: 0 6px;
+    }
+    .portal-bubble.outgoing + .chat-time { align-self: flex-end; }
+    .portal-bubble.incoming + .chat-time { align-self: flex-start; }
+
+    /* Overlay do modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 26, 63, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 26px 28px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(10, 26, 63, 0.25);
+    }
+    .modal-box h2 {
+      font-size: 16px;
+      margin: 0 0 6px;
+      color: var(--portal-text);
+    }
+    .modal-box p {
+      font-size: 12px;
+      color: var(--portal-muted);
+      margin: 0 0 18px;
+      line-height: 1.55;
+    }
+    .modal-box label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #3b4860;
+      margin-bottom: 6px;
+    }
+    .modal-box select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid #dfe6f1;
+      border-radius: 9px;
+      background: #f8faff;
+      color: #34415a;
+      font: 400 12px Inter, Arial, sans-serif;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    .modal-box select:focus { border-color: #7da3f7; }
+    .modal-actions {
+      display: flex;
+      gap: 9px;
+      justify-content: flex-end;
+    }
+    .modal-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font: 700 12px Inter, Arial, sans-serif;
+      border: 0;
+      cursor: pointer;
+    }
+    .modal-btn.cancel {
+      background: #fff;
+      border: 1px solid #dfe6f1;
+      color: #64738d;
+    }
+    .modal-btn.confirm {
+      background: #2059dc;
+      color: #fff;
+    }
+    .modal-btn.confirm:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    /* Chat compose mais espaçado */
+    .portal-chat-compose input {
+      height: 42px;
+      padding: 0 14px;
+    }
+    .portal-chat-compose .portal-button {
+      height: 42px;
+      padding: 0 18px;
+    }
+
+    @media (max-width: 760px) {
+      .chat-list-head-actions { flex-wrap: wrap; }
+      .btn-nova-conversa { font-size: 10px; padding: 5px 9px; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
+        <span class="portal-nav-icon">▦</span><span>Agendar</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-adaptacoes.html">
+        <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+      </a>
+      <a class="portal-nav-link active" href="/aluno/aluno-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-historico.html">
+        <span class="portal-nav-icon">▤</span><span>Histórico</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-perfil.html">
+        <span class="portal-nav-icon">♙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Mensagens</h1>
+        <p>Converse com a equipe do Programa de Apoio Psicopedagógico.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <div class="portal-chat-layout">
+
+        <!-- ============ LISTA DE CONVERSAS ============ -->
+        <aside class="portal-chat-list">
+          <div class="portal-chat-list-head">
+            <h2>Conversas</h2>
+            <div class="chat-list-head-actions">
+              <span class="portal-pill info" id="badgeTotalConversas">0</span>
+              <button type="button" class="btn-nova-conversa" id="btnAbrirNovaConversa">
+                + Nova
+              </button>
+            </div>
+          </div>
+          <input class="portal-search" type="search" id="buscaConversa"
+                 placeholder="Buscar conversa..." aria-label="Buscar conversa">
+          <div class="portal-contacts" id="listaConversas">
+            <div class="chat-empty-wrap" style="min-height:120px">
+              <b>Carregando…</b>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ============ JANELA DE CHAT ============ -->
+        <section class="portal-chat-window">
+          <header class="portal-chat-top" id="chatTop">
+            <span class="portal-avatar" id="chatAvatar">—</span>
+            <div>
+              <b id="chatName">Selecione uma conversa</b>
+              <small id="chatStatus">Escolha um contato na lista à esquerda</small>
+            </div>
+          </header>
+
+          <div class="portal-chat-messages" id="chatMessages">
+            <div class="chat-empty-wrap">
+              <div class="chat-empty-icon">✉</div>
+              <b>Selecione uma conversa</b>
+              <p>Escolha um contato na lista à esquerda para começar.</p>
+            </div>
+          </div>
+
+          <form class="portal-chat-compose" id="chatForm">
+            <input type="text" id="chatInput" placeholder="Digite sua mensagem..."
+                   aria-label="Mensagem" required autocomplete="off" disabled>
+            <button class="portal-button" type="submit" id="chatSendBtn" disabled>
+              Enviar
+            </button>
+          </form>
+        </section>
+
+      </div>
+
+      <p class="portal-info-box" style="margin-top:14px">
+        O chat do PAP é um canal assíncrono. Em situações de emergência, ligue para o CVV (188) ou SAMU (192).
+      </p>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL NOVA CONVERSA ============ -->
+<div class="modal-overlay" id="modalNovaConversa" style="display:none">
+  <div class="modal-box">
+    <h2>Nova conversa</h2>
+    <p>Selecione um profissional que já te atendeu no PAP para iniciar uma conversa.</p>
+    <label for="selectProfissional">Profissional</label>
+    <select id="selectProfissional" disabled>
+      <option>Carregando…</option>
+    </select>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" id="btnCancelarNovaConversa">Cancelar</button>
+      <button type="button" class="modal-btn confirm" id="btnConfirmarNovaConversa" disabled>Criar conversa</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET   /conversas/aluno/{alunoId}
+    //   GET   /conversas/{id}/mensagens
+    //   POST  /conversas/{id}/mensagens
+    //   PATCH /conversas/mensagens/{id}/lida
+    //   POST  /conversas?alunoId=X&profissionalId=Y
+    //   GET   /profissionais/{id}
+    //   GET   /atendimentos/aluno/{alunoId}
+
+    const state = {
+      usuario: null,
+      conversas: [],
+      mensagensCache: {},
+      profissionaisCache: {},
+      conversaAtiva: null,
+      enviando: false
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function formatarHoraCurta(iso) {
+      return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatarHoraLista(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const hoje = new Date();
+      const ontem = new Date(hoje);
+      ontem.setDate(hoje.getDate() - 1);
+
+      if (d.toDateString() === hoje.toDateString()) return formatarHoraCurta(iso);
+      if (d.toDateString() === ontem.toDateString()) return 'Ontem';
+
+      const diffDias = (hoje - d) / (1000 * 60 * 60 * 24);
+      if (diffDias < 7) {
+        return d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+      }
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    function formatarDataMensagem(iso) {
+      const d = new Date(iso);
+      const hoje = new Date();
+      if (d.toDateString() === hoje.toDateString()) return formatarHoraCurta(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+              ' · ' + formatarHoraCurta(iso);
+    }
+
+    function scrollParaFim() {
+      const el = document.getElementById('chatMessages');
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+
+    // ---------- 1. Usuário logado ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Aluno');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Profissional (com cache) ----------
+    async function buscarProfissional(profId) {
+      if (!profId) return null;
+      if (state.profissionaisCache[profId]) return state.profissionaisCache[profId];
+      try {
+        const r = await fetch(`/profissionais/${profId}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const prof = await r.json();
+        state.profissionaisCache[profId] = prof;
+        return prof;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // ---------- 4. Mensagens (com cache) ----------
+    async function buscarMensagens(conversaId) {
+      if (state.mensagensCache[conversaId]) return state.mensagensCache[conversaId];
+      try {
+        const r = await fetch(`/conversas/${conversaId}/mensagens`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const mensagens = await r.json();
+        state.mensagensCache[conversaId] = mensagens;
+        return mensagens;
+      } catch (_) {
+        return [];
+      }
+    }
+
+    // ---------- 5. Carregar conversas ----------
+    async function carregarConversas() {
+      if (!state.usuario?.id) return;
+
+      try {
+        const r = await fetch(`/conversas/aluno/${state.usuario.id}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.conversas = await r.json();
+
+        // Pré-carrega dados de profissionais e mensagens (paralelo)
+        await Promise.all(state.conversas.map(async c => {
+          await buscarProfissional(c.profissionalId);
+          await buscarMensagens(c.id);
+        }));
+
+        // Ordena pela última atualização
+        state.conversas.sort((a, b) =>
+                new Date(b.atualizadoEm || b.criadoEm) - new Date(a.atualizadoEm || a.criadoEm)
+        );
+
+        renderizarLista();
+        set('badgeTotalConversas', String(state.conversas.length));
+
+        // Se houver conversas, seleciona a primeira automaticamente
+        if (state.conversas.length > 0) {
+          selecionarConversa(state.conversas[0].id);
+        }
+      } catch (e) {
+        console.error('Erro ao carregar conversas', e);
+        document.getElementById('listaConversas').innerHTML = `
+        <div class="chat-empty-wrap" style="min-height:120px">
+          <b>Erro ao carregar</b>
+          <p>Tente novamente mais tarde.</p>
+        </div>`;
+      }
+    }
+
+    // ---------- 6. Renderizar lista ----------
+    function renderizarLista() {
+      const container = document.getElementById('listaConversas');
+      const termo = (document.getElementById('buscaConversa')?.value || '').toLowerCase().trim();
+
+      if (!state.conversas.length) {
+        container.innerHTML = `
+        <div class="chat-empty-wrap">
+          <b>Nenhuma conversa ainda</b>
+          <p>Clique em "+ Nova" para iniciar uma conversa com um profissional que já te atendeu.</p>
+        </div>`;
+        return;
+      }
+
+      const filtradas = state.conversas.filter(c => {
+        if (!termo) return true;
+        const prof = state.profissionaisCache[c.profissionalId];
+        return (prof?.nome || '').toLowerCase().includes(termo);
+      });
+
+      if (!filtradas.length) {
+        container.innerHTML = `
+        <div class="chat-empty-wrap" style="min-height:120px">
+          <b>Nenhum resultado</b>
+          <p>Ajuste a busca.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = filtradas.map(c => {
+        const prof = state.profissionaisCache[c.profissionalId];
+        const nome = prof?.nome || 'Profissional';
+        const mensagens = state.mensagensCache[c.id] || [];
+        const ultima = mensagens[mensagens.length - 1];
+        const preview = ultima
+                ? (ultima.remetenteId === state.usuario.id ? 'Você: ' : '') + ultima.conteudo
+                : 'Sem mensagens ainda';
+        const previewCurto = preview.length > 60 ? preview.substring(0, 60) + '…' : preview;
+        const unread = mensagens.filter(m => m.remetenteId !== state.usuario.id && !m.lida).length;
+        const ativa = state.conversaAtiva === c.id ? 'selected' : '';
+
+        return `
+        <button type="button" class="portal-contact ${ativa}" data-conversa-id="${c.id}">
+          <span class="portal-avatar">${iniciais(nome)}</span>
+          <span>
+            <b>${escapeHtml(nome)}</b>
+            <small>${escapeHtml(previewCurto)}</small>
+          </span>
+          <time>
+            ${formatarHoraLista(c.atualizadoEm || c.criadoEm)}
+            ${unread > 0 ? `<span class="unread-count">${unread > 9 ? '9+' : unread}</span>` : ''}
+          </time>
+        </button>
+      `;
+      }).join('');
+
+      container.querySelectorAll('.portal-contact').forEach(btn => {
+        btn.addEventListener('click', () => selecionarConversa(Number(btn.dataset.conversaId)));
+      });
+    }
+
+    // ---------- 7. Selecionar conversa ----------
+    async function selecionarConversa(conversaId) {
+      state.conversaAtiva = conversaId;
+      const conversa = state.conversas.find(c => c.id === conversaId);
+      if (!conversa) return;
+
+      const prof = state.profissionaisCache[conversa.profissionalId];
+      const nome = prof?.nome || 'Profissional';
+
+      set('chatName', nome);
+      set('chatStatus', prof?.crp ? `${prof.crp} · ${prof.cargo || 'Profissional'}` : 'Profissional do PAP');
+      const avatar = document.getElementById('chatAvatar');
+      if (avatar) avatar.textContent = iniciais(nome);
+
+      // Habilita input
+      document.getElementById('chatInput').disabled = false;
+      document.getElementById('chatSendBtn').disabled = false;
+      document.getElementById('chatInput').focus();
+
+      renderizarMensagens();
+      renderizarLista();
+
+      // Marca mensagens não lidas como lidas (fire and forget)
+      marcarComoLidas(conversaId);
+    }
+
+    // ---------- 8. Marcar como lidas ----------
+    async function marcarComoLidas(conversaId) {
+      const mensagens = state.mensagensCache[conversaId] || [];
+      const naoLidas = mensagens.filter(m => m.remetenteId !== state.usuario.id && !m.lida);
+
+      await Promise.allSettled(naoLidas.map(m =>
+              fetch(`/conversas/mensagens/${m.id}/lida`, {
+                method: 'PATCH',
+                credentials: 'include'
+              })
+      ));
+
+      // Atualiza o estado local para refletir no próximo render
+      naoLidas.forEach(m => { m.lida = true; });
+    }
+
+    // ---------- 9. Renderizar mensagens ----------
+    function renderizarMensagens() {
+      const container = document.getElementById('chatMessages');
+      if (!state.conversaAtiva) {
+        container.innerHTML = `
+        <div class="chat-empty-wrap">
+          <div class="chat-empty-icon">✉</div>
+          <b>Selecione uma conversa</b>
+          <p>Escolha um contato na lista à esquerda para começar.</p>
+        </div>`;
+        return;
+      }
+
+      const mensagens = state.mensagensCache[state.conversaAtiva] || [];
+
+      if (!mensagens.length) {
+        container.innerHTML = `
+        <div class="chat-empty-wrap">
+          <div class="chat-empty-icon">💬</div>
+          <b>Nenhuma mensagem ainda</b>
+          <p>Envie a primeira mensagem para iniciar a conversa com este profissional.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = mensagens.map(m => {
+        const outgoing = m.remetenteId === state.usuario.id;
+        return `
+        <div class="portal-bubble ${outgoing ? 'outgoing' : 'incoming'}">${escapeHtml(m.conteudo)}</div>
+        <div class="chat-time">${formatarDataMensagem(m.enviadaEm)}</div>
+      `;
+      }).join('');
+
+      scrollParaFim();
+    }
+
+    // ---------- 10. Enviar mensagem ----------
+    async function enviarMensagem(event) {
+      event.preventDefault();
+      if (state.enviando || !state.conversaAtiva) return;
+
+      const input = document.getElementById('chatInput');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      state.enviando = true;
+      const btn = document.getElementById('chatSendBtn');
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      try {
+        const r = await fetch(`/conversas/${state.conversaAtiva}/mensagens`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            remetenteId: state.usuario.id,
+            conteudo: texto
+          })
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || 'Erro ao enviar');
+        }
+
+        const nova = await r.json();
+
+        // Adiciona ao cache
+        if (!state.mensagensCache[state.conversaAtiva]) state.mensagensCache[state.conversaAtiva] = [];
+        state.mensagensCache[state.conversaAtiva].push(nova);
+
+        // Atualiza data da conversa (para reordenar)
+        const conversa = state.conversas.find(c => c.id === state.conversaAtiva);
+        if (conversa) conversa.atualizadoEm = new Date().toISOString();
+
+        input.value = '';
+        renderizarMensagens();
+        renderizarLista();
+      } catch (e) {
+        console.error('Erro ao enviar mensagem', e);
+        alert('Não foi possível enviar a mensagem. Tente novamente.');
+      } finally {
+        state.enviando = false;
+        btn.disabled = false;
+        btn.textContent = 'Enviar';
+        input.focus();
+      }
+    }
+
+    // ---------- 11. Nova conversa ----------
+    async function abrirModalNovaConversa() {
+      const modal = document.getElementById('modalNovaConversa');
+      const select = document.getElementById('selectProfissional');
+      const btnConfirmar = document.getElementById('btnConfirmarNovaConversa');
+
+      modal.style.display = 'flex';
+      select.innerHTML = '<option>Carregando…</option>';
+      select.disabled = true;
+      btnConfirmar.disabled = true;
+
+      try {
+        // Busca profissionais com quem o aluno já teve atendimento (RGN12)
+        const r = await fetch(`/atendimentos/aluno/${state.usuario.id}`, { credentials: 'include' });
+        const atendimentos = r.ok ? await r.json() : [];
+        const profIds = [...new Set(atendimentos.map(a => a.profissionalId).filter(Boolean))];
+
+        const profs = await Promise.all(profIds.map(id => buscarProfissional(id)));
+        const validos = profs.filter(Boolean);
+
+        if (!validos.length) {
+          select.innerHTML = '<option value="">Nenhum profissional disponível</option>';
+          return;
+        }
+
+        select.innerHTML = '<option value="">Selecione…</option>' +
+                validos.map(p => `<option value="${p.id}">${escapeHtml(p.nome)}${p.crp ? ' · ' + escapeHtml(p.crp) : ''}</option>`).join('');
+        select.disabled = false;
+
+        select.onchange = () => {
+          btnConfirmar.disabled = !select.value;
+        };
+      } catch (e) {
+        console.error('Erro ao carregar profissionais', e);
+        select.innerHTML = '<option value="">Erro ao carregar</option>';
+      }
+    }
+
+    function fecharModalNovaConversa() {
+      document.getElementById('modalNovaConversa').style.display = 'none';
+    }
+
+    async function criarNovaConversa() {
+      const select = document.getElementById('selectProfissional');
+      const profId = Number(select.value);
+      if (!profId) return;
+
+      const btn = document.getElementById('btnConfirmarNovaConversa');
+      btn.disabled = true;
+      btn.textContent = 'Criando…';
+
+      try {
+        const r = await fetch(
+                `/conversas?alunoId=${state.usuario.id}&profissionalId=${profId}`,
+                { method: 'POST', credentials: 'include' }
+        );
+
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const conversa = await r.json();
+
+        // Adiciona ao state se não existir
+        if (!state.conversas.find(c => c.id === conversa.id)) {
+          state.conversas.unshift(conversa);
+          await buscarProfissional(conversa.profissionalId);
+          await buscarMensagens(conversa.id);
+        }
+
+        fecharModalNovaConversa();
+        await carregarConversas();
+        selecionarConversa(conversa.id);
+      } catch (e) {
+        console.error('Erro ao criar conversa', e);
+        alert('Não foi possível criar a conversa. Tente novamente.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Criar conversa';
+      }
+    }
+
+    // ---------- 12. Eventos ----------
+    function ligarEventos() {
+      const input = document.getElementById('chatInput');
+      const form = document.getElementById('chatForm');
+      const busca = document.getElementById('buscaConversa');
+
+      form.addEventListener('submit', enviarMensagem);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          form.requestSubmit();
+        }
+      });
+
+      if (busca) busca.addEventListener('input', renderizarLista);
+
+      document.getElementById('btnAbrirNovaConversa').addEventListener('click', abrirModalNovaConversa);
+      document.getElementById('btnCancelarNovaConversa').addEventListener('click', fecharModalNovaConversa);
+      document.getElementById('btnConfirmarNovaConversa').addEventListener('click', criarNovaConversa);
+
+      document.getElementById('modalNovaConversa').addEventListener('click', (e) => {
+        if (e.target.id === 'modalNovaConversa') fecharModalNovaConversa();
+      });
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarConversas(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Alunos</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    .pap-loading-overlay{
+      position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+      display:grid;place-items:center;color:#667085;
+      font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+    }
+
+    /* ========== Toolbar ========== */
+    .admin-toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:16px;
+    }
+    .admin-search{
+      flex:1;
+      min-width:240px;
+      max-width:380px;
+    }
+    .admin-search input{
+      width:100%;
+      height:42px;
+      padding:0 14px;
+      border:1px solid #dfe6f1;
+      border-radius:10px;
+      background:#fff;
+      color:#34415a;
+      font:400 12px Inter,Arial,sans-serif;
+      outline:none;
+      transition:border-color .15s;
+    }
+    .admin-search input:focus{ border-color:#7da3f7; }
+    .admin-search input::placeholder{ color:#a8b0c0; }
+
+    .admin-filtro{
+      height:42px;
+      padding:0 14px;
+      border:1px solid #dfe6f1;
+      border-radius:10px;
+      background:#fff;
+      color:#34415a;
+      font:600 11px Inter,Arial,sans-serif;
+      cursor:pointer;
+    }
+
+    .admin-btn-exportar{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:0 18px;
+      height:42px;
+      border-radius:10px;
+      background:#fff;
+      color:#64738d;
+      border:1px solid #dfe6f1;
+      cursor:pointer;
+      font:700 12px Inter,Arial,sans-serif;
+      white-space:nowrap;
+      margin-left:auto;
+      transition:all .15s;
+    }
+    .admin-btn-exportar:hover{ border-color:#7ba1f5; color:#2059dc; }
+
+    /* ========== Stats ========== */
+    .admin-stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .admin-stat{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:16px;
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:12px;
+    }
+    .admin-stat-ico{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      font-size:17px;
+      flex-shrink:0;
+    }
+    .admin-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
+    .admin-stat-ico.purple{ background:#f0e8ff; color:#7732d9; }
+    .admin-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
+    .admin-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
+    .admin-stat small{
+      display:block;
+      font-size:10px;
+      color:#7e8ba2;
+      margin-bottom:3px;
+    }
+    .admin-stat strong{
+      font-size:20px;
+      color:var(--portal-text);
+      line-height:1;
+    }
+
+    /* ========== Tabela ========== */
+    .admin-tabela-wrap{
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .admin-tabela{
+      width:100%;
+      border-collapse:collapse;
+      text-align:left;
+    }
+    .admin-tabela th{
+      padding:13px 16px;
+      background:#f7f9fc;
+      border-bottom:1px solid #edf0f5;
+      font-size:10px;
+      font-weight:700;
+      color:#7e8ba2;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      white-space:nowrap;
+    }
+    .admin-tabela td{
+      padding:14px 16px;
+      border-bottom:1px solid #edf0f5;
+      font-size:12px;
+      color:#52617a;
+      vertical-align:middle;
+    }
+    .admin-tabela tbody tr:last-child td{ border-bottom:0; }
+    .admin-tabela tbody tr:hover{ background:#fafbfe; }
+
+    .admin-tabela-pessoa{
+      display:flex;
+      align-items:center;
+      gap:11px;
+    }
+    .admin-tabela-avatar{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:#3b7bea;
+      color:#fff;
+      display:grid;
+      place-items:center;
+      font-size:11px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .admin-tabela-nome{
+      font-size:12px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 2px;
+    }
+    .admin-tabela-email{
+      font-size:10px;
+      color:#94a0b3;
+      margin:0;
+    }
+    .admin-tabela-matricula{
+      font-family:monospace;
+      font-size:11px;
+      color:#52617a;
+    }
+
+    .admin-tabela-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:99px;
+      font-size:10px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .admin-tabela-pill.graduacao{ background:#eaf1ff; color:#2059dc; }
+    .admin-tabela-pill.pos{ background:#f0e8ff; color:#7732d9; }
+    .admin-tabela-pill.ativo{ background:#e5f6ef; color:#0b8b61; }
+
+    .admin-tabela-acoes{
+      display:flex;
+      gap:6px;
+      justify-content:flex-end;
+    }
+    .admin-acao{
+      width:32px;
+      height:32px;
+      border-radius:8px;
+      border:1px solid #dfe6f1;
+      background:#fff;
+      color:#64738d;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      font-size:13px;
+      transition:all .15s;
+    }
+    .admin-acao:hover{ border-color:#7ba1f5; color:#2059dc; }
+
+    .admin-empty-table{
+      padding:40px 20px;
+      text-align:center;
+      color:#75829c;
+      font-size:12px;
+      line-height:1.6;
+    }
+    .admin-empty-table b{
+      display:block;
+      font-size:13px;
+      color:#34415a;
+      margin-bottom:6px;
+    }
+
+    /* ========== Modal detalhe ========== */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(10,26,63,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    .modal-box{
+      background:#fff;
+      border-radius:14px;
+      padding:26px 28px;
+      max-width:520px;
+      width:100%;
+      max-height:90vh;
+      overflow-y:auto;
+      box-shadow:0 20px 60px rgba(10,26,63,.25);
+    }
+    .modal-box h2{
+      font-size:16px;
+      margin:0 0 6px;
+      color:var(--portal-text);
+    }
+    .modal-box > p{
+      font-size:12px;
+      color:var(--portal-muted);
+      margin:0 0 20px;
+      line-height:1.55;
+    }
+
+    .modal-detalhe-pessoa{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:16px;
+      background:#f8faff;
+      border:1px solid #edf0f5;
+      border-radius:11px;
+      margin-bottom:20px;
+    }
+    .modal-detalhe-avatar{
+      width:54px;
+      height:54px;
+      border-radius:50%;
+      background:#3b7bea;
+      color:#fff;
+      display:grid;
+      place-items:center;
+      font-size:16px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .modal-detalhe-nome{
+      font-size:14px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 3px;
+    }
+    .modal-detalhe-email{
+      font-size:11px;
+      color:#7e8ba2;
+      margin:0;
+    }
+
+    .modal-detalhe-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:16px;
+    }
+    .modal-detalhe-item{
+      padding:12px 14px;
+      background:#fafbfe;
+      border:1px solid #edf0f5;
+      border-radius:9px;
+    }
+    .modal-detalhe-rotulo{
+      font-size:10px;
+      font-weight:600;
+      color:#7e8ba2;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      margin:0 0 5px;
+    }
+    .modal-detalhe-valor{
+      font-size:12px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0;
+      word-break:break-word;
+    }
+    .modal-detalhe-valor.mono{
+      font-family:monospace;
+      font-size:13px;
+    }
+    .modal-detalhe-valor.pill{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:99px;
+      font-size:10px;
+      font-weight:700;
+    }
+
+    .modal-actions{
+      display:flex;
+      gap:9px;
+      justify-content:flex-end;
+      padding-top:16px;
+      border-top:1px solid #edf0f5;
+    }
+    .modal-btn{
+      padding:11px 18px;
+      border-radius:9px;
+      font:700 12px Inter,Arial,sans-serif;
+      border:0;
+      cursor:pointer;
+      transition:all .15s;
+    }
+    .modal-btn.cancel{
+      background:#fff;
+      border:1px solid #dfe6f1;
+      color:#64738d;
+    }
+    .modal-btn.cancel:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .modal-btn.primary{
+      background:#2059dc;
+      color:#fff;
+    }
+    .modal-btn.primary:hover{ filter:brightness(1.08); }
+
+    /* Info box */
+    .portal-info-box{
+      margin-top:14px;
+    }
+
+    @media (max-width:1080px){
+      .admin-stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .admin-tabela{ min-width:820px; }
+      .admin-tabela-wrap{ overflow-x:auto; }
+    }
+    @media (max-width:760px){
+      .admin-stats{ grid-template-columns:1fr; }
+      .admin-btn-exportar{ width:100%; justify-content:center; margin-left:0; }
+      .modal-detalhe-grid{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/admin/admin-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-profissionais.html">
+        <span class="portal-nav-icon">♙</span><span>Profissionais</span>
+      </a>
+      <a class="portal-nav-link active" href="/admin/admin-alunos.html">
+        <span class="portal-nav-icon">♧</span><span>Alunos</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-relatorios.html">
+        <span class="portal-nav-icon">▤</span><span>Relatórios</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-notificacoes.html">
+        <span class="portal-nav-icon">♢</span><span>Notificações</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-perfil.html">
+        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Alunos</h1>
+        <p>Consulte os estudantes cadastrados e seus vínculos com o PAP.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Toolbar -->
+      <div class="admin-toolbar">
+        <div class="admin-search">
+          <input type="search" id="buscaAluno"
+                 placeholder="Buscar por nome, matrícula ou curso..."
+                 aria-label="Buscar aluno">
+        </div>
+        <select class="admin-filtro" id="filtroVinculo" aria-label="Filtrar por vínculo">
+          <option value="all">Todos os vínculos</option>
+          <option value="GRADUACAO">Graduação</option>
+          <option value="POS_GRADUACAO">Pós-graduação</option>
+        </select>
+        <button class="admin-btn-exportar" type="button" id="btnExportar">
+          ↓ Exportar CSV
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        <article class="admin-stat">
+          <span class="admin-stat-ico blue">♧</span>
+          <div>
+            <small>Total de alunos</small>
+            <strong id="statTotal">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico green">✓</span>
+          <div>
+            <small>Vínculo ativo</small>
+            <strong id="statAtivos">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico purple">▤</span>
+          <div>
+            <small>Graduação</small>
+            <strong id="statGraduacao">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico orange">◈</span>
+          <div>
+            <small>Pós-graduação</small>
+            <strong id="statPos">—</strong>
+          </div>
+        </article>
+      </div>
+
+      <!-- Tabela -->
+      <div class="admin-tabela-wrap">
+        <table class="admin-tabela">
+          <thead>
+          <tr>
+            <th>Estudante</th>
+            <th>Matrícula</th>
+            <th>Curso</th>
+            <th>Vínculo</th>
+            <th>Status</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+          </thead>
+          <tbody id="tabelaAlunos">
+          <tr>
+            <td colspan="6">
+              <div class="admin-empty-table">
+                <b>Carregando…</b>
+                Buscando alunos.
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="portal-info-box">
+        As informações acadêmicas e pessoais devem ser consultadas somente por pessoas autorizadas. Esta tela utiliza apenas dados autorizados recebidos do backend.
+      </p>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL DETALHE DO ALUNO ============ -->
+<div class="modal-overlay" id="modalDetalhe" style="display:none">
+  <div class="modal-box">
+    <h2>Detalhes do aluno</h2>
+    <p>Informações cadastrais e de vínculo com a Unifor.</p>
+
+    <div id="detalheConteudo"></div>
+
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" id="btnFecharDetalhe">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET   /auth/session
+    //   GET   /alunos
+    //   GET   /notificacoes/usuario/{id}/count
+
+    const state = {
+      usuario: null,
+      alunos: [],
+      busca: '',
+      filtroVinculo: 'all'
+    };
+
+    const VINCULO_LABEL = {
+      GRADUACAO: 'Graduação',
+      POS_GRADUACAO: 'Pós-graduação'
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function vinculoLabel(v) {
+      return VINCULO_LABEL[v] || v || '—';
+    }
+
+    function vinculoClasse(v) {
+      return v === 'POS_GRADUACAO' ? 'pos' : 'graduacao';
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Administrador');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Carregar alunos ----------
+    async function carregarAlunos() {
+      try {
+        const r = await fetch('/alunos', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.alunos = await r.json();
+
+        calcularStats();
+        renderizarTabela();
+      } catch (e) {
+        console.error('Erro ao carregar alunos', e);
+        document.getElementById('tabelaAlunos').innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="admin-empty-table">
+              <b>Não foi possível carregar</b>
+              Tente novamente em instantes.
+            </div>
+          </td>
+        </tr>`;
+        set('statTotal', '—');
+        set('statAtivos', '—');
+        set('statGraduacao', '—');
+        set('statPos', '—');
+      }
+    }
+
+    // ---------- 4. Stats ----------
+    function calcularStats() {
+      const total = state.alunos.length;
+
+      // Backend não tem campo "ativo" — considera todos com vínculo ativo
+      const ativos = total;
+      const graduacao = state.alunos.filter(a => a.vinculo === 'GRADUACAO').length;
+      const pos = state.alunos.filter(a => a.vinculo === 'POS_GRADUACAO').length;
+
+      set('statTotal', String(total));
+      set('statAtivos', String(ativos));
+      set('statGraduacao', String(graduacao));
+      set('statPos', String(pos));
+    }
+
+    // ---------- 5. Tabela ----------
+    function renderizarTabela() {
+      const tbody = document.getElementById('tabelaAlunos');
+      const termo = state.busca.toLowerCase();
+      const filtro = state.filtroVinculo;
+
+      const filtrados = state.alunos.filter(a => {
+        if (filtro !== 'all' && a.vinculo !== filtro) return false;
+        if (!termo) return true;
+        const busca = (a.nome || '') + ' ' + (a.matricula || '') + ' ' + (a.curso || '');
+        return busca.toLowerCase().includes(termo);
+      });
+
+      if (!filtrados.length) {
+        const msg = state.alunos.length === 0
+                ? { titulo: 'Nenhum aluno cadastrado', texto: 'Os alunos aparecerão aqui quando se cadastrarem no PAP Online.' }
+                : { titulo: 'Nenhum resultado para a busca', texto: 'Ajuste a busca ou o filtro de vínculo.' };
+
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="admin-empty-table">
+              <b>${msg.titulo}</b>
+              ${msg.texto}
+            </div>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(a => `
+      <tr>
+        <td>
+          <div class="admin-tabela-pessoa">
+            <span class="admin-tabela-avatar">${iniciais(a.nome)}</span>
+            <div>
+              <p class="admin-tabela-nome">${escapeHtml(a.nome)}</p>
+              <p class="admin-tabela-email">${escapeHtml(a.email || '—')}</p>
+            </div>
+          </div>
+        </td>
+        <td><span class="admin-tabela-matricula">${escapeHtml(a.matricula || '—')}</span></td>
+        <td>${escapeHtml(a.curso || '—')}</td>
+        <td>
+          <span class="admin-tabela-pill ${vinculoClasse(a.vinculo)}">
+            ${vinculoLabel(a.vinculo)}
+          </span>
+        </td>
+        <td>
+          <span class="admin-tabela-pill ativo">Ativo</span>
+        </td>
+        <td>
+          <div class="admin-tabela-acoes">
+            <button class="admin-acao" data-detalhe="${a.id}" title="Ver detalhes" type="button">👁</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+      // Eventos
+      tbody.querySelectorAll('[data-detalhe]').forEach(btn => {
+        btn.addEventListener('click', () => abrirDetalhe(Number(btn.dataset.detalhe)));
+      });
+    }
+
+    // ---------- 6. Detalhe ----------
+    function abrirDetalhe(id) {
+      const aluno = state.alunos.find(a => a.id === id);
+      if (!aluno) return;
+
+      const container = document.getElementById('detalheConteudo');
+      container.innerHTML = `
+      <div class="modal-detalhe-pessoa">
+        <span class="modal-detalhe-avatar">${iniciais(aluno.nome)}</span>
+        <div>
+          <p class="modal-detalhe-nome">${escapeHtml(aluno.nome)}</p>
+          <p class="modal-detalhe-email">${escapeHtml(aluno.email || 'E-mail não informado')}</p>
+        </div>
+      </div>
+
+      <div class="modal-detalhe-grid">
+        <div class="modal-detalhe-item">
+          <p class="modal-detalhe-rotulo">Matrícula</p>
+          <p class="modal-detalhe-valor mono">${escapeHtml(aluno.matricula || '—')}</p>
+        </div>
+        <div class="modal-detalhe-item">
+          <p class="modal-detalhe-rotulo">Vínculo</p>
+          <p class="modal-detalhe-valor">
+            <span class="modal-detalhe-valor pill ${vinculoClasse(aluno.vinculo) === 'pos' ? 'admin-tabela-pill pos' : 'admin-tabela-pill graduacao'}">
+              ${vinculoLabel(aluno.vinculo)}
+            </span>
+          </p>
+        </div>
+        <div class="modal-detalhe-item" style="grid-column:1/-1">
+          <p class="modal-detalhe-rotulo">Curso</p>
+          <p class="modal-detalhe-valor">${escapeHtml(aluno.curso || '—')}</p>
+        </div>
+        <div class="modal-detalhe-item">
+          <p class="modal-detalhe-rotulo">Telefone</p>
+          <p class="modal-detalhe-valor">${escapeHtml(aluno.telefone || 'Não informado')}</p>
+        </div>
+        <div class="modal-detalhe-item">
+          <p class="modal-detalhe-rotulo">Status</p>
+          <p class="modal-detalhe-valor">
+            <span class="admin-tabela-pill ativo">Ativo</span>
+          </p>
+        </div>
+      </div>
+    `;
+
+      document.getElementById('modalDetalhe').style.display = 'flex';
+    }
+
+    function fecharDetalhe() {
+      document.getElementById('modalDetalhe').style.display = 'none';
+    }
+
+    // ---------- 7. Exportar CSV ----------
+    function exportarCSV() {
+      const filtrados = state.alunos.filter(a => {
+        if (state.filtroVinculo !== 'all' && a.vinculo !== state.filtroVinculo) return false;
+        if (!state.busca) return true;
+        const busca = (a.nome || '') + ' ' + (a.matricula || '') + ' ' + (a.curso || '');
+        return busca.toLowerCase().includes(state.busca.toLowerCase());
+      });
+
+      if (!filtrados.length) {
+        alert('Nenhum aluno para exportar com os filtros atuais.');
+        return;
+      }
+
+      const cabecalho = ['Nome', 'E-mail', 'Matrícula', 'Curso', 'Vínculo'];
+      const linhas = filtrados.map(a => [
+        a.nome || '',
+        a.email || '',
+        a.matricula || '',
+        a.curso || '',
+        vinculoLabel(a.vinculo)
+      ]);
+
+      const escapar = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const csv = [cabecalho, ...linhas]
+              .map(linha => linha.map(escapar).join(';'))
+              .join('\r\n');
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `alunos-pap-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- 8. Eventos ----------
+    function ligarEventos() {
+      document.getElementById('buscaAluno').addEventListener('input', (e) => {
+        state.busca = e.target.value;
+        renderizarTabela();
+      });
+
+      document.getElementById('filtroVinculo').addEventListener('change', (e) => {
+        state.filtroVinculo = e.target.value;
+        renderizarTabela();
+      });
+
+      document.getElementById('btnExportar').addEventListener('click', exportarCSV);
+      document.getElementById('btnFecharDetalhe').addEventListener('click', fecharDetalhe);
+
+      document.getElementById('modalDetalhe').addEventListener('click', (e) => {
+        if (e.target.id === 'modalDetalhe') fecharDetalhe();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('modalDetalhe').style.display === 'flex') {
+          fecharDetalhe();
+        }
+      });
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarAlunos(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

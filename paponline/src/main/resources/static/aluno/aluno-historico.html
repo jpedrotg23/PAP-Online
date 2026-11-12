@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Histórico de atendimentos</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
+        <span class="portal-nav-icon">▦</span><span>Agendar</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-adaptacoes.html">
+        <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link active" href="/aluno/aluno-historico.html">
+        <span class="portal-nav-icon">▤</span><span>Histórico</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-perfil.html">
+        <span class="portal-nav-icon">♙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Histórico de atendimentos</h1>
+        <p>Consulte seus atendimentos anteriores e próximos agendamentos.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Welcome row -->
+      <div class="portal-welcome-row">
+        <div>
+          <h2>Meu histórico</h2>
+          <p>Atendimentos realizados e agendados.</p>
+        </div>
+        <span class="portal-date">Área do estudante</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="portal-stats portal-stats-3">
+        <article class="portal-stat">
+          <span class="portal-stat-icon blue">▤</span>
+          <div>
+            <small>Total de atendimentos</small>
+            <strong id="statTotal">—</strong>
+            <em id="statTotalDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="portal-stat">
+          <span class="portal-stat-icon green">✓</span>
+          <div>
+            <small>Comparecimentos</small>
+            <strong id="statComparecimentos">—</strong>
+            <em id="statComparecimentosDetalhe">Carregando…</em>
+          </div>
+        </article>
+        <article class="portal-stat">
+          <span class="portal-stat-icon purple">◷</span>
+          <div>
+            <small>Próximos</small>
+            <strong id="statProximos">—</strong>
+            <em id="statProximosDetalhe">Carregando…</em>
+          </div>
+        </article>
+      </div>
+
+      <!-- Tabela -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>Meus atendimentos</h2>
+            <p>Visualize a situação de cada atendimento.</p>
+          </div>
+          <div class="portal-filter-row">
+            <input class="portal-search" type="search" id="buscaHistorico"
+                   placeholder="Buscar por profissional..." aria-label="Buscar atendimentos">
+            <select class="portal-filter-select" id="filtroStatus" aria-label="Filtrar atendimentos">
+              <option value="all">Todos os atendimentos</option>
+              <option value="AGENDADO">Agendados</option>
+              <option value="CONFIRMADO">Confirmados</option>
+              <option value="REALIZADO">Realizados</option>
+              <option value="CANCELADO">Cancelados</option>
+              <option value="FALTA">Faltas</option>
+            </select>
+          </div>
+        </div>
+        <div class="portal-table-wrap">
+          <table class="portal-table">
+            <thead>
+            <tr>
+              <th>Data e horário</th>
+              <th>Atendimento</th>
+              <th>Profissional</th>
+              <th>Modalidade</th>
+              <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="historicoBody">
+            <tr>
+              <td class="portal-empty-table" colspan="5">
+                Carregando…
+                <small>Buscando seus atendimentos.</small>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>Precisa de um novo horário?</h2>
+            <p>Consulte os profissionais e horários disponíveis.</p>
+          </div>
+          <a class="portal-button" href="/aluno/aluno-agendar.html">Agendar atendimento</a>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    let usuario = null;
+    let atendimentos = [];
+    const cacheProfissionais = {};
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function formatarDataHora(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+              ' · ' +
+              d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatarHora(iso) {
+      return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function capitalizar(str) {
+      if (!str) return '';
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
+    // Mapeia status da API → rótulo e classe CSS do pill
+    function statusInfo(status) {
+      const map = {
+        AGENDADO:    { rotulo: 'Agendado',    classe: 'info' },
+        CONFIRMADO:  { rotulo: 'Confirmado',  classe: 'success' },
+        REALIZADO:   { rotulo: 'Realizado',   classe: 'success' },
+        CANCELADO:   { rotulo: 'Cancelado',   classe: 'danger' },
+        FALTA:       { rotulo: 'Falta',       classe: 'warning' }
+      };
+      return map[status] || { rotulo: capitalizar(status), classe: 'info' };
+    }
+
+    // ---------- 1. Usuário logado ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        usuario = await r.json();
+
+        set('userName', usuario.nome || 'Aluno');
+        set('userDetail', usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(usuario.nome);
+
+        return usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (e) {
+        // silencioso — notificações não são críticas
+      }
+    }
+
+    // ---------- 3. Buscar nome do profissional (com cache) ----------
+    async function buscarProfissional(profissionalId) {
+      if (!profissionalId) return 'Profissional';
+      if (cacheProfissionais[profissionalId]) return cacheProfissionais[profissionalId];
+      try {
+        const r = await fetch(`/profissionais/${profissionalId}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const prof = await r.json();
+        const nome = prof.nome || 'Profissional';
+        cacheProfissionais[profissionalId] = nome;
+        return nome;
+      } catch (_) {
+        cacheProfissionais[profissionalId] = 'Profissional';
+        return 'Profissional';
+      }
+    }
+
+    // ---------- 4. Carregar atendimentos ----------
+    async function carregarAtendimentos() {
+      if (!usuario?.id) return;
+      const tbody = document.getElementById('historicoBody');
+
+      try {
+        const r = await fetch(`/atendimentos/aluno/${usuario.id}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const lista = await r.json();
+
+        // Ordena do mais recente para o mais antigo
+        atendimentos = lista.sort((a, b) =>
+                new Date(b.dataHoraInicio) - new Date(a.dataHoraInicio)
+        );
+
+        // Pré-carrega nomes dos profissionais (paralelo)
+        const idsUnicos = [...new Set(atendimentos.map(a => a.profissionalId).filter(Boolean))];
+        await Promise.all(idsUnicos.map(id => buscarProfissional(id)));
+
+        // Stats
+        const total = atendimentos.length;
+        const realizados = atendimentos.filter(a => a.status === 'REALIZADO').length;
+        const proximos = atendimentos.filter(a =>
+                a.status === 'AGENDADO' || a.status === 'CONFIRMADO'
+        ).length;
+
+        set('statTotal', String(total));
+        set('statTotalDetalhe', total === 0 ? 'Nenhum registro' : 'no histórico');
+
+        set('statComparecimentos', String(realizados));
+        set('statComparecimentosDetalhe', total === 0 ? '—' : `de ${total} atendimentos`);
+
+        set('statProximos', String(proximos));
+        set('statProximosDetalhe', proximos > 0 ? 'agendado(s)' : 'nenhum agendamento');
+
+        renderizarTabela();
+      } catch (e) {
+        console.error('Erro ao carregar atendimentos', e);
+        tbody.innerHTML = `
+        <tr>
+          <td class="portal-empty-table" colspan="5">
+            Não foi possível carregar seus atendimentos.
+            <small>Tente novamente em instantes.</small>
+          </td>
+        </tr>`;
+        set('statTotal', '—');
+        set('statComparecimentos', '—');
+        set('statProximos', '—');
+      }
+    }
+
+    // ---------- 5. Renderizar tabela com filtros aplicados ----------
+    function renderizarTabela() {
+      const tbody = document.getElementById('historicoBody');
+      const termo = (document.getElementById('buscaHistorico')?.value || '').toLowerCase().trim();
+      const filtro = document.getElementById('filtroStatus')?.value || 'all';
+
+      const filtrados = atendimentos.filter(a => {
+        if (filtro !== 'all' && a.status !== filtro) return false;
+        if (!termo) return true;
+        const nomeProf = (cacheProfissionais[a.profissionalId] || '').toLowerCase();
+        const modalidade = (a.modalidade || '').toLowerCase();
+        const status = (statusInfo(a.status).rotulo || '').toLowerCase();
+        return nomeProf.includes(termo) || modalidade.includes(termo) || status.includes(termo);
+      });
+
+      if (filtrados.length === 0) {
+        const vazio = atendimentos.length === 0
+                ? { titulo: 'Nenhum atendimento registrado', texto: 'Você ainda não possui atendimentos no histórico.' }
+                : { titulo: 'Nenhum resultado para o filtro', texto: 'Ajuste a busca ou o filtro de status.' };
+
+        tbody.innerHTML = `
+        <tr>
+          <td class="portal-empty-table" colspan="5">
+            ${vazio.titulo}
+            <small>${vazio.texto}</small>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(a => {
+        const info = statusInfo(a.status);
+        const nomeProf = cacheProfissionais[a.profissionalId] || 'Profissional';
+        const modalidade = a.modalidade ? capitalizar(a.modalidade) : '—';
+        const inicio = formatarDataHora(a.dataHoraInicio);
+        const fim = a.dataHoraFim ? formatarHora(a.dataHoraFim) : '';
+
+        return `
+        <tr>
+          <td>
+            <b>${inicio}</b>
+            ${fim ? `<small>até ${fim}</small>` : ''}
+          </td>
+          <td>
+            Atendimento
+            <small>${a.local ? escapeHtml(a.local) : 'Local não informado'}</small>
+          </td>
+          <td>
+            <div class="portal-table-person">
+              <span class="portal-avatar">${iniciais(nomeProf)}</span>
+              <span>${escapeHtml(nomeProf)}</span>
+            </div>
+          </td>
+          <td>${modalidade}</td>
+          <td><span class="portal-pill ${info.classe}">${info.rotulo}</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ---------- 6. Filtros reativos ----------
+    function ligarFiltros() {
+      const busca = document.getElementById('buscaHistorico');
+      const select = document.getElementById('filtroStatus');
+      if (busca) busca.addEventListener('input', renderizarTabela);
+      if (select) select.addEventListener('change', renderizarTabela);
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarFiltros();
+
+      const u = await carregarUsuario();
+      if (!u) return;   // auth.js já redireciona se não estiver logado
+
+      await Promise.allSettled([
+        carregarAtendimentos(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

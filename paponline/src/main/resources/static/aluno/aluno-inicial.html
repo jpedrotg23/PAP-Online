@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PAP Online | Olá, Aluno</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portais.css">
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <span class="portal-brand-mark">PAP</span>
+            <strong>PAP Online</strong>
+        </div>
+        <nav class="portal-navigation" aria-label="Menu principal">
+            <a class="portal-nav-link active" href="/aluno/aluno-inicial.html">
+                <span class="portal-nav-icon">⌂</span><span>Início</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
+                <span class="portal-nav-icon">▦</span><span>Agendar</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-adaptacoes.html">
+                <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-mensagens.html">
+                <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-historico.html">
+                <span class="portal-nav-icon">▤</span><span>Histórico</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-perfil.html">
+                <span class="portal-nav-icon">♙</span><span>Perfil</span>
+            </a>
+        </nav>
+        <button class="portal-exit" type="button" data-role-logout>
+            <span class="portal-nav-icon">↪</span><span>Sair</span>
+        </button>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="portal-main">
+
+        <header class="portal-topbar">
+            <div class="portal-heading">
+                <h1>Olá, <span id="saudacaoNome">Aluno</span></h1>
+                <p>Acompanhe seus atendimentos e acesse os serviços do PAP.</p>
+            </div>
+            <div class="portal-top-actions">
+                <div class="portal-user-chip">
+                    <span class="portal-avatar" id="userAvatar">US</span>
+                    <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+                </div>
+                <button class="portal-notification" type="button" aria-label="Notificações">
+                    ♧<i id="badgeNotificacoes" style="display:none">0</i>
+                </button>
+            </div>
+        </header>
+
+        <section class="portal-content">
+
+            <!-- Welcome row -->
+            <div class="portal-welcome-row">
+                <div>
+                    <h2>Bem-vindo ao PAP Online</h2>
+                    <p>Acompanhe seus atendimentos e acesse os serviços do PAP.</p>
+                </div>
+                <span class="portal-date" id="dataAtual">Área do estudante</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="portal-stats portal-stats-3">
+                <article class="portal-stat">
+                    <span class="portal-stat-icon blue">▦</span>
+                    <div>
+                        <small>Próximos atendimentos</small>
+                        <strong id="statProximos">—</strong>
+                        <em id="statProximosDetalhe">Carregando…</em>
+                    </div>
+                </article>
+                <article class="portal-stat">
+                    <span class="portal-stat-icon green">✓</span>
+                    <div>
+                        <small>Solicitações deferidas</small>
+                        <strong id="statDeferidas">—</strong>
+                        <em id="statDeferidasDetalhe">Carregando…</em>
+                    </div>
+                </article>
+                <article class="portal-stat">
+                    <span class="portal-stat-icon purple">✉</span>
+                    <div>
+                        <small>Notificações não lidas</small>
+                        <strong id="statNotificacoes">—</strong>
+                        <em id="statNotificacoesDetalhe">Carregando…</em>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Grid: próximo atendimento + acesso rápido -->
+            <div class="portal-grid-home">
+
+                <section class="portal-panel">
+                    <div class="portal-panel-head">
+                        <div>
+                            <h2>Próximo atendimento</h2>
+                            <p>Confira os dados do seu agendamento.</p>
+                        </div>
+                    </div>
+                    <div id="proximoAtendimento">
+                        <div class="portal-empty">
+                            <b>Carregando…</b>
+                            <p>Buscando seu próximo atendimento.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="portal-panel">
+                    <div class="portal-panel-head">
+                        <div>
+                            <h2>Acesso rápido</h2>
+                            <p>Encontre o serviço que precisa.</p>
+                        </div>
+                    </div>
+                    <div class="portal-quick-links">
+                        <a href="/aluno/aluno-agendar.html">
+                            <span class="portal-quick-icon">▦</span>
+                            <span><b>Agendar atendimento</b><small>Consulte profissionais e horários</small></span>
+                            <i>›</i>
+                        </a>
+                        <a href="/aluno/aluno-adaptacoes.html">
+                            <span class="portal-quick-icon">♧</span>
+                            <span><b>Solicitar adaptação</b><small>Acompanhe seus pedidos acadêmicos</small></span>
+                            <i>›</i>
+                        </a>
+                        <a href="/aluno/aluno-mensagens.html">
+                            <span class="portal-quick-icon">✉</span>
+                            <span><b>Falar com o PAP</b><small>Entre em contato com a equipe</small></span>
+                            <i>›</i>
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Avisos -->
+            <section class="portal-panel portal-announcements">
+                <div class="portal-panel-head">
+                    <div>
+                        <h2>Comunicados institucionais</h2>
+                        <p>Acompanhe informações importantes da equipe PAP.</p>
+                    </div>
+                    <span class="portal-muted">Avisos</span>
+                </div>
+                <div id="avisosLista">
+                    <div class="portal-empty">
+                        <b>Carregando…</b>
+                        <p>Buscando comunicados publicados.</p>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+
+    </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        let usuario = null;
+
+        // ---------- Helpers ----------
+        function set(id, valor) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = valor;
+        }
+
+        function iniciais(nome) {
+            if (!nome) return 'US';
+            const partes = nome.trim().split(/\s+/);
+            if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+            return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+
+        function formatarHora(iso) {
+            return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatarDataCurta(iso) {
+            return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[s]);
+        }
+
+        // ---------- 1. Usuário logado ----------
+        async function carregarUsuario() {
+            try {
+                const r = await fetch('/auth/session', { credentials: 'include' });
+                if (!r.ok) return null;
+                usuario = await r.json();
+
+                set('saudacaoNome', (usuario.nome || 'Aluno').split(' ')[0]);
+                set('userName', usuario.nome || 'Aluno');
+                set('userDetail', usuario.email || 'Dados não carregados');
+                const avatar = document.getElementById('userAvatar');
+                if (avatar) avatar.textContent = iniciais(usuario.nome);
+
+                const dataAtual = new Date().toLocaleDateString('pt-BR', {
+                    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                });
+                set('dataAtual', dataAtual.charAt(0).toUpperCase() + dataAtual.slice(1));
+
+                return usuario;
+            } catch (e) {
+                console.error('Erro ao carregar usuário', e);
+                return null;
+            }
+        }
+
+        // ---------- 2. Próximo atendimento ----------
+        async function carregarProximoAtendimento() {
+            if (!usuario?.id) return;
+            const container = document.getElementById('proximoAtendimento');
+            try {
+                const r = await fetch(`/atendimentos/aluno/${usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const lista = await r.json();
+
+                const proximos = lista.filter(a => a.status === 'AGENDADO' || a.status === 'CONFIRMADO')
+                    .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio));
+
+                set('statProximos', String(proximos.length));
+                set('statProximosDetalhe', proximos.length > 0 ? 'Agendado(s)' : 'Nenhum agendamento');
+
+                if (!proximos.length) {
+                    container.innerHTML = `
+          <div class="portal-empty">
+            <b>Nenhum atendimento disponível</b>
+            <p>Você não possui atendimentos agendados no momento.</p>
+          </div>`;
+                    return;
+                }
+
+                const proximo = proximos[0];
+
+                // Nome do profissional (best-effort)
+                let nomeProfissional = 'Profissional';
+                try {
+                    const rp = await fetch(`/profissionais/${proximo.profissionalId}`, { credentials: 'include' });
+                    if (rp.ok) {
+                        const prof = await rp.json();
+                        nomeProfissional = prof.nome || 'Profissional';
+                    }
+                } catch (_) {}
+
+                const dt = new Date(proximo.dataHoraInicio);
+                const dia = String(dt.getDate()).padStart(2, '0');
+                const mes = dt.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+
+                container.innerHTML = `
+        <div class="portal-session-row">
+          <div class="portal-calendar-date">
+            <b>${dia}</b>
+            <span>${mes}</span>
+          </div>
+          <div class="portal-session-info">
+            <strong>Atendimento ${proximo.modalidade ? '· ' + proximo.modalidade.toLowerCase() : ''}</strong>
+            <p>${formatarHora(proximo.dataHoraInicio)} — ${formatarHora(proximo.dataHoraFim)} · ${escapeHtml(nomeProfissional)}</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a class="portal-button" href="/aluno/aluno-historico.html">Ver detalhes</a>
+          <a class="portal-outline-button" href="/aluno/aluno-historico.html">Remarcar</a>
+        </div>`;
+            } catch (e) {
+                console.error('Erro ao carregar atendimentos', e);
+                container.innerHTML = `
+        <div class="portal-empty">
+          <b>Não foi possível carregar</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+                set('statProximos', '—');
+                set('statProximosDetalhe', 'Erro ao carregar');
+            }
+        }
+
+        // ---------- 3. Solicitações deferidas ----------
+        async function carregarSolicitacoesDeferidas() {
+            if (!usuario?.id) return;
+            try {
+                const r = await fetch(`/solicitacoes/aluno/${usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const lista = await r.json();
+                const deferidas = lista.filter(s => s.status === 'DEFERIDA');
+                set('statDeferidas', String(deferidas.length));
+                set('statDeferidasDetalhe', deferidas.length > 0 ? 'Aprovada(s)' : 'Nenhuma ainda');
+            } catch (e) {
+                console.error('Erro ao carregar solicitações', e);
+                set('statDeferidas', '0');
+                set('statDeferidasDetalhe', 'Nenhuma ainda');
+            }
+        }
+
+        // ---------- 4. Notificações ----------
+        async function carregarNotificacoes() {
+            if (!usuario?.id) return;
+            try {
+                const r = await fetch(`/notificacoes/usuario/${usuario.id}/count`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const count = await r.json();
+
+                set('statNotificacoes', String(count));
+                set('statNotificacoesDetalhe', count > 0 ? 'Não lida(s)' : 'Tudo em dia');
+
+                const badge = document.getElementById('badgeNotificacoes');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count > 9 ? '9+' : String(count);
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao carregar notificações', e);
+                set('statNotificacoes', '0');
+                set('statNotificacoesDetalhe', 'Tudo em dia');
+            }
+        }
+
+        // ---------- 5. Avisos institucionais ----------
+        async function carregarAvisos() {
+            const container = document.getElementById('avisosLista');
+            try {
+                const r = await fetch('/avisos', { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const lista = (await r.json())
+                    .filter(a => a.status === 'PUBLICADO')
+                    .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm))
+                    .slice(0, 3);
+
+                if (!lista.length) {
+                    container.innerHTML = `
+          <div class="portal-empty">
+            <b>Nenhum comunicado publicado</b>
+            <p>Novos avisos aparecerão aqui quando forem disponibilizados.</p>
+          </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+        <div class="portal-announcements">
+          ${lista.map(a => {
+                    const texto = (a.conteudo || '');
+                    const preview = texto.length > 140 ? texto.substring(0, 140) + '…' : texto;
+                    const categoria = a.categoria ? a.categoria.toLowerCase() : 'aviso';
+                    return `
+              <div class="portal-announcement ${a.destaque ? 'admin-announcement' : ''}">
+                <div>
+                  <b>${escapeHtml(a.titulo)}</b>
+                  <p>${escapeHtml(preview)}</p>
+                  <small>${escapeHtml(categoria)}${a.destaque ? ' · destaque' : ''}</small>
+                </div>
+                <time>${formatarDataCurta(a.criadoEm)}</time>
+              </div>
+            `;
+                }).join('')}
+        </div>`;
+            } catch (e) {
+                console.error('Erro ao carregar avisos', e);
+                container.innerHTML = `
+        <div class="portal-empty">
+          <b>Não foi possível carregar os avisos</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+            }
+        }
+
+        // ---------- Inicialização ----------
+        document.addEventListener('DOMContentLoaded', async () => {
+            const u = await carregarUsuario();
+            if (!u) return;   // auth.js já redireciona se não estiver logado
+
+            await Promise.allSettled([
+                carregarProximoAtendimento(),
+                carregarSolicitacoesDeferidas(),
+                carregarNotificacoes(),
+                carregarAvisos()
+            ]);
+        });
+    })();
+</script>
+
+</body>
+</html>

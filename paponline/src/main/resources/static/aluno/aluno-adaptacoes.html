@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PAP Online | Solicitações de adaptação</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portais.css">
+    <style>
+        /* Estilos específicos da lista de adaptações */
+        .adaptacoes-lista { display: grid; gap: 12px; }
+        .adaptacao-card {
+            border: 1px solid var(--portal-line);
+            border-radius: 12px;
+            padding: 18px 20px;
+            background: #fff;
+            transition: border-color .15s;
+        }
+        .adaptacao-card:hover { border-color: #b9c8e6; }
+        .adaptacao-card-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+        .adaptacao-card-titulo {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--portal-text);
+            margin: 0 0 4px;
+            line-height: 1.35;
+        }
+        .adaptacao-card-meta {
+            font-size: 11px;
+            color: var(--portal-muted);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .adaptacao-card-meta b { color: #34415a; font-weight: 600; }
+        .adaptacao-card-data {
+            font-size: 11px;
+            color: #8995a9;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .adaptacao-card-body {
+            font-size: 12px;
+            color: #52617a;
+            line-height: 1.55;
+            margin: 10px 0 0;
+        }
+        .adaptacao-parecer {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 9px;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+        .adaptacao-parecer.titulo {
+            font-weight: 700;
+            font-size: 11px;
+            margin-bottom: 6px;
+            display: block;
+            letter-spacing: .2px;
+        }
+        .adaptacao-parecer.deferida {
+            background: #e5f6ef;
+            border: 1px solid #b8e4d3;
+            color: #0b6b4a;
+        }
+        .adaptacao-parecer.indeferida {
+            background: #fff0ee;
+            border: 1px solid #ffc7c1;
+            color: #8a221a;
+        }
+        .adaptacao-parecer.analise {
+            background: #fff8eb;
+            border: 1px solid #ffe0b6;
+            color: #7c4a10;
+        }
+        .adaptacao-parecer.documentacao {
+            background: #f3ecff;
+            border: 1px solid #d9c9f5;
+            color: #4b2a82;
+        }
+        .adaptacao-assinatura {
+            margin-top: 6px;
+            font-size: 10px;
+            opacity: .75;
+            font-style: italic;
+        }
+        .adaptacao-prazo {
+            margin-top: 8px;
+            padding: 8px 11px;
+            border-radius: 8px;
+            background: #fff8eb;
+            border: 1px solid #ffe0b6;
+            color: #7c4a10;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .adaptacao-filtros {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        @media (max-width: 760px) {
+            .adaptacao-card-topo { flex-direction: column; }
+            .adaptacao-card-data { align-self: flex-start; }
+            .adaptacao-filtros { flex-direction: column; align-items: stretch; width: 100%; }
+        }
+    </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <span class="portal-brand-mark">PAP</span>
+            <strong>PAP Online</strong>
+        </div>
+        <nav class="portal-navigation" aria-label="Menu principal">
+            <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
+                <span class="portal-nav-icon">⌂</span><span>Início</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
+                <span class="portal-nav-icon">▦</span><span>Agendar</span>
+            </a>
+            <a class="portal-nav-link active" href="/aluno/aluno-adaptacoes.html">
+                <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-mensagens.html">
+                <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-historico.html">
+                <span class="portal-nav-icon">▤</span><span>Histórico</span>
+            </a>
+            <a class="portal-nav-link" href="/aluno/aluno-perfil.html">
+                <span class="portal-nav-icon">♙</span><span>Perfil</span>
+            </a>
+        </nav>
+        <button class="portal-exit" type="button" data-role-logout>
+            <span class="portal-nav-icon">↪</span><span>Sair</span>
+        </button>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="portal-main">
+
+        <header class="portal-topbar">
+            <div class="portal-heading">
+                <h1>Solicitações de adaptação</h1>
+                <p>Solicite e acompanhe adaptações acadêmicas.</p>
+            </div>
+            <div class="portal-top-actions">
+                <div class="portal-user-chip">
+                    <span class="portal-avatar" id="userAvatar">US</span>
+                    <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+                </div>
+                <button class="portal-notification" type="button" aria-label="Notificações">
+                    ♧<i id="badgeNotificacoes" style="display:none">0</i>
+                </button>
+            </div>
+        </header>
+
+        <section class="portal-content">
+
+            <!-- Welcome row -->
+            <div class="portal-welcome-row">
+                <div>
+                    <h2>Minhas adaptações</h2>
+                    <p>Acompanhe pedidos e envie uma nova solicitação.</p>
+                </div>
+                <span class="portal-date">Área do estudante</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="portal-stats portal-stats-3">
+                <article class="portal-stat">
+                    <span class="portal-stat-icon blue">▤</span>
+                    <div>
+                        <small>Total de solicitações</small>
+                        <strong id="statTotal">—</strong>
+                        <em id="statTotalDetalhe">Carregando…</em>
+                    </div>
+                </article>
+                <article class="portal-stat">
+                    <span class="portal-stat-icon orange">◷</span>
+                    <div>
+                        <small>Em análise</small>
+                        <strong id="statAnalise">—</strong>
+                        <em id="statAnaliseDetalhe">Carregando…</em>
+                    </div>
+                </article>
+                <article class="portal-stat">
+                    <span class="portal-stat-icon green">✓</span>
+                    <div>
+                        <small>Concluídas</small>
+                        <strong id="statConcluidas">—</strong>
+                        <em id="statConcluidasDetalhe">Carregando…</em>
+                    </div>
+                </article>
+            </div>
+
+            <!-- ============ MINHAS SOLICITAÇÕES ============ -->
+            <section class="portal-panel">
+                <div class="portal-panel-head">
+                    <div>
+                        <h2>Minhas solicitações</h2>
+                        <p>Acompanhe o andamento dos pedidos enviados.</p>
+                    </div>
+                    <div class="adaptacao-filtros">
+                        <select class="portal-filter-select" id="filtroStatus" aria-label="Filtrar solicitações">
+                            <option value="all">Todas</option>
+                            <option value="ENVIADA">Enviadas</option>
+                            <option value="EM_ANALISE">Em análise</option>
+                            <option value="DEFERIDA">Deferidas</option>
+                            <option value="INDEFERIDA">Indeferidas</option>
+                            <option value="PENDENTE_DOCUMENTACAO">Pendentes de documentação</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="listaAdaptacoes" class="adaptacoes-lista">
+                    <div class="portal-empty">
+                        <b>Carregando…</b>
+                        <p>Buscando suas solicitações.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ NOVA SOLICITAÇÃO ============ -->
+            <section class="portal-panel" id="nova-solicitacao">
+                <div class="portal-panel-head">
+                    <div>
+                        <h2>Nova solicitação</h2>
+                        <p>Descreva a adaptação acadêmica de que precisa. A equipe entrará em contato para orientar os próximos passos.</p>
+                    </div>
+                </div>
+
+                <div id="alertaNova" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
+
+                <form class="portal-form" id="formNovaSolicitacao" novalidate>
+                    <div class="portal-form-grid">
+                        <label>
+                            Tipo de solicitação
+                            <select id="tipoSolicitacao" required>
+                                <option value="">Selecione...</option>
+                                <option value="PROVA">Prova / avaliação</option>
+                                <option value="PRAZO">Prazo / entrega</option>
+                                <option value="MATERIAL">Material didático</option>
+                                <option value="DISPENSA">Dispensa de atividade</option>
+                                <option value="LOCAL_PROVA">Local de prova</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Título
+                            <input id="tituloSolicitacao" required maxlength="100"
+                                   placeholder="Ex.: Tempo adicional em avaliações">
+                            <small>Um resumo curto da sua necessidade.</small>
+                        </label>
+
+                        <label class="span-2">
+                            Descreva sua necessidade
+                            <textarea id="justificativaSolicitacao" rows="4" required minlength="20"
+                                      placeholder="Descreva a adaptação solicitada com o máximo de detalhes possível."></textarea>
+                            <small>Quanto mais contexto, mais rápido a equipe pode avaliar.</small>
+                        </label>
+                    </div>
+
+                    <div class="portal-form-actions">
+                        <span class="portal-help-text">Seus dados serão tratados pela equipe autorizada do PAP.</span>
+                        <button class="portal-button" type="submit" id="btnEnviarSolicitacao">
+                            Enviar solicitação
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </section>
+
+    </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        let usuario = null;
+        let solicitacoes = [];
+
+        const STATUS_INFO = {
+            ENVIADA:               { rotulo: 'Enviada',                   classe: 'info' },
+            EM_ANALISE:            { rotulo: 'Em análise',                classe: 'warning' },
+            DEFERIDA:              { rotulo: 'Deferida',                  classe: 'success' },
+            INDEFERIDA:            { rotulo: 'Indeferida',                classe: 'danger' },
+            PENDENTE_DOCUMENTACAO: { rotulo: 'Pendente de documentação',  classe: 'purple' }
+        };
+
+        const TIPO_INFO = {
+            PROVA:       'Prova / avaliação',
+            PRAZO:       'Prazo / entrega',
+            MATERIAL:    'Material didático',
+            DISPENSA:    'Dispensa de atividade',
+            LOCAL_PROVA: 'Local de prova',
+            OUTRO:       'Outro'
+        };
+
+        // ---------- Helpers ----------
+        function set(id, valor) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = valor;
+        }
+
+        function iniciais(nome) {
+            if (!nome) return 'US';
+            const partes = nome.trim().split(/\s+/);
+            if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+            return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[s]);
+        }
+
+        function formatarData(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+        }
+
+        function formatarDataCompleta(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', {
+                day: '2-digit', month: 'long', year: 'numeric'
+            });
+        }
+
+        function gerarProtocolo() {
+            const ano = new Date().getFullYear();
+            const seq = String(Math.floor(1000 + Math.random() * 9000));
+            return `PAP-${ano}-${seq}`;
+        }
+
+        function mostrarAlerta(id, tipo, mensagem) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = mensagem;
+            el.style.display = 'block';
+            el.style.background = tipo === 'erro' ? '#fdecea' : '#e7f6f0';
+            el.style.color = tipo === 'erro' ? '#b42318' : '#067647';
+            el.style.border = tipo === 'erro' ? '1px solid #f7c9c4' : '1px solid #b8e4d3';
+        }
+
+        function esconderAlerta(id) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        }
+
+        // ---------- 1. Usuário logado ----------
+        async function carregarUsuario() {
+            try {
+                const r = await fetch('/auth/session', { credentials: 'include' });
+                if (!r.ok) return null;
+                usuario = await r.json();
+                set('userName', usuario.nome || 'Aluno');
+                set('userDetail', usuario.email || 'Dados não carregados');
+                const avatar = document.getElementById('userAvatar');
+                if (avatar) avatar.textContent = iniciais(usuario.nome);
+                return usuario;
+            } catch (e) {
+                console.error('Erro ao carregar usuário', e);
+                return null;
+            }
+        }
+
+        // ---------- 2. Notificações ----------
+        async function carregarNotificacoes() {
+            if (!usuario?.id) return;
+            try {
+                const r = await fetch(`/notificacoes/usuario/${usuario.id}/count`, { credentials: 'include' });
+                if (!r.ok) return;
+                const count = await r.json();
+                const badge = document.getElementById('badgeNotificacoes');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count > 9 ? '9+' : String(count);
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (_) { /* silencioso */ }
+        }
+
+        // ---------- 3. Carregar solicitações ----------
+        async function carregarSolicitacoes() {
+            if (!usuario?.id) return;
+            try {
+                const r = await fetch(`/solicitacoes/aluno/${usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                solicitacoes = (await r.json())
+                    .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio));
+
+                // Stats
+                const total = solicitacoes.length;
+                const emAnalise = solicitacoes.filter(s => s.status === 'EM_ANALISE').length;
+                const concluidas = solicitacoes.filter(s =>
+                    s.status === 'DEFERIDA' || s.status === 'INDEFERIDA'
+                ).length;
+
+                set('statTotal', String(total));
+                set('statTotalDetalhe', total === 0 ? 'Nenhum pedido' : 'no histórico');
+
+                set('statAnalise', String(emAnalise));
+                set('statAnaliseDetalhe', emAnalise > 0 ? 'aguardando parecer' : 'nada pendente');
+
+                set('statConcluidas', String(concluidas));
+                set('statConcluidasDetalhe', concluidas > 0 ? 'com resultado' : 'nenhum resultado');
+
+                renderizarLista();
+            } catch (e) {
+                console.error('Erro ao carregar solicitações', e);
+                document.getElementById('listaAdaptacoes').innerHTML = `
+        <div class="portal-empty">
+          <b>Não foi possível carregar suas solicitações</b>
+          <p>Tente novamente em instantes.</p>
+        </div>`;
+                set('statTotal', '—');
+                set('statAnalise', '—');
+                set('statConcluidas', '—');
+            }
+        }
+
+        // ---------- 4. Renderizar lista ----------
+        function renderizarLista() {
+            const container = document.getElementById('listaAdaptacoes');
+            const filtro = document.getElementById('filtroStatus')?.value || 'all';
+
+            const filtradas = filtro === 'all'
+                ? solicitacoes
+                : solicitacoes.filter(s => s.status === filtro);
+
+            if (solicitacoes.length === 0) {
+                container.innerHTML = `
+        <div class="portal-empty">
+          <b>Nenhuma solicitação encontrada</b>
+          <p>Você ainda não enviou pedidos de adaptação. Use o formulário abaixo para criar o primeiro.</p>
+        </div>`;
+                return;
+            }
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+        <div class="portal-empty">
+          <b>Nenhum resultado para o filtro</b>
+          <p>Ajuste o filtro de status para ver outras solicitações.</p>
+        </div>`;
+                return;
+            }
+
+            container.innerHTML = filtradas.map(renderizarCard).join('');
+        }
+
+        function renderizarCard(s) {
+            const info = STATUS_INFO[s.status] || { rotulo: s.status, classe: 'info' };
+            const tipo = TIPO_INFO[s.tipo] || s.tipo || '—';
+            const dataEnvio = formatarData(s.dataEnvio);
+            const justPreview = s.justificativa && s.justificativa.length > 180
+                ? s.justificativa.substring(0, 180) + '…'
+                : s.justificativa || '';
+
+            let blocoParecer = '';
+
+            if (s.status === 'EM_ANALISE') {
+                const prazo = s.prazoParecer
+                    ? formatarDataCompleta(s.prazoParecer)
+                    : 'em até 5 dias úteis';
+                blocoParecer = `
+        <div class="adaptacao-parecer analise">
+          <span class="adaptacao-parecer titulo">Em análise</span>
+          O parecer será emitido ${prazo}. A equipe do PAP está avaliando sua documentação.
+        </div>`;
+            } else if (s.status === 'DEFERIDA' && s.parecer) {
+                blocoParecer = `
+        <div class="adaptacao-parecer deferida">
+          <span class="adaptacao-parecer titulo">Parecer — deferido</span>
+          ${escapeHtml(s.parecer)}
+          <div class="adaptacao-assinatura">
+            Analisado em ${formatarData(s.dataParecer)}${s.profissionalId ? '' : ''}
+          </div>
+        </div>`;
+            } else if (s.status === 'INDEFERIDA' && s.parecer) {
+                blocoParecer = `
+        <div class="adaptacao-parecer indeferida">
+          <span class="adaptacao-parecer titulo">Parecer — indeferido</span>
+          ${escapeHtml(s.parecer)}
+          <div class="adaptacao-assinatura">
+            Analisado em ${formatarData(s.dataParecer)}. Para recorrer, entre em contato com a coordenação do PAP.
+          </div>
+        </div>`;
+            } else if (s.status === 'PENDENTE_DOCUMENTACAO') {
+                blocoParecer = `
+        <div class="adaptacao-parecer documentacao">
+          <span class="adaptacao-parecer titulo">Pendente de documentação</span>
+          É necessário enviar documentação complementar para que a análise prossiga.
+          ${s.parecer ? '<br><br>' + escapeHtml(s.parecer) : ''}
+        </div>`;
+            }
+
+            return `
+      <article class="adaptacao-card">
+        <div class="adaptacao-card-topo">
+          <div>
+            <h3 class="adaptacao-card-titulo">${escapeHtml(s.titulo)}</h3>
+            <div class="adaptacao-card-meta">
+              <span><b>${escapeHtml(s.protocolo || '—')}</b></span>
+              <span>${escapeHtml(tipo)}</span>
+            </div>
+          </div>
+          <div>
+            <span class="portal-pill ${info.classe}">${info.rotulo}</span>
+            <div class="adaptacao-card-data">Enviada em ${dataEnvio}</div>
+          </div>
+        </div>
+        ${justPreview ? `<p class="adaptacao-card-body">${escapeHtml(justPreview)}</p>` : ''}
+        ${blocoParecer}
+      </article>
+    `;
+        }
+
+        // ---------- 5. Enviar nova solicitação ----------
+        async function enviarSolicitacao(event) {
+            event.preventDefault();
+            if (!usuario?.id) return;
+
+            esconderAlerta('alertaNova');
+
+            const tipo = document.getElementById('tipoSolicitacao').value;
+            const titulo = document.getElementById('tituloSolicitacao').value.trim();
+            const justificativa = document.getElementById('justificativaSolicitacao').value.trim();
+
+            if (!tipo) {
+                mostrarAlerta('alertaNova', 'erro', 'Selecione o tipo de solicitação.');
+                return;
+            }
+            if (titulo.length < 5) {
+                mostrarAlerta('alertaNova', 'erro', 'O título deve ter pelo menos 5 caracteres.');
+                return;
+            }
+            if (justificativa.length < 20) {
+                mostrarAlerta('alertaNova', 'erro', 'Descreva sua necessidade com pelo menos 20 caracteres.');
+                return;
+            }
+
+            const btn = document.getElementById('btnEnviarSolicitacao');
+            btn.disabled = true;
+            btn.textContent = 'Enviando…';
+
+            try {
+                const payload = {
+                    protocolo: gerarProtocolo(),
+                    alunoId: usuario.id,
+                    tipo,
+                    titulo,
+                    justificativa
+                };
+
+                const r = await fetch('/solicitacoes', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!r.ok) {
+                    const erro = await r.json().catch(() => ({}));
+                    throw new Error(erro.message || 'Erro ao enviar solicitação');
+                }
+
+                const criada = await r.json();
+
+                document.getElementById('formNovaSolicitacao').reset();
+                mostrarAlerta('alertaNova', 'sucesso',
+                    `Solicitação enviada com sucesso! Protocolo: ${criada.protocolo}. Você receberá o parecer em até 5 dias úteis.`);
+
+                await carregarSolicitacoes();
+
+                document.getElementById('listaAdaptacoes').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                console.error('Erro ao criar solicitação', e);
+                mostrarAlerta('alertaNova', 'erro', e.message || 'Não foi possível enviar sua solicitação.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Enviar solicitação';
+            }
+        }
+
+        // ---------- 6. Eventos ----------
+        function ligarEventos() {
+            document.getElementById('filtroStatus').addEventListener('change', renderizarLista);
+            document.getElementById('formNovaSolicitacao').addEventListener('submit', enviarSolicitacao);
+        }
+
+        // ---------- Inicialização ----------
+        document.addEventListener('DOMContentLoaded', async () => {
+            ligarEventos();
+
+            const u = await carregarUsuario();
+            if (!u) return;
+
+            await Promise.allSettled([
+                carregarSolicitacoes(),
+                carregarNotificacoes()
+            ]);
+        });
+    })();
+</script>
+
+</body>
+</html>

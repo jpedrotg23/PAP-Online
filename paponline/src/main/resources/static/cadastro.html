@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PAP Online | Cadastro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-bg">
+<main class="auth-card signup-card">
+
+    <div class="brand">
+        <span class="brand-mark">PAP</span>
+        <strong>PAP Online</strong>
+    </div>
+
+    <header class="auth-heading">
+        <h1>Criar sua conta</h1>
+        <p>Exclusivo para estudantes com vínculo ativo na Unifor</p>
+    </header>
+
+    <form id="signupForm" class="signup-form" novalidate>
+
+        <label class="full">
+            Nome completo <em>*</em>
+            <input id="cadNome" required placeholder="Como consta na matrícula" autocomplete="name">
+        </label>
+
+        <div class="two-col">
+            <label>
+                Matrícula Unifor <em>*</em>
+                <input id="cadMatricula" required placeholder="Informe sua matrícula" inputmode="numeric">
+                <small>Confirmaremos seu vínculo ativo com a Unifor.</small>
+            </label>
+            <label>
+                Tipo de vínculo <em>*</em>
+                <select id="cadVinculo" required>
+                    <option value="">Selecione...</option>
+                    <option value="GRADUACAO">Graduação</option>
+                    <option value="POS_GRADUACAO">Pós-graduação</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="two-col">
+            <label>
+                E-mail institucional <em>*</em>
+                <input id="cadEmail" type="email" required placeholder="nome@edu.unifor.br" autocomplete="email">
+            </label>
+            <label>
+                Telefone <em>*</em>
+                <input id="cadTelefone" required placeholder="(85) 99999-9999" autocomplete="tel">
+            </label>
+        </div>
+
+        <label class="full">
+            Curso <em>*</em>
+            <input id="cadCurso" required placeholder="Ex.: Ciência da Computação">
+        </label>
+
+        <label>
+            Senha <em>*</em>
+            <div class="password-wrap">
+                <input id="newPassword" type="password" minlength="8" required placeholder="Mínimo de 8 caracteres" autocomplete="new-password">
+                <button class="eye" type="button" data-toggle="newPassword" aria-label="Mostrar senha">◉</button>
+            </div>
+            <div class="strength"><span id="strengthBar"></span></div>
+            <small id="strengthText">Força da senha</small>
+            <div class="password-rules">
+                <span>8 caracteres</span>
+                <span>1 maiúscula</span>
+                <span>1 minúscula</span>
+                <span>1 número</span>
+            </div>
+        </label>
+
+        <label>
+            Confirmar senha <em>*</em>
+            <div class="password-wrap">
+                <input id="confirmPassword" type="password" required placeholder="Repita a senha" autocomplete="new-password">
+                <button class="eye" type="button" data-toggle="confirmPassword" aria-label="Mostrar senha">◉</button>
+            </div>
+        </label>
+
+        <label class="consent">
+            <input type="checkbox" id="cadConsent" required>
+            <span>
+        Li e concordo com o <a href="#" class="local-link">Termo de consentimento</a>
+        para o tratamento dos meus dados pessoais e dos meus dados sensíveis de saúde,
+        conforme a Lei nº 13.709/2018 (LGPD). Veja também os
+        <a href="#" class="local-link">Termos de Uso</a> e a
+        <a href="#" class="local-link">Política de Privacidade</a>.
+      </span>
+        </label>
+
+        <button class="primary-btn" type="submit" id="btnCriarConta">Criar conta</button>
+
+        <p id="signupNotice" class="notice" role="status"></p>
+    </form>
+
+    <p class="auth-footer">
+        Já possui conta? <a href="index.html">Faça login</a>
+    </p>
+
+</main>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/app.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        // ---------- Helpers ----------
+        function valor(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        }
+
+        function mostrarNoticia(mensagem, tipo = 'erro') {
+            const n = document.getElementById('signupNotice');
+            if (!n) return;
+            n.textContent = mensagem;
+            n.className = tipo === 'erro' ? 'notice notice-error' : 'notice notice-success';
+        }
+
+        function limparNoticia() {
+            const n = document.getElementById('signupNotice');
+            if (n) {
+                n.textContent = '';
+                n.className = 'notice';
+            }
+        }
+
+        function senhaForte(senha) {
+            return senha.length >= 8
+                && /[A-Z]/.test(senha)
+                && /[a-z]/.test(senha)
+                && /\d/.test(senha);
+        }
+
+        function validarEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ---------- Submit ----------
+        const form = document.getElementById('signupForm');
+        if (!form) return;
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            limparNoticia();
+
+            const nome = valor('cadNome');
+            const matricula = valor('cadMatricula');
+            const vinculo = valor('cadVinculo');
+            const email = valor('cadEmail');
+            const telefone = valor('cadTelefone');
+            const curso = valor('cadCurso');
+            const senha = valor('newPassword');
+            const confirmar = valor('confirmPassword');
+            const consent = document.getElementById('cadConsent')?.checked;
+
+            // Validações no cliente
+            if (nome.length < 5 || !nome.includes(' ')) {
+                mostrarNoticia('Informe seu nome completo.');
+                document.getElementById('cadNome').focus();
+                return;
+            }
+            if (matricula.length < 5) {
+                mostrarNoticia('Informe uma matrícula válida.');
+                document.getElementById('cadMatricula').focus();
+                return;
+            }
+            if (!vinculo) {
+                mostrarNoticia('Selecione o tipo de vínculo.');
+                document.getElementById('cadVinculo').focus();
+                return;
+            }
+            if (!validarEmail(email)) {
+                mostrarNoticia('Informe um e-mail válido.');
+                document.getElementById('cadEmail').focus();
+                return;
+            }
+            if (telefone.length < 8) {
+                mostrarNoticia('Informe um telefone válido.');
+                document.getElementById('cadTelefone').focus();
+                return;
+            }
+            if (curso.length < 2) {
+                mostrarNoticia('Informe seu curso.');
+                document.getElementById('cadCurso').focus();
+                return;
+            }
+            if (!senhaForte(senha)) {
+                mostrarNoticia('A senha deve ter 8+ caracteres com maiúscula, minúscula e número.');
+                document.getElementById('newPassword').focus();
+                return;
+            }
+            if (senha !== confirmar) {
+                mostrarNoticia('As senhas não coincidem.');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+            if (!consent) {
+                mostrarNoticia('É necessário aceitar o Termo de consentimento.');
+                return;
+            }
+
+            // Envia para o backend
+            const btn = document.getElementById('btnCriarConta');
+            const textoOriginal = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Criando conta…';
+            mostrarNoticia('Criando sua conta…', 'sucesso');
+
+            try {
+                const payload = {
+                    nome,
+                    email,
+                    telefone,
+                    senha,
+                    matricula,
+                    curso,
+                    vinculo
+                };
+
+                const r = await fetch('/alunos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!r.ok) {
+                    let msg = 'Não foi possível criar a conta.';
+                    try {
+                        const body = await r.json();
+                        msg = body.message || body.error || msg;
+                    } catch (_) {}
+                    mostrarNoticia(msg);
+                    btn.disabled = false;
+                    btn.textContent = textoOriginal;
+                    return;
+                }
+
+                const aluno = await r.json();
+
+                // Auto-login
+                mostrarNoticia('Conta criada! Entrando…', 'sucesso');
+                const login = await fetch('/auth/login', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identifier: aluno.email,
+                        password: senha,
+                        requestedRole: 'student'
+                    })
+                });
+
+                if (!login.ok) {
+                    // Conta criada mas login falhou — manda para a tela de login
+                    mostrarNoticia('Conta criada com sucesso! Faça login para continuar.', 'sucesso');
+                    setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+                    return;
+                }
+
+                // Sucesso total
+                window.location.href = '/aluno/aluno-inicial.html';
+            } catch (e) {
+                console.error('Erro no cadastro', e);
+                mostrarNoticia(e.message || 'Erro ao conectar com o servidor.');
+                btn.disabled = false;
+                btn.textContent = textoOriginal;
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>

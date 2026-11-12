@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Meu perfil</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
+        <span class="portal-nav-icon">▦</span><span>Agendar</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-adaptacoes.html">
+        <span class="portal-nav-icon">♧</span><span>Adaptações</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/aluno/aluno-historico.html">
+        <span class="portal-nav-icon">▤</span><span>Histórico</span>
+      </a>
+      <a class="portal-nav-link active" href="/aluno/aluno-perfil.html">
+        <span class="portal-nav-icon">♙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Meu perfil</h1>
+        <p>Gerencie suas informações pessoais e de acesso.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- ============ RESUMO DO PERFIL ============ -->
+      <section class="portal-profile-summary">
+        <span class="portal-profile-avatar" id="profileAvatar">AL</span>
+        <div>
+          <h2 id="profileNome">Carregando…</h2>
+          <p id="profileEmail">Dados não carregados</p>
+          <div class="portal-tag-row">
+            <span class="portal-pill info">Estudante</span>
+            <span class="portal-pill purple" id="profileVinculo">Vínculo</span>
+            <span class="portal-pill success">Ativo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INFORMAÇÕES PESSOAIS ============ -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>Informações pessoais</h2>
+            <p>Confira e atualize seus dados cadastrais.</p>
+          </div>
+        </div>
+
+        <div id="alertaPerfil" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
+
+        <form class="portal-form" id="formPerfil" novalidate>
+          <div class="portal-form-grid">
+            <label>
+              Nome completo
+              <input id="campoNome" data-profile-field readonly>
+            </label>
+            <label>
+              Matrícula Unifor
+              <input id="campoMatricula" readonly>
+              <small>Identificação institucional.</small>
+            </label>
+            <label>
+              E-mail institucional
+              <input id="campoEmail" type="email" readonly>
+              <small>Gerenciado pela Unifor.</small>
+            </label>
+            <label>
+              Telefone
+              <input id="campoTelefone" type="tel" data-profile-field readonly>
+            </label>
+            <label>
+              Curso
+              <input id="campoCurso" readonly>
+            </label>
+            <label>
+              Tipo de vínculo
+              <input id="campoVinculo" readonly>
+            </label>
+          </div>
+          <div class="portal-form-actions">
+            <span class="portal-help-text">Alguns dados são gerenciados pela instituição.</span>
+            <button class="portal-outline-button" type="button" id="btnCancelarPerfil" style="display:none">Cancelar</button>
+            <button class="portal-button" type="button" id="btnEditarPerfil">Editar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============ SEGURANÇA ============ -->
+      <section class="portal-panel">
+        <div class="portal-panel-head">
+          <div>
+            <h2>Segurança</h2>
+            <p>Altere sua senha para manter sua conta protegida.</p>
+          </div>
+        </div>
+
+        <div id="alertaSenha" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
+
+        <form class="portal-form" id="formSenha" novalidate>
+          <div class="portal-form-grid">
+            <label>
+              Senha atual
+              <input type="password" id="senhaAtual" required placeholder="Digite sua senha atual">
+            </label>
+            <label>
+              Nova senha
+              <input type="password" id="senhaNova" minlength="8" required placeholder="Mínimo de 8 caracteres">
+              <small>Mínimo 8 caracteres, com maiúsculas, minúsculas e números.</small>
+            </label>
+            <label>
+              Confirmar nova senha
+              <input type="password" id="senhaConfirmar" required placeholder="Repita a nova senha">
+            </label>
+          </div>
+          <div class="portal-form-actions">
+            <span class="portal-help-text">Use uma senha forte e não a compartilhe.</span>
+            <button class="portal-button" type="submit" id="btnAlterarSenha">Alterar senha</button>
+          </div>
+        </form>
+      </section>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    let usuario = null;
+    let aluno = null;
+    let modoEdicao = false;
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function valor(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function vinculoLabel(v) {
+      const map = {
+        GRADUACAO: 'Graduação',
+        POS_GRADUACAO: 'Pós-graduação'
+      };
+      return map[v] || v || 'Vínculo';
+    }
+
+    function mostrarAlerta(id, tipo, mensagem) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = mensagem;
+      el.style.display = 'block';
+      el.style.background = tipo === 'erro' ? '#fdecea' : '#e7f6f0';
+      el.style.color = tipo === 'erro' ? '#b42318' : '#067647';
+    }
+
+    function esconderAlerta(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+
+    // ---------- 1. Usuário logado ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        usuario = await r.json();
+
+        set('userName', usuario.nome || 'Aluno');
+        set('userDetail', usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(usuario.nome);
+
+        return usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Dados completos do aluno ----------
+    async function carregarAluno() {
+      if (!usuario?.id) return null;
+      try {
+        const r = await fetch(`/alunos/${usuario.id}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        aluno = await r.json();
+
+        // Resumo
+        set('profileAvatar', iniciais(aluno.nome));
+        set('profileNome', aluno.nome || 'Aluno');
+        set('profileEmail', aluno.email || 'Contato não informado');
+        set('profileVinculo', vinculoLabel(aluno.vinculo));
+
+        // Formulário
+        document.getElementById('campoNome').value = aluno.nome || '';
+        document.getElementById('campoMatricula').value = aluno.matricula || '';
+        document.getElementById('campoEmail').value = aluno.email || '';
+        document.getElementById('campoTelefone').value = aluno.telefone || '';
+        document.getElementById('campoCurso').value = aluno.curso || '';
+        document.getElementById('campoVinculo').value = vinculoLabel(aluno.vinculo);
+
+        return aluno;
+      } catch (e) {
+        console.error('Erro ao carregar aluno', e);
+        mostrarAlerta('alertaPerfil', 'erro', 'Não foi possível carregar seus dados.');
+        return null;
+      }
+    }
+
+    // ---------- 3. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (e) { /* silencioso */ }
+    }
+
+    // ---------- 4. Alternar modo de edição ----------
+    function ativarEdicao() {
+      modoEdicao = true;
+      document.getElementById('campoNome').removeAttribute('readonly');
+      document.getElementById('campoTelefone').removeAttribute('readonly');
+      document.getElementById('campoNome').focus();
+
+      document.getElementById('btnEditarPerfil').textContent = 'Salvar';
+      document.getElementById('btnCancelarPerfil').style.display = '';
+      esconderAlerta('alertaPerfil');
+    }
+
+    function desativarEdicao(reverter) {
+      if (reverter && aluno) {
+        document.getElementById('campoNome').value = aluno.nome || '';
+        document.getElementById('campoTelefone').value = aluno.telefone || '';
+      }
+      modoEdicao = false;
+      document.getElementById('campoNome').setAttribute('readonly', '');
+      document.getElementById('campoTelefone').setAttribute('readonly', '');
+
+      document.getElementById('btnEditarPerfil').textContent = 'Editar';
+      document.getElementById('btnCancelarPerfil').style.display = 'none';
+    }
+
+    // ---------- 5. Salvar perfil ----------
+    async function salvarPerfil() {
+      if (!aluno) return;
+
+      const nome = valor('campoNome');
+      const telefone = valor('campoTelefone');
+
+      if (!nome || nome.length < 5) {
+        mostrarAlerta('alertaPerfil', 'erro', 'Informe seu nome completo.');
+        return;
+      }
+
+      const btn = document.getElementById('btnEditarPerfil');
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Salvando…';
+
+      try {
+        const payload = {
+          nome,
+          email: aluno.email,
+          telefone,
+          matricula: aluno.matricula,
+          curso: aluno.curso,
+          vinculo: aluno.vinculo
+        };
+
+        const r = await fetch(`/alunos/${aluno.id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || 'Erro ao salvar');
+        }
+
+        aluno = await r.json();
+
+        // Atualiza resumo
+        set('profileAvatar', iniciais(aluno.nome));
+        set('profileNome', aluno.nome);
+        set('profileEmail', aluno.email);
+        set('profileVinculo', vinculoLabel(aluno.vinculo));
+        set('userName', aluno.nome);
+        const avatarTop = document.getElementById('userAvatar');
+        if (avatarTop) avatarTop.textContent = iniciais(aluno.nome);
+
+        desativarEdicao(false);
+        mostrarAlerta('alertaPerfil', 'sucesso', 'Dados atualizados com sucesso.');
+      } catch (e) {
+        console.error('Erro ao salvar perfil', e);
+        mostrarAlerta('alertaPerfil', 'erro', e.message || 'Não foi possível salvar suas alterações.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = modoEdicao ? 'Salvar' : original;
+      }
+    }
+
+    // ---------- 6. Alterar senha ----------
+    async function alterarSenha(event) {
+      event.preventDefault();
+      if (!aluno) return;
+
+      const atual = valor('senhaAtual');
+      const nova = valor('senhaNova');
+      const confirmar = valor('senhaConfirmar');
+
+      esconderAlerta('alertaSenha');
+
+      if (!atual) {
+        mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.');
+        return;
+      }
+      if (nova.length < 8) {
+        mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter pelo menos 8 caracteres.');
+        return;
+      }
+      if (!/[A-Z]/.test(nova) || !/[a-z]/.test(nova) || !/\d/.test(nova)) {
+        mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter maiúsculas, minúsculas e números.');
+        return;
+      }
+      if (nova !== confirmar) {
+        mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.');
+        return;
+      }
+      if (nova === atual) {
+        mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.');
+        return;
+      }
+
+      const btn = document.getElementById('btnAlterarSenha');
+      btn.disabled = true;
+      btn.textContent = 'Alterando…';
+
+      try {
+        // Valida a senha atual fazendo login (best-effort)
+        const check = await fetch('/auth/login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: aluno.email,
+            password: atual,
+            requestedRole: 'student'
+          })
+        });
+
+        if (!check.ok) {
+          mostrarAlerta('alertaSenha', 'erro', 'Senha atual incorreta.');
+          return;
+        }
+
+        // Atualiza com PUT (mantém os outros campos)
+        const payload = {
+          nome: aluno.nome,
+          email: aluno.email,
+          telefone: aluno.telefone,
+          matricula: aluno.matricula,
+          curso: aluno.curso,
+          vinculo: aluno.vinculo,
+          senha: nova
+        };
+
+        const r = await fetch(`/alunos/${aluno.id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || 'Erro ao alterar senha');
+        }
+
+        document.getElementById('formSenha').reset();
+        mostrarAlerta('alertaSenha', 'sucesso', 'Senha alterada com sucesso.');
+      } catch (e) {
+        console.error('Erro ao alterar senha', e);
+        mostrarAlerta('alertaSenha', 'erro', e.message || 'Não foi possível alterar a senha.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Alterar senha';
+      }
+    }
+
+    // ---------- 7. Eventos ----------
+    function ligarEventos() {
+      document.getElementById('btnEditarPerfil').addEventListener('click', () => {
+        if (modoEdicao) {
+          salvarPerfil();
+        } else {
+          ativarEdicao();
+        }
+      });
+
+      document.getElementById('btnCancelarPerfil').addEventListener('click', () => {
+        esconderAlerta('alertaPerfil');
+        desativarEdicao(true);
+      });
+
+      document.getElementById('formSenha').addEventListener('submit', alterarSenha);
+
+      // Enter no form de perfil aciona "Salvar"
+      document.getElementById('formPerfil').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (modoEdicao) salvarPerfil();
+      });
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarAluno(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

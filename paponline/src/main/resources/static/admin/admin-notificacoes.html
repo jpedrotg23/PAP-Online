@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Notificações</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    .pap-loading-overlay{
+      position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+      display:grid;place-items:center;color:#667085;
+      font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+    }
+
+    /* ========== Stats ========== */
+    .notif-stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .notif-stat{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:16px;
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:12px;
+    }
+    .notif-stat-ico{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      font-size:17px;
+      flex-shrink:0;
+    }
+    .notif-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
+    .notif-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
+    .notif-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
+    .notif-stat-ico.purple{ background:#f0e8ff; color:#7732d9; }
+    .notif-stat small{
+      display:block;
+      font-size:10px;
+      color:#7e8ba2;
+      margin-bottom:3px;
+    }
+    .notif-stat strong{
+      font-size:20px;
+      color:var(--portal-text);
+      line-height:1;
+    }
+
+    /* ========== Layout 2 colunas ========== */
+    .notif-layout{
+      display:grid;
+      grid-template-columns:minmax(0,400px) minmax(0,1fr);
+      gap:16px;
+      align-items:start;
+    }
+
+    /* ========== Painel form ========== */
+    .notif-form-panel{
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:14px;
+      padding:24px 26px;
+      position:sticky;
+      top:20px;
+    }
+    .notif-form-head{
+      margin-bottom:20px;
+      padding-bottom:16px;
+      border-bottom:1px solid #edf0f5;
+    }
+    .notif-form-head h2{
+      font-size:15px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 4px;
+    }
+    .notif-form-head p{
+      font-size:11px;
+      color:#7e8ba2;
+      margin:0;
+      line-height:1.5;
+    }
+
+    .notif-form{
+      display:grid;
+      gap:14px;
+    }
+    .notif-campo label{
+      display:block;
+      font-size:11px;
+      font-weight:600;
+      color:#3b4860;
+      margin-bottom:6px;
+    }
+    .notif-campo input[type=text],
+    .notif-campo input[type=date],
+    .notif-campo select,
+    .notif-campo textarea{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #dfe6f1;
+      border-radius:9px;
+      background:#f8faff;
+      color:#34415a;
+      font:400 12px Inter,Arial,sans-serif;
+      outline:none;
+      transition:border-color .15s, background .15s;
+    }
+    .notif-campo input[type=text],
+    .notif-campo input[type=date],
+    .notif-campo select{ height:42px; }
+    .notif-campo textarea{
+      min-height:120px;
+      padding-top:12px;
+      resize:vertical;
+    }
+    .notif-campo input:focus,
+    .notif-campo select:focus,
+    .notif-campo textarea:focus{
+      border-color:#7da3f7;
+      background:#fff;
+    }
+    .notif-campo small{
+      display:block;
+      font-size:10px;
+      color:#9aa5b7;
+      margin-top:5px;
+      line-height:1.4;
+    }
+
+    .notif-grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .notif-checkbox{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      padding:12px 14px;
+      border:1px solid #dfe6f1;
+      border-radius:9px;
+      background:#f8faff;
+      cursor:pointer;
+      font-size:12px;
+      color:#3b4860;
+      font-weight:500;
+    }
+    .notif-checkbox input{
+      width:16px;
+      height:16px;
+      accent-color:#2059dc;
+      flex-shrink:0;
+      margin:0;
+    }
+
+    .notif-form-acoes{
+      display:flex;
+      gap:9px;
+      justify-content:flex-end;
+      padding-top:18px;
+      margin-top:6px;
+      border-top:1px solid #edf0f5;
+    }
+    .notif-btn{
+      padding:11px 18px;
+      border-radius:9px;
+      font:700 12px Inter,Arial,sans-serif;
+      border:0;
+      cursor:pointer;
+      transition:all .15s;
+    }
+    .notif-btn.outline{
+      background:#fff;
+      border:1px solid #dfe6f1;
+      color:#64738d;
+    }
+    .notif-btn.outline:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .notif-btn.primary{
+      background:#2059dc;
+      color:#fff;
+    }
+    .notif-btn.primary:hover{ filter:brightness(1.08); }
+    .notif-btn.primary:disabled{ opacity:.55; cursor:not-allowed; }
+
+    /* ========== Painel lista ========== */
+    .notif-list-panel{
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .notif-list-head{
+      padding:20px 22px;
+      border-bottom:1px solid #edf0f5;
+    }
+    .notif-list-head h2{
+      font-size:15px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 4px;
+    }
+    .notif-list-head p{
+      font-size:11px;
+      color:#7e8ba2;
+      margin:0;
+    }
+    .notif-filtros{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:14px 22px;
+      border-bottom:1px solid #edf0f5;
+      background:#fafbfe;
+    }
+    .notif-chip{
+      padding:7px 13px;
+      border-radius:99px;
+      background:#fff;
+      border:1px solid #dfe6f1;
+      color:#64738d;
+      font:600 11px Inter,Arial,sans-serif;
+      cursor:pointer;
+      transition:all .15s;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .notif-chip:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .notif-chip.ativo{
+      background:#2059dc;
+      color:#fff;
+      border-color:#2059dc;
+    }
+    .notif-chip-count{
+      background:rgba(0,0,0,.08);
+      border-radius:99px;
+      padding:1px 6px;
+      font-size:9px;
+      font-weight:700;
+    }
+    .notif-chip.ativo .notif-chip-count{
+      background:rgba(255,255,255,.22);
+    }
+
+    .notif-list-body{
+      max-height:calc(100vh - 380px);
+      min-height:300px;
+      overflow-y:auto;
+      padding:8px;
+    }
+
+    .notif-card{
+      padding:16px 18px;
+      border:1px solid #edf0f5;
+      border-radius:11px;
+      margin-bottom:8px;
+      background:#fff;
+      transition:border-color .15s, background .15s;
+    }
+    .notif-card:hover{
+      border-color:#c7d9f5;
+      background:#fafbfe;
+    }
+    .notif-card.destaque{
+      border-left:4px solid #c35b0b;
+      background:#fffaf3;
+    }
+    .notif-card-topo{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .notif-card-titulo{
+      font-size:13px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0;
+      line-height:1.35;
+    }
+    .notif-card-pills{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .notif-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:3px 9px;
+      border-radius:99px;
+      font-size:9px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      white-space:nowrap;
+    }
+    .notif-pill.categoria{ background:#e8f0ff; color:#2059dc; }
+    .notif-pill.categoria.evento{ background:#e8f0ff; color:#2059dc; }
+    .notif-pill.categoria.campanha{ background:#f0e8ff; color:#7732d9; }
+    .notif-pill.categoria.aviso{ background:#e5f6ef; color:#0b8b61; }
+    .notif-pill.categoria.manutencao{ background:#fff1df; color:#c35b0b; }
+    .notif-pill.categoria.reuniao{ background:#fce7f3; color:#be185d; }
+    .notif-pill.categoria.capacitacao{ background:#dbeafe; color:#1e40af; }
+    .notif-pill.status.publicado{ background:#e5f6ef; color:#0b8b61; }
+    .notif-pill.status.rascunho{ background:#eef1f7; color:#64738d; }
+    .notif-pill.status.agendado{ background:#e8f0ff; color:#2059dc; }
+    .notif-pill.status.expirado{ background:#ffeae8; color:#d42f26; }
+    .notif-pill.publico{ background:#f1f4f9; color:#52617a; }
+    .notif-pill.destaque{ background:#fff1df; color:#c35b0b; }
+
+    .notif-card-conteudo{
+      font-size:11px;
+      color:#52617a;
+      line-height:1.6;
+      margin:0 0 12px;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .notif-card-rodape{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding-top:10px;
+      border-top:1px dashed #edf0f5;
+    }
+    .notif-card-data{
+      font-size:10px;
+      color:#94a0b3;
+    }
+    .notif-card-acoes{
+      display:flex;
+      gap:5px;
+    }
+    .notif-acao{
+      width:30px;
+      height:30px;
+      border-radius:7px;
+      border:1px solid #dfe6f1;
+      background:#fff;
+      color:#64738d;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      transition:all .15s;
+    }
+    .notif-acao:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .notif-acao.success:hover{ border-color:#b8e4d3; color:#0b8b61; }
+    .notif-acao.danger:hover{ border-color:#f7c9c4; color:#d42f26; }
+    .notif-acao:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+    }
+
+    .notif-empty{
+      padding:40px 20px;
+      text-align:center;
+      color:#75829c;
+      font-size:12px;
+      line-height:1.6;
+    }
+    .notif-empty b{
+      display:block;
+      font-size:13px;
+      color:#34415a;
+      margin-bottom:6px;
+    }
+
+    /* ========== Modal ========== */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(10,26,63,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    .modal-box{
+      background:#fff;
+      border-radius:14px;
+      padding:26px 28px;
+      max-width:420px;
+      width:100%;
+      box-shadow:0 20px 60px rgba(10,26,63,.25);
+    }
+    .modal-box h2{
+      font-size:16px;
+      margin:0 0 6px;
+      color:var(--portal-text);
+    }
+    .modal-box p{
+      font-size:12px;
+      color:var(--portal-muted);
+      margin:0 0 18px;
+      line-height:1.55;
+    }
+    .modal-actions{
+      display:flex;
+      gap:9px;
+      justify-content:flex-end;
+    }
+    .modal-btn{
+      padding:10px 16px;
+      border-radius:8px;
+      font:700 12px Inter,Arial,sans-serif;
+      border:0;
+      cursor:pointer;
+    }
+    .modal-btn.cancel{
+      background:#fff;
+      border:1px solid #dfe6f1;
+      color:#64738d;
+    }
+    .modal-btn.cancel:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .modal-btn.danger{
+      background:#d42f26;
+      color:#fff;
+    }
+    .modal-btn.danger:hover{ filter:brightness(1.08); }
+    .modal-btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    @media (max-width:1080px){
+      .notif-layout{ grid-template-columns:1fr; }
+      .notif-form-panel{ position:static; }
+      .notif-stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .notif-list-body{ max-height:none; }
+    }
+    @media (max-width:760px){
+      .notif-stats{ grid-template-columns:1fr; }
+      .notif-grid-2{ grid-template-columns:1fr; }
+      .notif-form-acoes{ flex-direction:column-reverse; }
+      .notif-form-acoes .notif-btn{ width:100%; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/admin/admin-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-profissionais.html">
+        <span class="portal-nav-icon">♙</span><span>Profissionais</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-alunos.html">
+        <span class="portal-nav-icon">♧</span><span>Alunos</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-relatorios.html">
+        <span class="portal-nav-icon">▤</span><span>Relatórios</span>
+      </a>
+      <a class="portal-nav-link active" href="/admin/admin-notificacoes.html">
+        <span class="portal-nav-icon">♢</span><span>Notificações</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-perfil.html">
+        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Notificações</h1>
+        <p>Publique comunicados institucionais e acompanhe os avisos enviados.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Stats -->
+      <div class="notif-stats">
+        <article class="notif-stat">
+          <span class="notif-stat-ico blue">♢</span>
+          <div>
+            <small>Total de comunicados</small>
+            <strong id="statTotal">—</strong>
+          </div>
+        </article>
+        <article class="notif-stat">
+          <span class="notif-stat-ico green">✓</span>
+          <div>
+            <small>Publicados</small>
+            <strong id="statPublicados">—</strong>
+          </div>
+        </article>
+        <article class="notif-stat">
+          <span class="notif-stat-ico orange">✎</span>
+          <div>
+            <small>Rascunhos</small>
+            <strong id="statRascunhos">—</strong>
+          </div>
+        </article>
+        <article class="notif-stat">
+          <span class="notif-stat-ico purple">★</span>
+          <div>
+            <small>Em destaque</small>
+            <strong id="statDestaques">—</strong>
+          </div>
+        </article>
+      </div>
+
+      <div class="notif-layout">
+
+        <!-- ========== FORM ========== -->
+        <section class="notif-form-panel">
+          <div class="notif-form-head">
+            <h2 id="formTitulo">Publicar comunicado</h2>
+            <p id="formDescricao">Crie avisos para os estudantes e profissionais do PAP.</p>
+          </div>
+
+          <div id="formAlerta" class="portal-info-box" style="display:none;margin-bottom:14px"></div>
+
+          <form class="notif-form" id="formAviso" novalidate>
+
+            <div class="notif-campo">
+              <label for="avisoTitulo">Título do comunicado *</label>
+              <input type="text" id="avisoTitulo" required maxlength="120"
+                     placeholder="Ex.: Horário especial de atendimento">
+            </div>
+
+            <div class="notif-grid-2">
+              <div class="notif-campo">
+                <label for="avisoCategoria">Categoria *</label>
+                <select id="avisoCategoria" required>
+                  <option value="">Selecione…</option>
+                  <option value="EVENTO">Evento</option>
+                  <option value="CAMPANHA">Campanha</option>
+                  <option value="AVISO">Aviso geral</option>
+                  <option value="MANUTENCAO">Manutenção</option>
+                  <option value="REUNIAO">Reunião</option>
+                  <option value="CAPACITACAO">Capacitação</option>
+                </select>
+              </div>
+              <div class="notif-campo">
+                <label for="avisoPublico">Público destinatário *</label>
+                <select id="avisoPublico" required>
+                  <option value="TODOS">Todos os usuários</option>
+                  <option value="ALUNOS">Apenas estudantes</option>
+                  <option value="PROFISSIONAIS">Apenas profissionais</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="notif-campo">
+              <label for="avisoConteudo">Mensagem *</label>
+              <textarea id="avisoConteudo" required minlength="20"
+                        placeholder="Escreva o conteúdo do comunicado..."></textarea>
+              <small>Mínimo de 20 caracteres. Seja claro e objetivo.</small>
+            </div>
+
+            <label class="notif-checkbox" for="avisoDestaque">
+              <input type="checkbox" id="avisoDestaque">
+              Marcar como destaque (aparece primeiro na lista do aluno)
+            </label>
+
+            <div class="notif-form-acoes">
+              <button type="button" class="notif-btn outline" id="btnCancelarForm" style="display:none">
+                Cancelar
+              </button>
+              <button type="button" class="notif-btn outline" id="btnSalvarRascunho">
+                Salvar rascunho
+              </button>
+              <button type="submit" class="notif-btn primary" id="btnPublicar">
+                Publicar agora
+              </button>
+            </div>
+
+          </form>
+        </section>
+
+        <!-- ========== LISTA ========== -->
+        <section class="notif-list-panel">
+          <div class="notif-list-head">
+            <h2>Comunicados publicados</h2>
+            <p>Acompanhe o histórico de avisos enviados.</p>
+          </div>
+
+          <div class="notif-filtros">
+            <button class="notif-chip ativo" data-filtro="all" type="button">
+              Todos <span class="notif-chip-count" id="countAll">0</span>
+            </button>
+            <button class="notif-chip" data-filtro="PUBLICADO" type="button">
+              Publicados <span class="notif-chip-count" id="countPublicados">0</span>
+            </button>
+            <button class="notif-chip" data-filtro="RASCUNHO" type="button">
+              Rascunhos <span class="notif-chip-count" id="countRascunhos">0</span>
+            </button>
+            <button class="notif-chip" data-filtro="AGENDADO" type="button">
+              Agendados <span class="notif-chip-count" id="countAgendados">0</span>
+            </button>
+            <button class="notif-chip" data-filtro="EXPIRADO" type="button">
+              Expirados <span class="notif-chip-count" id="countExpirados">0</span>
+            </button>
+          </div>
+
+          <div class="notif-list-body" id="listaAvisos">
+            <div class="notif-empty">
+              <b>Carregando…</b>
+              Buscando comunicados.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <p class="portal-info-box">
+        Os comunicados publicados aparecem imediatamente na tela inicial dos alunos e profissionais do PAP.
+      </p>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL EXCLUIR ============ -->
+<div class="modal-overlay" id="modalExcluir" style="display:none">
+  <div class="modal-box">
+    <h2>Excluir comunicado</h2>
+    <p id="modalExcluirTexto">Tem certeza que deseja excluir este comunicado? Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" id="btnCancelarExcluir">Cancelar</button>
+      <button type="button" class="modal-btn danger" id="btnConfirmarExcluir">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET    /auth/session
+    //   GET    /avisos
+    //   POST   /avisos
+    //   PUT    /avisos/{id}
+    //   PATCH  /avisos/{id}/publicar
+    //   DELETE /avisos/{id}
+    //   GET    /notificacoes/usuario/{id}/count
+
+    const state = {
+      usuario: null,
+      avisos: [],
+      filtro: 'all',
+      editandoId: null,
+      excluirId: null
+    };
+
+    const CATEGORIA_LABEL = {
+      EVENTO: 'Evento',
+      CAMPANHA: 'Campanha',
+      AVISO: 'Aviso',
+      MANUTENCAO: 'Manutenção',
+      REUNIAO: 'Reunião',
+      CAPACITACAO: 'Capacitação'
+    };
+
+    const CATEGORIA_CLASSE = {
+      EVENTO: 'evento',
+      CAMPANHA: 'campanha',
+      AVISO: 'aviso',
+      MANUTENCAO: 'manutencao',
+      REUNIAO: 'reuniao',
+      CAPACITACAO: 'capacitacao'
+    };
+
+    const STATUS_LABEL = {
+      RASCUNHO: 'Rascunho',
+      AGENDADO: 'Agendado',
+      PUBLICADO: 'Publicado',
+      EXPIRADO: 'Expirado'
+    };
+
+    const PUBLICO_LABEL = {
+      TODOS: 'Todos os usuários',
+      ALUNOS: 'Estudantes',
+      PROFISSIONAIS: 'Profissionais'
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function valor(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function fmtData(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('pt-BR', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      }).replace('.', '');
+    }
+
+    function fmtDataHora(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+              ' · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function mostrarAlerta(tipo, mensagem) {
+      const el = document.getElementById('formAlerta');
+      if (!el) return;
+      el.textContent = mensagem;
+      el.style.display = 'block';
+      el.style.background = tipo === 'erro' ? '#fff0ee' : '#e5f6ef';
+      el.style.color = tipo === 'erro' ? '#8a221a' : '#0b6b4a';
+      el.style.border = tipo === 'erro' ? '1px solid #ffc7c1' : '1px solid #b8e4d3';
+    }
+
+    function esconderAlerta() {
+      const el = document.getElementById('formAlerta');
+      if (el) el.style.display = 'none';
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Administrador');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Carregar avisos ----------
+    async function carregarAvisos() {
+      try {
+        const r = await fetch('/avisos', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.avisos = await r.json();
+
+        // Ordena por criadoEm (mais recente primeiro)
+        state.avisos.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+        calcularStats();
+        renderizarLista();
+      } catch (e) {
+        console.error('Erro ao carregar avisos', e);
+        document.getElementById('listaAvisos').innerHTML = `
+        <div class="notif-empty">
+          <b>Não foi possível carregar</b>
+          Tente novamente em instantes.
+        </div>`;
+      }
+    }
+
+    // ---------- 4. Stats ----------
+    function calcularStats() {
+      const total = state.avisos.length;
+      const publicados = state.avisos.filter(a => a.status === 'PUBLICADO').length;
+      const rascunhos = state.avisos.filter(a => a.status === 'RASCUNHO').length;
+      const destaques = state.avisos.filter(a => a.destaque === true).length;
+
+      set('statTotal', String(total));
+      set('statPublicados', String(publicados));
+      set('statRascunhos', String(rascunhos));
+      set('statDestaques', String(destaques));
+
+      set('countAll', String(total));
+      set('countPublicados', String(publicados));
+      set('countRascunhos', String(rascunhos));
+      set('countAgendados', String(state.avisos.filter(a => a.status === 'AGENDADO').length));
+      set('countExpirados', String(state.avisos.filter(a => a.status === 'EXPIRADO').length));
+    }
+
+    // ---------- 5. Renderizar lista ----------
+    function renderizarLista() {
+      const container = document.getElementById('listaAvisos');
+      const filtrados = state.filtro === 'all'
+              ? state.avisos
+              : state.avisos.filter(a => a.status === state.filtro);
+
+      if (!filtrados.length) {
+        const msg = state.avisos.length === 0
+                ? { titulo: 'Nenhum comunicado criado', texto: 'Use o formulário ao lado para publicar o primeiro aviso.' }
+                : { titulo: 'Nenhum resultado para este filtro', texto: 'Ajuste o filtro para ver outros comunicados.' };
+
+        container.innerHTML = `
+        <div class="notif-empty">
+          <b>${msg.titulo}</b>
+          ${msg.texto}
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = filtrados.map(a => renderizarCard(a)).join('');
+
+      // Liga ações
+      container.querySelectorAll('[data-publicar]').forEach(btn => {
+        btn.addEventListener('click', () => publicarAviso(Number(btn.dataset.publicar), btn));
+      });
+      container.querySelectorAll('[data-editar]').forEach(btn => {
+        btn.addEventListener('click', () => editarAviso(Number(btn.dataset.editar)));
+      });
+      container.querySelectorAll('[data-excluir]').forEach(btn => {
+        btn.addEventListener('click', () => confirmarExcluir(Number(btn.dataset.excluir)));
+      });
+    }
+
+    function renderizarCard(a) {
+      const categoria = CATEGORIA_LABEL[a.categoria] || a.categoria || '—';
+      const categoriaClasse = CATEGORIA_CLASSE[a.categoria] || 'aviso';
+      const statusLabel = STATUS_LABEL[a.status] || a.status;
+      const statusClasse = (a.status || '').toLowerCase();
+      const publicoLabel = PUBLICO_LABEL[a.publicoAlvo] || a.publicoAlvo || '—';
+      const dataExibicao = a.status === 'PUBLICADO' && a.publicadoEm
+              ? 'Publicado em ' + fmtDataHora(a.publicadoEm)
+              : 'Criado em ' + fmtDataHora(a.criadoEm);
+
+      const podePublicar = a.status === 'RASCUNHO' || a.status === 'AGENDADO';
+
+      return `
+      <article class="notif-card ${a.destaque ? 'destaque' : ''}">
+        <div class="notif-card-topo">
+          <h3 class="notif-card-titulo">${escapeHtml(a.titulo)}</h3>
+        </div>
+
+        <div class="notif-card-pills">
+          <span class="notif-pill categoria ${categoriaClasse}">${escapeHtml(categoria)}</span>
+          <span class="notif-pill status ${statusClasse}">${escapeHtml(statusLabel)}</span>
+          <span class="notif-pill publico">${escapeHtml(publicoLabel)}</span>
+          ${a.destaque ? '<span class="notif-pill destaque">★ Destaque</span>' : ''}
+        </div>
+
+        <p class="notif-card-conteudo">${escapeHtml(a.conteudo || '')}</p>
+
+        <div class="notif-card-rodape">
+          <span class="notif-card-data">${dataExibicao}</span>
+          <div class="notif-card-acoes">
+            ${podePublicar ? `
+              <button class="notif-acao success" type="button" title="Publicar"
+                      data-publicar="${a.id}">✓</button>
+            ` : ''}
+            <button class="notif-acao" type="button" title="Editar"
+                    data-editar="${a.id}">✎</button>
+            <button class="notif-acao danger" type="button" title="Excluir"
+                    data-excluir="${a.id}">✕</button>
+          </div>
+        </div>
+      </article>
+    `;
+    }
+
+    // ---------- 6. Salvar (novo ou editado) ----------
+    async function salvarAviso(publicarAgora) {
+      esconderAlerta();
+
+      const titulo = valor('avisoTitulo');
+      const categoria = valor('avisoCategoria');
+      const publicoAlvo = valor('avisoPublico');
+      const conteudo = valor('avisoConteudo');
+      const destaque = document.getElementById('avisoDestaque').checked;
+
+      // Validações
+      if (titulo.length < 5) {
+        mostrarAlerta('erro', 'O título deve ter pelo menos 5 caracteres.');
+        return;
+      }
+      if (!categoria) {
+        mostrarAlerta('erro', 'Selecione a categoria.');
+        return;
+      }
+      if (conteudo.length < 20) {
+        mostrarAlerta('erro', 'A mensagem deve ter pelo menos 20 caracteres.');
+        return;
+      }
+
+      const btn = publicarAgora
+              ? document.getElementById('btnPublicar')
+              : document.getElementById('btnSalvarRascunho');
+      const textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Salvando…';
+
+      const payload = {
+        titulo,
+        categoria,
+        publicoAlvo,
+        conteudo,
+        destaque,
+        status: publicarAgora ? 'PUBLICADO' : 'RASCUNHO'
+      };
+
+      if (publicarAgora) {
+        payload.publicadoEm = new Date().toISOString();
+      }
+
+      const editando = state.editandoId !== null;
+      const url = editando ? `/avisos/${state.editandoId}` : '/avisos';
+      const method = editando ? 'PUT' : 'POST';
+
+      try {
+        const r = await fetch(url, {
+          method,
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || `Erro ${r.status}`);
+        }
+
+        limparFormulario();
+        await carregarAvisos();
+
+        mostrarAlerta('sucesso',
+                publicarAgora
+                        ? 'Comunicado publicado com sucesso! Já está visível para os usuários.'
+                        : 'Rascunho salvo. Você pode publicar depois.');
+      } catch (e) {
+        console.error('Erro ao salvar aviso', e);
+        mostrarAlerta('erro', e.message || 'Não foi possível salvar. Tente novamente.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    }
+
+    // ---------- 7. Publicar rascunho ----------
+    async function publicarAviso(id, btn) {
+      if (!confirm('Publicar este comunicado agora? Ele aparecerá imediatamente para os usuários.')) return;
+
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      try {
+        const r = await fetch(`/avisos/${id}/publicar`, {
+          method: 'PATCH',
+          credentials: 'include'
+        });
+
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+
+        await carregarAvisos();
+        mostrarAlerta('sucesso', 'Comunicado publicado com sucesso!');
+      } catch (e) {
+        console.error('Erro ao publicar', e);
+        alert('Não foi possível publicar. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = '✓';
+      }
+    }
+
+    // ---------- 8. Editar ----------
+    function editarAviso(id) {
+      const a = state.avisos.find(x => x.id === id);
+      if (!a) return;
+
+      state.editandoId = id;
+
+      set('formTitulo', 'Editar comunicado');
+      set('formDescricao', 'Atualize o conteúdo do aviso. Se já estiver publicado, as alterações aparecerão imediatamente.');
+
+      document.getElementById('avisoTitulo').value = a.titulo || '';
+      document.getElementById('avisoCategoria').value = a.categoria || '';
+      document.getElementById('avisoPublico').value = a.publicoAlvo || 'TODOS';
+      document.getElementById('avisoConteudo').value = a.conteudo || '';
+      document.getElementById('avisoDestaque').checked = a.destaque === true;
+
+      document.getElementById('btnCancelarForm').style.display = '';
+      document.getElementById('btnSalvarRascunho').textContent = 'Salvar alterações';
+      document.getElementById('btnPublicar').textContent = a.status === 'PUBLICADO' ? 'Salvar e manter publicado' : 'Salvar e publicar';
+
+      esconderAlerta();
+      document.querySelector('.notif-form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('avisoTitulo').focus();
+    }
+
+    // ---------- 9. Cancelar edição ----------
+    function limparFormulario() {
+      state.editandoId = null;
+
+      set('formTitulo', 'Publicar comunicado');
+      set('formDescricao', 'Crie avisos para os estudantes e profissionais do PAP.');
+
+      document.getElementById('formAviso').reset();
+      document.getElementById('avisoPublico').value = 'TODOS';
+
+      document.getElementById('btnCancelarForm').style.display = 'none';
+      document.getElementById('btnSalvarRascunho').textContent = 'Salvar rascunho';
+      document.getElementById('btnPublicar').textContent = 'Publicar agora';
+
+      esconderAlerta();
+    }
+
+    // ---------- 10. Excluir ----------
+    function confirmarExcluir(id) {
+      const a = state.avisos.find(x => x.id === id);
+      if (!a) return;
+
+      state.excluirId = id;
+      set('modalExcluirTexto',
+              `Tem certeza que deseja excluir o comunicado "${a.titulo}"? Esta ação não pode ser desfeita.`);
+      document.getElementById('modalExcluir').style.display = 'flex';
+    }
+
+    function fecharModalExcluir() {
+      document.getElementById('modalExcluir').style.display = 'none';
+      state.excluirId = null;
+    }
+
+    async function excluirAviso() {
+      if (!state.excluirId) return;
+
+      const btn = document.getElementById('btnConfirmarExcluir');
+      btn.disabled = true;
+      btn.textContent = 'Excluindo…';
+
+      try {
+        const r = await fetch(`/avisos/${state.excluirId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!r.ok && r.status !== 204) throw new Error('HTTP ' + r.status);
+
+        fecharModalExcluir();
+        await carregarAvisos();
+        mostrarAlerta('sucesso', 'Comunicado excluído.');
+      } catch (e) {
+        console.error('Erro ao excluir', e);
+        alert('Não foi possível excluir. Tente novamente.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Excluir';
+      }
+    }
+
+    // ---------- 11. Eventos ----------
+    function ligarEventos() {
+      document.getElementById('formAviso').addEventListener('submit', (e) => {
+        e.preventDefault();
+        salvarAviso(true);
+      });
+
+      document.getElementById('btnSalvarRascunho').addEventListener('click', () => {
+        salvarAviso(false);
+      });
+
+      document.getElementById('btnCancelarForm').addEventListener('click', limparFormulario);
+
+      // Filtros
+      document.querySelectorAll('.notif-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.notif-chip').forEach(c => c.classList.remove('ativo'));
+          chip.classList.add('ativo');
+          state.filtro = chip.dataset.filtro;
+          renderizarLista();
+        });
+      });
+
+      // Modal excluir
+      document.getElementById('btnCancelarExcluir').addEventListener('click', fecharModalExcluir);
+      document.getElementById('btnConfirmarExcluir').addEventListener('click', excluirAviso);
+      document.getElementById('modalExcluir').addEventListener('click', (e) => {
+        if (e.target.id === 'modalExcluir') fecharModalExcluir();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('modalExcluir').style.display === 'flex') {
+          fecharModalExcluir();
+        }
+      });
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarAvisos(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

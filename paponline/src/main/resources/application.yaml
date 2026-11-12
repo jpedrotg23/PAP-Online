@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: paponline
+
+  datasource:
+    url: jdbc:h2:mem:paponline
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  web:
+    error:
+      include-message: always

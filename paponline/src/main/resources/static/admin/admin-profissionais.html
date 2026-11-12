@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAP Online | Profissionais</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    .pap-loading-overlay{
+      position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+      display:grid;place-items:center;color:#667085;
+      font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+    }
+
+    /* ========== Toolbar ========== */
+    .admin-toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:16px;
+    }
+    .admin-search{
+      flex:1;
+      min-width:240px;
+      max-width:380px;
+    }
+    .admin-search input{
+      width:100%;
+      height:42px;
+      padding:0 14px;
+      border:1px solid #dfe6f1;
+      border-radius:10px;
+      background:#fff;
+      color:#34415a;
+      font:400 12px Inter,Arial,sans-serif;
+      outline:none;
+      transition:border-color .15s;
+    }
+    .admin-search input:focus{ border-color:#7da3f7; }
+    .admin-search input::placeholder{ color:#a8b0c0; }
+
+    .admin-filtro{
+      height:42px;
+      padding:0 14px;
+      border:1px solid #dfe6f1;
+      border-radius:10px;
+      background:#fff;
+      color:#34415a;
+      font:600 11px Inter,Arial,sans-serif;
+      cursor:pointer;
+    }
+
+    .admin-btn-novo{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:0 18px;
+      height:42px;
+      border-radius:10px;
+      background:#2059dc;
+      color:#fff;
+      border:0;
+      cursor:pointer;
+      font:700 12px Inter,Arial,sans-serif;
+      white-space:nowrap;
+      margin-left:auto;
+      transition:filter .15s;
+    }
+    .admin-btn-novo:hover{ filter:brightness(1.08); }
+
+    /* ========== Stats ========== */
+    .admin-stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .admin-stat{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:16px;
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:12px;
+    }
+    .admin-stat-ico{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      font-size:17px;
+      flex-shrink:0;
+    }
+    .admin-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
+    .admin-stat-ico.purple{ background:#f0e8ff; color:#7732d9; }
+    .admin-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
+    .admin-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
+    .admin-stat small{
+      display:block;
+      font-size:10px;
+      color:#7e8ba2;
+      margin-bottom:3px;
+    }
+    .admin-stat strong{
+      font-size:20px;
+      color:var(--portal-text);
+      line-height:1;
+    }
+
+    /* ========== Tabela ========== */
+    .admin-tabela-wrap{
+      background:#fff;
+      border:1px solid var(--portal-line);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .admin-tabela{
+      width:100%;
+      border-collapse:collapse;
+      text-align:left;
+    }
+    .admin-tabela th{
+      padding:13px 16px;
+      background:#f7f9fc;
+      border-bottom:1px solid #edf0f5;
+      font-size:10px;
+      font-weight:700;
+      color:#7e8ba2;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      white-space:nowrap;
+    }
+    .admin-tabela td{
+      padding:14px 16px;
+      border-bottom:1px solid #edf0f5;
+      font-size:12px;
+      color:#52617a;
+      vertical-align:middle;
+    }
+    .admin-tabela tbody tr:last-child td{ border-bottom:0; }
+    .admin-tabela tbody tr:hover{ background:#fafbfe; }
+
+    .admin-tabela-pessoa{
+      display:flex;
+      align-items:center;
+      gap:11px;
+    }
+    .admin-tabela-avatar{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:#3b7bea;
+      color:#fff;
+      display:grid;
+      place-items:center;
+      font-size:11px;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .admin-tabela-nome{
+      font-size:12px;
+      font-weight:700;
+      color:var(--portal-text);
+      margin:0 0 2px;
+    }
+    .admin-tabela-email{
+      font-size:10px;
+      color:#94a0b3;
+      margin:0;
+    }
+    .admin-tabela-crp{
+      font-family:monospace;
+      font-size:11px;
+      color:#52617a;
+    }
+
+    .admin-tabela-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:99px;
+      font-size:10px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .admin-tabela-pill.active{ background:#e5f6ef; color:#0b8b61; }
+    .admin-tabela-pill.inactive{ background:#eef1f7; color:#64738d; }
+
+    .admin-tabela-acoes{
+      display:flex;
+      gap:6px;
+      justify-content:flex-end;
+    }
+    .admin-acao{
+      width:32px;
+      height:32px;
+      border-radius:8px;
+      border:1px solid #dfe6f1;
+      background:#fff;
+      color:#64738d;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      font-size:13px;
+      transition:all .15s;
+    }
+    .admin-acao:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .admin-acao.danger:hover{ border-color:#f7c9c4; color:#d42f26; }
+    .admin-acao.success:hover{ border-color:#b8e4d3; color:#0b8b61; }
+
+    .admin-empty-table{
+      padding:40px 20px;
+      text-align:center;
+      color:#75829c;
+      font-size:12px;
+      line-height:1.6;
+    }
+    .admin-empty-table b{
+      display:block;
+      font-size:13px;
+      color:#34415a;
+      margin-bottom:6px;
+    }
+
+    /* ========== Modal ========== */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(10,26,63,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    .modal-box{
+      background:#fff;
+      border-radius:14px;
+      padding:26px 28px;
+      max-width:560px;
+      width:100%;
+      max-height:90vh;
+      overflow-y:auto;
+      box-shadow:0 20px 60px rgba(10,26,63,.25);
+    }
+    .modal-box h2{
+      font-size:16px;
+      margin:0 0 6px;
+      color:var(--portal-text);
+    }
+    .modal-box > p{
+      font-size:12px;
+      color:var(--portal-muted);
+      margin:0 0 20px;
+      line-height:1.55;
+    }
+
+    .modal-form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:16px;
+    }
+    .modal-form-grid .span-2{ grid-column:1/-1; }
+    .modal-campo label{
+      display:block;
+      font-size:11px;
+      font-weight:600;
+      color:#3b4860;
+      margin-bottom:6px;
+    }
+    .modal-campo input,
+    .modal-campo select{
+      width:100%;
+      height:42px;
+      padding:0 12px;
+      border:1px solid #dfe6f1;
+      border-radius:9px;
+      background:#f8faff;
+      color:#34415a;
+      font:400 12px Inter,Arial,sans-serif;
+      outline:none;
+      transition:border-color .15s;
+    }
+    .modal-campo input:focus,
+    .modal-campo select:focus{ border-color:#7da3f7; background:#fff; }
+    .modal-campo small{
+      display:block;
+      font-size:10px;
+      color:#9aa5b7;
+      margin-top:5px;
+      line-height:1.4;
+    }
+
+    .modal-erro{
+      padding:10px 13px;
+      border-radius:8px;
+      background:#fff0ee;
+      border:1px solid #ffc7c1;
+      color:#8a221a;
+      font-size:11px;
+      margin-bottom:14px;
+      display:none;
+      line-height:1.5;
+    }
+    .modal-erro.visivel{ display:block; }
+
+    .modal-actions{
+      display:flex;
+      gap:9px;
+      justify-content:flex-end;
+      padding-top:16px;
+      border-top:1px solid #edf0f5;
+    }
+    .modal-btn{
+      padding:11px 18px;
+      border-radius:9px;
+      font:700 12px Inter,Arial,sans-serif;
+      border:0;
+      cursor:pointer;
+      transition:all .15s;
+    }
+    .modal-btn.cancel{
+      background:#fff;
+      border:1px solid #dfe6f1;
+      color:#64738d;
+    }
+    .modal-btn.cancel:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .modal-btn.confirm{
+      background:#2059dc;
+      color:#fff;
+    }
+    .modal-btn.confirm:hover{ filter:brightness(1.08); }
+    .modal-btn.confirm:disabled{ opacity:.55; cursor:not-allowed; }
+    .modal-btn.danger{
+      background:#d42f26;
+      color:#fff;
+    }
+    .modal-btn.danger:hover{ filter:brightness(1.08); }
+
+    @media (max-width:1080px){
+      .admin-stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .admin-tabela{ min-width:720px; }
+      .admin-tabela-wrap{ overflow-x:auto; }
+    }
+    @media (max-width:760px){
+      .admin-stats{ grid-template-columns:1fr; }
+      .admin-btn-novo{ width:100%; justify-content:center; margin-left:0; }
+      .modal-form-grid{ grid-template-columns:1fr; }
+      .modal-form-grid .span-2{ grid-column:auto; }
+    }
+  </style>
+</head>
+<body class="portal-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<div class="portal-app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="portal-sidebar">
+    <div class="portal-brand">
+      <span class="portal-brand-mark">PAP</span>
+      <strong>PAP Online</strong>
+    </div>
+    <nav class="portal-navigation" aria-label="Menu principal">
+      <a class="portal-nav-link" href="/admin/admin-inicial.html">
+        <span class="portal-nav-icon">⌂</span><span>Início</span>
+      </a>
+      <a class="portal-nav-link active" href="/admin/admin-profissionais.html">
+        <span class="portal-nav-icon">♙</span><span>Profissionais</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-alunos.html">
+        <span class="portal-nav-icon">♧</span><span>Alunos</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-mensagens.html">
+        <span class="portal-nav-icon">✉</span><span>Mensagens</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-relatorios.html">
+        <span class="portal-nav-icon">▤</span><span>Relatórios</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-notificacoes.html">
+        <span class="portal-nav-icon">♢</span><span>Notificações</span>
+      </a>
+      <a class="portal-nav-link" href="/admin/admin-perfil.html">
+        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+      </a>
+    </nav>
+    <button class="portal-exit" type="button" data-role-logout>
+      <span class="portal-nav-icon">↪</span><span>Sair</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="portal-main">
+
+    <header class="portal-topbar">
+      <div class="portal-heading">
+        <h1>Profissionais</h1>
+        <p>Cadastre, consulte e gerencie os profissionais vinculados ao PAP.</p>
+      </div>
+      <div class="portal-top-actions">
+        <div class="portal-user-chip">
+          <span class="portal-avatar" id="userAvatar">US</span>
+          <span>
+            <b id="userName">Usuário</b>
+            <small id="userDetail">Dados não carregados</small>
+          </span>
+        </div>
+        <button class="portal-notification" type="button" aria-label="Notificações">
+          ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+      </div>
+    </header>
+
+    <section class="portal-content">
+
+      <!-- Toolbar -->
+      <div class="admin-toolbar">
+        <div class="admin-search">
+          <input type="search" id="buscaProfissional"
+                 placeholder="Buscar por nome, CRP ou cargo..."
+                 aria-label="Buscar profissional">
+        </div>
+        <select class="admin-filtro" id="filtroStatus" aria-label="Filtrar por status">
+          <option value="all">Todos os profissionais</option>
+          <option value="ativo">Ativos</option>
+          <option value="inativo">Inativos</option>
+        </select>
+        <button class="admin-btn-novo" type="button" id="btnNovoProfissional">
+          + Novo profissional
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        <article class="admin-stat">
+          <span class="admin-stat-ico blue">♙</span>
+          <div>
+            <small>Total de profissionais</small>
+            <strong id="statTotal">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico green">✓</span>
+          <div>
+            <small>Ativos</small>
+            <strong id="statAtivos">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico purple">🧠</span>
+          <div>
+            <small>Psicólogos</small>
+            <strong id="statPsicologos">—</strong>
+          </div>
+        </article>
+        <article class="admin-stat">
+          <span class="admin-stat-ico orange">📚</span>
+          <div>
+            <small>Psicopedagogos</small>
+            <strong id="statPsicopedagogos">—</strong>
+          </div>
+        </article>
+      </div>
+
+      <!-- Tabela -->
+      <div class="admin-tabela-wrap">
+        <table class="admin-tabela">
+          <thead>
+          <tr>
+            <th>Profissional</th>
+            <th>CRP</th>
+            <th>Cargo</th>
+            <th>Status</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+          </thead>
+          <tbody id="tabelaProfissionais">
+          <tr>
+            <td colspan="5">
+              <div class="admin-empty-table">
+                <b>Carregando…</b>
+                Buscando profissionais.
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL NOVO/EDITAR PROFISSIONAL ============ -->
+<div class="modal-overlay" id="modalProfissional" style="display:none">
+  <div class="modal-box">
+    <h2 id="modalTitulo">Novo profissional</h2>
+    <p id="modalDescricao">Cadastre um novo profissional do PAP. A senha inicial deverá ser alterada no primeiro acesso.</p>
+
+    <div id="modalErro" class="modal-erro"></div>
+
+    <form id="formProfissional" novalidate>
+      <div class="modal-form-grid">
+        <div class="modal-campo span-2">
+          <label for="novoNome">Nome completo *</label>
+          <input id="novoNome" required placeholder="Como consta no registro profissional">
+        </div>
+        <div class="modal-campo">
+          <label for="novoEmail">E-mail institucional *</label>
+          <input id="novoEmail" type="email" required placeholder="nome@unifor.br">
+          <small>Será usado para login.</small>
+        </div>
+        <div class="modal-campo">
+          <label for="novoTelefone">Telefone</label>
+          <input id="novoTelefone" type="tel" placeholder="(85) 99999-9999">
+        </div>
+        <div class="modal-campo">
+          <label for="novoCrp">CRP *</label>
+          <input id="novoCrp" required placeholder="Ex.: CRP 11/12345">
+          <small>Formato: CRP XX/XXXXX</small>
+        </div>
+        <div class="modal-campo">
+          <label for="novoCargo">Cargo *</label>
+          <select id="novoCargo" required>
+            <option value="">Selecione…</option>
+            <option value="Psicólogo(a)">Psicólogo(a)</option>
+            <option value="Psicopedagogo(a)">Psicopedagogo(a)</option>
+            <option value="Psicólogo(a) e Psicopedagogo(a)">Psicólogo(a) e Psicopedagogo(a)</option>
+          </select>
+          <small>Determina as áreas de atuação.</small>
+        </div>
+        <div class="modal-campo span-2" id="campoSenhaWrap">
+          <label for="novaSenha">Senha inicial *</label>
+          <input id="novaSenha" type="password" required placeholder="Mínimo de 8 caracteres" minlength="8">
+          <small>Mínimo 8 caracteres, com maiúsculas, minúsculas e números.</small>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn cancel" id="btnCancelarModal">Cancelar</button>
+        <button type="submit" class="modal-btn confirm" id="btnSalvarModal">Cadastrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL CONFIRMAR DESATIVAÇÃO ============ -->
+<div class="modal-overlay" id="modalDesativar" style="display:none">
+  <div class="modal-box" style="max-width:420px">
+    <h2>Desativar profissional</h2>
+    <p id="modalDesativarTexto">Tem certeza que deseja desativar este profissional?</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" id="btnCancelarDesativar">Cancelar</button>
+      <button type="button" class="modal-btn danger" id="btnConfirmarDesativar">Desativar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/portais.js"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Pré-requisitos no backend:
+    //   GET    /auth/session
+    //   GET    /profissionais
+    //   POST   /profissionais
+    //   PUT    /profissionais/{id}
+    //   DELETE /profissionais/{id}
+    //   GET    /notificacoes/usuario/{id}/count
+
+    const state = {
+      usuario: null,
+      profissionais: [],
+      filtro: 'all',
+      busca: '',
+      modalAberto: null,   // { modo: 'novo' | 'editar', id?: number }
+      desativarId: null
+    };
+
+    // ---------- Helpers ----------
+    function set(id, valor) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
+    }
+
+    function valor(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
+    function iniciais(nome) {
+      if (!nome) return 'US';
+      const partes = nome.trim().split(/\s+/);
+      if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    function senhaForte(senha) {
+      return senha.length >= 8
+              && /[A-Z]/.test(senha)
+              && /[a-z]/.test(senha)
+              && /\d/.test(senha);
+    }
+
+    function mostrarErroModal(mensagem) {
+      const el = document.getElementById('modalErro');
+      el.textContent = mensagem;
+      el.classList.add('visivel');
+    }
+
+    function esconderErroModal() {
+      const el = document.getElementById('modalErro');
+      el.textContent = '';
+      el.classList.remove('visivel');
+    }
+
+    // ---------- 1. Usuário ----------
+    async function carregarUsuario() {
+      try {
+        const r = await fetch('/auth/session', { credentials: 'include' });
+        if (!r.ok) return null;
+        state.usuario = await r.json();
+        set('userName', state.usuario.nome || 'Administrador');
+        set('userDetail', state.usuario.email || 'Dados não carregados');
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+        return state.usuario;
+      } catch (e) {
+        console.error('Erro ao carregar usuário', e);
+        return null;
+      }
+    }
+
+    // ---------- 2. Notificações ----------
+    async function carregarNotificacoes() {
+      if (!state.usuario?.id) return;
+      try {
+        const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+        if (!r.ok) return;
+        const count = await r.json();
+        const badge = document.getElementById('badgeNotificacoes');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // ---------- 3. Carregar profissionais ----------
+    async function carregarProfissionais() {
+      try {
+        const r = await fetch('/profissionais', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.profissionais = await r.json();
+
+        // Como o backend não tem campo "ativo", consideramos todos ativos
+        // (se um dia adicionar, use p.ativo === false para filtrar)
+        calcularStats();
+        renderizarTabela();
+      } catch (e) {
+        console.error('Erro ao carregar profissionais', e);
+        document.getElementById('tabelaProfissionais').innerHTML = `
+        <tr>
+          <td colspan="5">
+            <div class="admin-empty-table">
+              <b>Não foi possível carregar</b>
+              Tente novamente em instantes.
+            </div>
+          </td>
+        </tr>`;
+        set('statTotal', '—');
+        set('statAtivos', '—');
+        set('statPsicologos', '—');
+        set('statPsicopedagogos', '—');
+      }
+    }
+
+    // ---------- 4. Stats ----------
+    function calcularStats() {
+      const total = state.profissionais.length;
+      const ativos = state.profissionais.filter(p => p.ativo !== false).length;
+
+      const psicologos = state.profissionais.filter(p =>
+              (p.cargo || '').toLowerCase().includes('psicolog')
+      ).length;
+
+      const psicopedagogos = state.profissionais.filter(p =>
+              (p.cargo || '').toLowerCase().includes('psicopedagog')
+      ).length;
+
+      set('statTotal', String(total));
+      set('statAtivos', String(ativos));
+      set('statPsicologos', String(psicologos));
+      set('statPsicopedagogos', String(psicopedagogos));
+    }
+
+    // ---------- 5. Tabela ----------
+    function renderizarTabela() {
+      const tbody = document.getElementById('tabelaProfissionais');
+      const termo = state.busca.toLowerCase();
+      const filtro = state.filtro;
+
+      const filtrados = state.profissionais.filter(p => {
+        if (filtro === 'ativo' && p.ativo === false) return false;
+        if (filtro === 'inativo' && p.ativo !== false) return false;
+        if (!termo) return true;
+        const busca = (p.nome || '') + ' ' + (p.crp || '') + ' ' + (p.cargo || '');
+        return busca.toLowerCase().includes(termo);
+      });
+
+      if (!filtrados.length) {
+        const msg = state.profissionais.length === 0
+                ? { titulo: 'Nenhum profissional cadastrado', texto: 'Clique em "Novo profissional" para começar.' }
+                : { titulo: 'Nenhum resultado para a busca', texto: 'Ajuste a busca ou o filtro.' };
+
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="5">
+            <div class="admin-empty-table">
+              <b>${msg.titulo}</b>
+              ${msg.texto}
+            </div>
+          </td>
+        </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(p => {
+        const ativo = p.ativo !== false;
+        return `
+        <tr>
+          <td>
+            <div class="admin-tabela-pessoa">
+              <span class="admin-tabela-avatar">${iniciais(p.nome)}</span>
+              <div>
+                <p class="admin-tabela-nome">${escapeHtml(p.nome)}</p>
+                <p class="admin-tabela-email">${escapeHtml(p.email || '—')}</p>
+              </div>
+            </div>
+          </td>
+          <td><span class="admin-tabela-crp">${escapeHtml(p.crp || '—')}</span></td>
+          <td>${escapeHtml(p.cargo || '—')}</td>
+          <td>
+            <span class="admin-tabela-pill ${ativo ? 'active' : 'inactive'}">
+              ${ativo ? 'Ativo' : 'Inativo'}
+            </span>
+          </td>
+          <td>
+            <div class="admin-tabela-acoes">
+              <button class="admin-acao" data-editar="${p.id}" title="Editar" type="button">✎</button>
+              ${ativo ? `
+                <button class="admin-acao danger" data-desativar="${p.id}" title="Desativar" type="button">✕</button>
+              ` : `
+                <button class="admin-acao success" data-reativar="${p.id}" title="Reativar" type="button">✓</button>
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+      }).join('');
+
+      // Eventos
+      tbody.querySelectorAll('[data-editar]').forEach(btn => {
+        btn.addEventListener('click', () => abrirModalEditar(Number(btn.dataset.editar)));
+      });
+      tbody.querySelectorAll('[data-desativar]').forEach(btn => {
+        btn.addEventListener('click', () => confirmarDesativar(Number(btn.dataset.desativar)));
+      });
+      tbody.querySelectorAll('[data-reativar]').forEach(btn => {
+        btn.addEventListener('click', () => reativarProfissional(Number(btn.dataset.reativar)));
+      });
+    }
+
+    // ---------- 6. Modal novo ----------
+    function abrirModalNovo() {
+      state.modalAberto = { modo: 'novo' };
+
+      set('modalTitulo', 'Novo profissional');
+      set('modalDescricao', 'Cadastre um novo profissional do PAP. A senha inicial deverá ser alterada no primeiro acesso.');
+      document.getElementById('btnSalvarModal').textContent = 'Cadastrar';
+      document.getElementById('campoSenhaWrap').style.display = '';
+
+      document.getElementById('novoNome').value = '';
+      document.getElementById('novoEmail').value = '';
+      document.getElementById('novoTelefone').value = '';
+      document.getElementById('novoCrp').value = '';
+      document.getElementById('novoCargo').value = '';
+      document.getElementById('novaSenha').value = '';
+
+      esconderErroModal();
+      document.getElementById('modalProfissional').style.display = 'flex';
+      setTimeout(() => document.getElementById('novoNome').focus(), 100);
+    }
+
+    // ---------- 7. Modal editar ----------
+    function abrirModalEditar(id) {
+      const prof = state.profissionais.find(p => p.id === id);
+      if (!prof) return;
+
+      state.modalAberto = { modo: 'editar', id };
+
+      set('modalTitulo', 'Editar profissional');
+      set('modalDescricao', 'Atualize os dados do profissional. A senha só será alterada se você preencher o campo.');
+      document.getElementById('btnSalvarModal').textContent = 'Salvar';
+      document.getElementById('campoSenhaWrap').style.display = '';
+
+      document.getElementById('novoNome').value = prof.nome || '';
+      document.getElementById('novoEmail').value = prof.email || '';
+      document.getElementById('novoTelefone').value = prof.telefone || '';
+      document.getElementById('novoCrp').value = prof.crp || '';
+      document.getElementById('novoCargo').value = prof.cargo || '';
+      document.getElementById('novaSenha').value = '';
+      document.getElementById('novaSenha').placeholder = 'Deixe em branco para não alterar';
+
+      esconderErroModal();
+      document.getElementById('modalProfissional').style.display = 'flex';
+      setTimeout(() => document.getElementById('novoNome').focus(), 100);
+    }
+
+    // ---------- 8. Salvar ----------
+    async function salvarProfissional(event) {
+      event.preventDefault();
+      if (!state.modalAberto) return;
+
+      esconderErroModal();
+
+      const nome = valor('novoNome');
+      const email = valor('novoEmail');
+      const telefone = valor('novoTelefone');
+      const crp = valor('novoCrp');
+      const cargo = valor('novoCargo');
+      const senha = valor('novaSenha');
+      const modo = state.modalAberto.modo;
+
+      // Validações
+      if (nome.length < 5) { mostrarErroModal('Informe o nome completo.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { mostrarErroModal('Informe um e-mail válido.'); return; }
+      if (!crp) { mostrarErroModal('Informe o CRP.'); return; }
+      if (!cargo) { mostrarErroModal('Selecione o cargo.'); return; }
+
+      if (modo === 'novo') {
+        if (!senha) { mostrarErroModal('Informe a senha inicial.'); return; }
+        if (!senhaForte(senha)) { mostrarErroModal('A senha deve ter 8+ caracteres com maiúscula, minúscula e número.'); return; }
+      } else if (senha && !senhaForte(senha)) {
+        mostrarErroModal('A nova senha deve ter 8+ caracteres com maiúscula, minúscula e número.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSalvarModal');
+      const textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Salvando…';
+
+      try {
+        const payload = { nome, email, telefone, crp, cargo };
+        if (senha) payload.senha = senha;
+
+        const url = modo === 'novo'
+                ? '/profissionais'
+                : `/profissionais/${state.modalAberto.id}`;
+
+        const method = modo === 'novo' ? 'POST' : 'PUT';
+
+        const r = await fetch(url, {
+          method,
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || `Erro ${r.status} ao salvar`);
+        }
+
+        fecharModal();
+        await carregarProfissionais();
+      } catch (e) {
+        console.error('Erro ao salvar profissional', e);
+        mostrarErroModal(e.message || 'Não foi possível salvar. Tente novamente.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('modalProfissional').style.display = 'none';
+      state.modalAberto = null;
+      esconderErroModal();
+    }
+
+    // ---------- 9. Desativar ----------
+    function confirmarDesativar(id) {
+      const prof = state.profissionais.find(p => p.id === id);
+      if (!prof) return;
+
+      state.desativarId = id;
+      set('modalDesativarTexto',
+              `Tem certeza que deseja desativar ${prof.nome}? O profissional perderá o acesso ao sistema, mas os prontuários serão mantidos conforme o CFP.`);
+      document.getElementById('modalDesativar').style.display = 'flex';
+    }
+
+    function fecharModalDesativar() {
+      document.getElementById('modalDesativar').style.display = 'none';
+      state.desativarId = null;
+    }
+
+    async function desativarProfissional() {
+      if (!state.desativarId) return;
+
+      const btn = document.getElementById('btnConfirmarDesativar');
+      btn.disabled = true;
+      btn.textContent = 'Desativando…';
+
+      try {
+        const r = await fetch(`/profissionais/${state.desativarId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!r.ok && r.status !== 204) throw new Error('HTTP ' + r.status);
+
+        fecharModalDesativar();
+        await carregarProfissionais();
+      } catch (e) {
+        console.error('Erro ao desativar', e);
+        alert('Não foi possível desativar o profissional. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Desativar';
+      }
+    }
+
+    // ---------- 10. Reativar ----------
+    async function reativarProfissional(id) {
+      // Backend não tem campo "ativo" — placeholder
+      // Se implementar, troque por PATCH /profissionais/{id}/reativar
+      alert('A reativação será implementada quando o backend suportar o campo "ativo".');
+    }
+
+    // ---------- 11. Eventos ----------
+    function ligarEventos() {
+      document.getElementById('btnNovoProfissional').addEventListener('click', abrirModalNovo);
+      document.getElementById('btnCancelarModal').addEventListener('click', fecharModal);
+      document.getElementById('formProfissional').addEventListener('submit', salvarProfissional);
+
+      document.getElementById('modalProfissional').addEventListener('click', (e) => {
+        if (e.target.id === 'modalProfissional') fecharModal();
+      });
+
+      document.getElementById('buscaProfissional').addEventListener('input', (e) => {
+        state.busca = e.target.value;
+        renderizarTabela();
+      });
+
+      document.getElementById('filtroStatus').addEventListener('change', (e) => {
+        state.filtro = e.target.value;
+        renderizarTabela();
+      });
+
+      // Modal desativar
+      document.getElementById('btnCancelarDesativar').addEventListener('click', fecharModalDesativar);
+      document.getElementById('btnConfirmarDesativar').addEventListener('click', desativarProfissional);
+      document.getElementById('modalDesativar').addEventListener('click', (e) => {
+        if (e.target.id === 'modalDesativar') fecharModalDesativar();
+      });
+
+      // ESC fecha modais
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (document.getElementById('modalProfissional').style.display === 'flex') fecharModal();
+          if (document.getElementById('modalDesativar').style.display === 'flex') fecharModalDesativar();
+        }
+      });
+    }
+
+    // ---------- Inicialização ----------
+    document.addEventListener('DOMContentLoaded', async () => {
+      ligarEventos();
+
+      const u = await carregarUsuario();
+      if (!u) return;
+
+      await Promise.allSettled([
+        carregarProfissionais(),
+        carregarNotificacoes()
+      ]);
+    });
+  })();
+</script>
+
+</body>
+</html>

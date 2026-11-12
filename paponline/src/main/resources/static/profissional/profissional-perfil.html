@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PAP Online | Meu perfil</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/portais.css">
+    <style>
+        .pap-loading-overlay{
+            position:fixed;inset:0;background:#f7f9fc;z-index:99999;
+            display:grid;place-items:center;color:#667085;
+            font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+        }
+
+        /* ========== Perfil header ========== */
+        .perfil-header{
+            display:flex;
+            align-items:center;
+            gap:20px;
+            padding:26px 30px;
+            background:#fff;
+            border:1px solid var(--portal-line);
+            border-radius:14px;
+            margin-bottom:20px;
+        }
+        .perfil-avatar{
+            width:88px;
+            height:88px;
+            border-radius:50%;
+            background:#3b7bea;
+            color:#fff;
+            display:grid;
+            place-items:center;
+            font-size:24px;
+            font-weight:700;
+            flex-shrink:0;
+            border:4px solid #e8f0fe;
+            position:relative;
+        }
+        .perfil-avatar .btn-foto{
+            position:absolute;
+            bottom:0;
+            right:0;
+            width:28px;
+            height:28px;
+            border-radius:50%;
+            background:#2059dc;
+            color:#fff;
+            border:3px solid #fff;
+            display:grid;
+            place-items:center;
+            cursor:pointer;
+            font-size:11px;
+            line-height:1;
+            padding:0;
+            transition:background .15s;
+        }
+        .perfil-avatar .btn-foto:hover{ background:#1747ad; }
+
+        .perfil-info{ flex:1; min-width:0; }
+        .perfil-nome{
+            font-size:20px;
+            font-weight:700;
+            color:var(--portal-text);
+            margin:0 0 5px;
+            letter-spacing:-.3px;
+        }
+        .perfil-email{
+            font-size:12px;
+            color:#7e8ba2;
+            margin:0 0 12px;
+        }
+        .perfil-tags{
+            display:flex;
+            gap:7px;
+            flex-wrap:wrap;
+        }
+        .perfil-tag{
+            display:inline-block;
+            padding:5px 12px;
+            border-radius:99px;
+            background:#e8f0ff;
+            color:#1749a9;
+            font-size:11px;
+            font-weight:600;
+            border:1px solid #c7d9f5;
+        }
+        .perfil-tag.purple{
+            background:#f0e8ff;
+            color:#5b21b6;
+            border-color:#ddd0fa;
+        }
+        .perfil-tag.success{
+            background:#e5f6ef;
+            color:#0b6b4a;
+            border-color:#b8e4d3;
+        }
+
+        /* ========== Painel ========== */
+        .perfil-painel{
+            background:#fff;
+            border:1px solid var(--portal-line);
+            border-radius:14px;
+            padding:24px 26px;
+            margin-bottom:20px;
+        }
+        .perfil-painel-head{
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            padding-bottom:16px;
+            border-bottom:1px solid #edf0f5;
+            margin-bottom:20px;
+        }
+        .perfil-painel-head h2{
+            font-size:15px;
+            font-weight:700;
+            color:var(--portal-text);
+            margin:0 0 4px;
+        }
+        .perfil-painel-head p{
+            font-size:11px;
+            color:#7e8ba2;
+            margin:0;
+            line-height:1.5;
+        }
+
+        /* ========== Form ========== */
+        .perfil-form{
+            display:grid;
+            gap:16px;
+        }
+        .perfil-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:16px;
+        }
+        .perfil-campo label{
+            display:block;
+            font-size:11px;
+            font-weight:600;
+            color:#3b4860;
+            margin-bottom:6px;
+        }
+        .perfil-campo input,
+        .perfil-campo textarea{
+            width:100%;
+            height:42px;
+            padding:0 12px;
+            border:1px solid #dfe6f1;
+            border-radius:9px;
+            background:#f8faff;
+            color:#34415a;
+            font:400 12px Inter,Arial,sans-serif;
+            outline:none;
+            transition:border-color .15s, background .15s;
+        }
+        .perfil-campo input:read-only{
+            background:#f2f5fa;
+            color:#61708b;
+            cursor:not-allowed;
+        }
+        .perfil-campo input:focus:not(:read-only){
+            border-color:#7da3f7;
+            background:#fff;
+        }
+        .perfil-campo small{
+            display:block;
+            font-size:10px;
+            color:#9aa5b7;
+            margin-top:5px;
+            line-height:1.4;
+        }
+
+        /* Chips de áreas */
+        .perfil-chips{
+            display:flex;
+            gap:7px;
+            flex-wrap:wrap;
+            padding:4px 0;
+        }
+        .perfil-chip{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 12px;
+            border-radius:99px;
+            background:#e8f0ff;
+            color:#1749a9;
+            font-size:11px;
+            font-weight:600;
+            border:1px solid #c7d9f5;
+        }
+        .perfil-chip.purple{
+            background:#f0e8ff;
+            color:#5b21b6;
+            border-color:#ddd0fa;
+        }
+
+        /* Ações */
+        .perfil-acoes{
+            display:flex;
+            justify-content:flex-end;
+            gap:9px;
+            margin-top:20px;
+            padding-top:18px;
+            border-top:1px solid #edf0f5;
+            flex-wrap:wrap;
+        }
+        .perfil-acoes .btn{
+            padding:10px 18px;
+            border-radius:9px;
+            font:700 12px Inter,Arial,sans-serif;
+            cursor:pointer;
+            border:0;
+            transition:all .15s;
+        }
+        .btn-outline{
+            background:#fff;
+            border:1px solid #dfe6f1;
+            color:#64738d;
+        }
+        .btn-outline:hover{ border-color:#7ba1f5; color:#2059dc; }
+        .btn-primary{
+            background:#2059dc;
+            color:#fff;
+        }
+        .btn-primary:hover{ filter:brightness(1.08); }
+        .btn-primary:disabled{
+            opacity:.55;
+            cursor:not-allowed;
+        }
+
+        /* Alerta */
+        .perfil-alerta{
+            padding:11px 14px;
+            border-radius:9px;
+            font-size:12px;
+            margin-bottom:16px;
+            display:none;
+            line-height:1.5;
+        }
+        .perfil-alerta.sucesso{
+            background:#e5f6ef;
+            border:1px solid #b8e4d3;
+            color:#0b6b4a;
+        }
+        .perfil-alerta.erro{
+            background:#fff0ee;
+            border:1px solid #ffc7c1;
+            color:#8a221a;
+        }
+        .perfil-alerta.visivel{ display:block; }
+
+        /* Zona de perigo */
+        .perfil-perigo{
+            display:flex;
+            align-items:center;
+            gap:20px;
+            padding:22px 26px;
+            background:#fff;
+            border:1px solid #ffcfc9;
+            border-radius:14px;
+        }
+        .perfil-perigo > div{ flex:1; }
+        .perfil-perigo b{
+            font-size:13px;
+            color:#d42f26;
+            display:block;
+            margin-bottom:5px;
+        }
+        .perfil-perigo p{
+            font-size:11px;
+            color:#7e8ba2;
+            margin:0;
+            line-height:1.55;
+        }
+        .perfil-perigo button{
+            padding:10px 18px;
+            border-radius:9px;
+            background:#fff0ee;
+            border:1px solid #ffc7c1;
+            color:#d42f26;
+            font:700 12px Inter,Arial,sans-serif;
+            cursor:pointer;
+            flex-shrink:0;
+            transition:background .15s;
+        }
+        .perfil-perigo button:hover{ background:#ffe0db; }
+
+        @media (max-width:760px){
+            .perfil-header{ flex-direction:column; text-align:center; }
+            .perfil-grid{ grid-template-columns:1fr; }
+            .perfil-perigo{ flex-direction:column; align-items:stretch; }
+            .perfil-perigo button{ width:100%; }
+            .perfil-acoes{ flex-direction:column-reverse; }
+            .perfil-acoes .btn{ width:100%; }
+        }
+    </style>
+</head>
+<body class="pro-body">
+<div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="pro-sidebar">
+    <div class="pro-brand">
+        <span>PAP</span>
+        <b>PAP Online</b>
+    </div>
+    <nav>
+        <a class="side-link" href="/profissional/profissional-inicial.html">
+            <span class="nav-ico">⌂</span>Início
+        </a>
+        <a class="side-link" href="/profissional/profissional-agenda.html">
+            <span class="nav-ico">▣</span>Agenda
+        </a>
+        <a class="side-link" href="/profissional/profissional-mensagens.html">
+            <span class="nav-ico">▢</span>Mensagens
+        </a>
+        <a class="side-link" href="/profissional/profissional-solicitacoes.html">
+            <span class="nav-ico">♧</span>Solicitações
+        </a>
+        <a class="side-link selected" href="/profissional/profissional-perfil.html">
+            <span class="nav-ico">♙</span>Perfil
+        </a>
+    </nav>
+    <button class="exit-link" type="button" data-role-logout>
+        ↪ &nbsp; Sair
+    </button>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main class="pro-main">
+
+    <header class="pro-header">
+        <div>
+            <h1>Meu perfil</h1>
+            <p>Gerencie suas informações profissionais e de acesso.</p>
+        </div>
+        <div class="pro-user">
+            <span class="avatar" id="userAvatar">—</span>
+            <div>
+                <b id="userName">Usuário</b>
+                <small id="userDetail">Dados não carregados</small>
+            </div>
+        </div>
+        <button class="bell" type="button" aria-label="Notificações">
+            ♧<i id="badgeNotificacoes" style="display:none">0</i>
+        </button>
+    </header>
+
+    <div class="pro-content">
+
+        <!-- ============ HEADER DO PERFIL ============ -->
+        <section class="perfil-header">
+            <div class="perfil-avatar" id="perfilAvatar">
+                —
+                <button class="btn-foto" type="button" title="Alterar foto" aria-label="Alterar foto">
+                    ✎
+                </button>
+            </div>
+            <div class="perfil-info">
+                <h2 class="perfil-nome" id="perfilNome">Carregando…</h2>
+                <p class="perfil-email" id="perfilEmail">Dados não carregados</p>
+                <div class="perfil-tags" id="perfilTags">
+                    <span class="perfil-tag">CRP</span>
+                    <span class="perfil-tag">Profissional</span>
+                    <span class="perfil-tag success">Ativo</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ INFORMAÇÕES PROFISSIONAIS ============ -->
+        <section class="perfil-painel">
+            <div class="perfil-painel-head">
+                <div>
+                    <h2>Informações profissionais</h2>
+                    <p>Mantenha seus dados atualizados para facilitar a comunicação com a equipe e os alunos.</p>
+                </div>
+            </div>
+
+            <div id="alertaPerfil" class="perfil-alerta"></div>
+
+            <form class="perfil-form" id="formPerfil" novalidate>
+                <div class="perfil-grid">
+                    <div class="perfil-campo">
+                        <label for="campoNome">Nome completo</label>
+                        <input type="text" id="campoNome" data-profile-field readonly>
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="campoTelefone">Telefone</label>
+                        <input type="tel" id="campoTelefone" data-profile-field readonly>
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="campoEmail">E-mail institucional</label>
+                        <input type="email" id="campoEmail" readonly>
+                        <small>Gerenciado pela Unifor — não pode ser alterado.</small>
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="campoCargo">Cargo</label>
+                        <input type="text" id="campoCargo" readonly>
+                        <small>Definido pelo setor administrativo do PAP.</small>
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="campoCrp">Registro profissional (CRP)</label>
+                        <input type="text" id="campoCrp" readonly>
+                        <small>Validado pela Unifor — não pode ser alterado.</small>
+                    </div>
+                    <div class="perfil-campo">
+                        <label>Áreas de atuação</label>
+                        <div class="perfil-chips" id="campoAreas">
+                            <span style="font-size:12px;color:#9aa5b7">Carregando…</span>
+                        </div>
+                        <small>Definidas pelo setor administrativo do PAP.</small>
+                    </div>
+                </div>
+
+                <div class="perfil-acoes">
+                    <button type="button" class="btn btn-outline" id="btnCancelarPerfil" style="display:none">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnEditarPerfil">
+                        Editar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ SEGURANÇA ============ -->
+        <section class="perfil-painel">
+            <div class="perfil-painel-head">
+                <div>
+                    <h2>Segurança</h2>
+                    <p>Altere sua senha periodicamente para manter sua conta protegida.</p>
+                </div>
+            </div>
+
+            <div id="alertaSenha" class="perfil-alerta"></div>
+
+            <form class="perfil-form" id="formSenha" novalidate>
+                <div class="perfil-grid">
+                    <div class="perfil-campo" style="grid-column:1/-1">
+                        <label for="senhaAtual">Senha atual</label>
+                        <input type="password" id="senhaAtual" required placeholder="Digite sua senha atual" autocomplete="current-password">
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="senhaNova">Nova senha</label>
+                        <input type="password" id="senhaNova" minlength="8" required placeholder="Mínimo de 8 caracteres" autocomplete="new-password">
+                        <small>Mínimo 8 caracteres, com maiúsculas, minúsculas e números.</small>
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="senhaConfirmar">Confirmar nova senha</label>
+                        <input type="password" id="senhaConfirmar" required placeholder="Repita a nova senha" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <div class="perfil-acoes">
+                    <button type="submit" class="btn btn-primary" id="btnAlterarSenha">
+                        Alterar senha
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ ZONA DE PERIGO ============ -->
+        <section class="perfil-perigo">
+            <div>
+                <b>Desativar conta</b>
+                <p>Ao desativar sua conta, você perderá o acesso ao sistema. Os prontuários e registros de atendimentos serão mantidos conforme exigido pelo CFP.</p>
+            </div>
+            <button type="button" id="btnDesativarConta">Desativar minha conta</button>
+        </section>
+
+    </div>
+</main>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/pro.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        // Pré-requisitos no backend:
+        //   GET   /auth/session
+        //   GET   /profissionais/{id}
+        //   PUT   /profissionais/{id}
+        //   GET   /notificacoes/usuario/{id}/count
+
+        const state = {
+            usuario: null,
+            profissional: null,
+            modoEdicao: false
+        };
+
+        const AREA_LABEL = {
+            PSICOLOGIA: 'Psicologia',
+            PSICOPEDAGOGIA: 'Psicopedagogia'
+        };
+
+        // ---------- Helpers ----------
+        function set(id, valor) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = valor;
+        }
+
+        function valor(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        }
+
+        function iniciais(nome) {
+            if (!nome) return 'US';
+            const partes = nome.trim().split(/\s+/);
+            if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+            return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[s]);
+        }
+
+        function mostrarAlerta(id, tipo, mensagem) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = mensagem;
+            el.className = 'perfil-alerta ' + tipo + ' visivel';
+        }
+
+        function esconderAlerta(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.className = 'perfil-alerta';
+                el.textContent = '';
+            }
+        }
+
+        function senhaForte(senha) {
+            return senha.length >= 8
+                && /[A-Z]/.test(senha)
+                && /[a-z]/.test(senha)
+                && /\d/.test(senha);
+        }
+
+        // ---------- 1. Usuário ----------
+        async function carregarUsuario() {
+            try {
+                const r = await fetch('/auth/session', { credentials: 'include' });
+                if (!r.ok) return null;
+                state.usuario = await r.json();
+
+                set('userName', state.usuario.nome || 'Profissional');
+                set('userDetail', state.usuario.email || 'Dados não carregados');
+                const avatar = document.getElementById('userAvatar');
+                if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+
+                return state.usuario;
+            } catch (e) {
+                console.error('Erro ao carregar usuário', e);
+                return null;
+            }
+        }
+
+        // ---------- 2. Dados completos do profissional ----------
+        async function carregarProfissional() {
+            if (!state.usuario?.id) return null;
+            try {
+                const r = await fetch(`/profissionais/${state.usuario.id}`, { credentials: 'include' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                state.profissional = await r.json();
+
+                // Header
+                const avatarEl = document.getElementById('perfilAvatar');
+                if (avatarEl) {
+                    // Preserva o botão ✎ que está dentro
+                    const btn = avatarEl.querySelector('.btn-foto');
+                    avatarEl.textContent = iniciais(state.profissional.nome);
+                    if (btn) avatarEl.appendChild(btn);
+                }
+                set('perfilNome', state.profissional.nome || 'Profissional');
+                set('perfilEmail', state.profissional.email || 'Contato não informado');
+
+                // Tags
+                renderizarTags();
+
+                // Form
+                document.getElementById('campoNome').value = state.profissional.nome || '';
+                document.getElementById('campoTelefone').value = state.profissional.telefone || '';
+                document.getElementById('campoEmail').value = state.profissional.email || '';
+                document.getElementById('campoCargo').value = state.profissional.cargo || '';
+                document.getElementById('campoCrp').value = state.profissional.crp || '';
+
+                renderizarAreas();
+
+                return state.profissional;
+            } catch (e) {
+                console.error('Erro ao carregar profissional', e);
+                mostrarAlerta('alertaPerfil', 'erro', 'Não foi possível carregar seus dados profissionais.');
+                return null;
+            }
+        }
+
+        function renderizarTags() {
+            const container = document.getElementById('perfilTags');
+            if (!container || !state.profissional) return;
+
+            const tags = [];
+            if (state.profissional.crp) {
+                tags.push(`<span class="perfil-tag">${escapeHtml(state.profissional.crp)}</span>`);
+            }
+            if (state.profissional.cargo) {
+                const cargo = state.profissional.cargo.toLowerCase();
+                if (cargo.includes('psicopedagog')) {
+                    tags.push(`<span class="perfil-tag purple">Psicopedagogia</span>`);
+                }
+                if (cargo.includes('psicolog')) {
+                    tags.push(`<span class="perfil-tag">Psicologia</span>`);
+                }
+            }
+            tags.push(`<span class="perfil-tag success">Ativo</span>`);
+
+            container.innerHTML = tags.join('');
+        }
+
+        function renderizarAreas() {
+            const container = document.getElementById('campoAreas');
+            if (!container || !state.profissional) return;
+
+            const cargo = (state.profissional.cargo || '').toLowerCase();
+            const areas = [];
+
+            if (cargo.includes('psicolog')) {
+                areas.push({ nome: 'Psicologia', classe: '' });
+            }
+            if (cargo.includes('psicopedagog')) {
+                areas.push({ nome: 'Psicopedagogia', classe: 'purple' });
+            }
+
+            if (!areas.length) {
+                container.innerHTML = `<span style="font-size:12px;color:#9aa5b7">Não definidas</span>`;
+                return;
+            }
+
+            container.innerHTML = areas.map(a =>
+                `<span class="perfil-chip ${a.classe}">${escapeHtml(a.nome)}</span>`
+            ).join('');
+        }
+
+        // ---------- 3. Notificações ----------
+        async function carregarNotificacoes() {
+            if (!state.usuario?.id) return;
+            try {
+                const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+                if (!r.ok) return;
+                const count = await r.json();
+                const badge = document.getElementById('badgeNotificacoes');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count > 9 ? '9+' : String(count);
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (_) {}
+        }
+
+        // ---------- 4. Alternar modo de edição ----------
+        function ativarEdicao() {
+            state.modoEdicao = true;
+            document.getElementById('campoNome').removeAttribute('readonly');
+            document.getElementById('campoTelefone').removeAttribute('readonly');
+            document.getElementById('campoNome').focus();
+
+            document.getElementById('btnEditarPerfil').textContent = 'Salvar';
+            document.getElementById('btnCancelarPerfil').style.display = '';
+            esconderAlerta('alertaPerfil');
+        }
+
+        function desativarEdicao(reverter) {
+            if (reverter && state.profissional) {
+                document.getElementById('campoNome').value = state.profissional.nome || '';
+                document.getElementById('campoTelefone').value = state.profissional.telefone || '';
+            }
+            state.modoEdicao = false;
+            document.getElementById('campoNome').setAttribute('readonly', '');
+            document.getElementById('campoTelefone').setAttribute('readonly', '');
+
+            document.getElementById('btnEditarPerfil').textContent = 'Editar';
+            document.getElementById('btnCancelarPerfil').style.display = 'none';
+        }
+
+        // ---------- 5. Salvar perfil ----------
+        async function salvarPerfil() {
+            if (!state.profissional) return;
+
+            const nome = valor('campoNome');
+            const telefone = valor('campoTelefone');
+
+            esconderAlerta('alertaPerfil');
+
+            if (nome.length < 5) {
+                mostrarAlerta('alertaPerfil', 'erro', 'Informe seu nome completo.');
+                return;
+            }
+
+            const btn = document.getElementById('btnEditarPerfil');
+            const textoOriginal = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Salvando…';
+
+            try {
+                const payload = {
+                    nome,
+                    email: state.profissional.email,
+                    telefone,
+                    crp: state.profissional.crp,
+                    cargo: state.profissional.cargo
+                };
+
+                const r = await fetch(`/profissionais/${state.profissional.id}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!r.ok) {
+                    const erro = await r.json().catch(() => ({}));
+                    throw new Error(erro.message || 'Erro ao salvar');
+                }
+
+                state.profissional = await r.json();
+
+                // Atualiza header
+                const avatarEl = document.getElementById('perfilAvatar');
+                if (avatarEl) {
+                    const btn = avatarEl.querySelector('.btn-foto');
+                    avatarEl.textContent = iniciais(state.profissional.nome);
+                    if (btn) avatarEl.appendChild(btn);
+                }
+                set('perfilNome', state.profissional.nome);
+                set('perfilEmail', state.profissional.email);
+                set('userName', state.profissional.nome);
+                const avatarTop = document.getElementById('userAvatar');
+                if (avatarTop) avatarTop.textContent = iniciais(state.profissional.nome);
+
+                desativarEdicao(false);
+                mostrarAlerta('alertaPerfil', 'sucesso', 'Dados atualizados com sucesso.');
+            } catch (e) {
+                console.error('Erro ao salvar perfil', e);
+                mostrarAlerta('alertaPerfil', 'erro', e.message || 'Não foi possível salvar suas alterações.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = state.modoEdicao ? 'Salvar' : textoOriginal;
+            }
+        }
+
+        // ---------- 6. Alterar senha ----------
+        async function alterarSenha(event) {
+            event.preventDefault();
+            if (!state.profissional) return;
+
+            const atual = valor('senhaAtual');
+            const nova = valor('senhaNova');
+            const confirmar = valor('senhaConfirmar');
+
+            esconderAlerta('alertaSenha');
+
+            if (!atual) {
+                mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.');
+                return;
+            }
+            if (!senhaForte(nova)) {
+                mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter 8+ caracteres com maiúscula, minúscula e número.');
+                return;
+            }
+            if (nova !== confirmar) {
+                mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.');
+                return;
+            }
+            if (nova === atual) {
+                mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.');
+                return;
+            }
+
+            const btn = document.getElementById('btnAlterarSenha');
+            btn.disabled = true;
+            btn.textContent = 'Alterando…';
+
+            try {
+                // Valida a senha atual pelo login
+                const check = await fetch('/auth/login', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identifier: state.profissional.email,
+                        password: atual,
+                        requestedRole: 'professional'
+                    })
+                });
+
+                if (!check.ok) {
+                    mostrarAlerta('alertaSenha', 'erro', 'Senha atual incorreta.');
+                    return;
+                }
+
+                // Atualiza via PUT
+                const payload = {
+                    nome: state.profissional.nome,
+                    email: state.profissional.email,
+                    telefone: state.profissional.telefone,
+                    crp: state.profissional.crp,
+                    cargo: state.profissional.cargo,
+                    senha: nova
+                };
+
+                const r = await fetch(`/profissionais/${state.profissional.id}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!r.ok) {
+                    const erro = await r.json().catch(() => ({}));
+                    throw new Error(erro.message || 'Erro ao alterar senha');
+                }
+
+                state.profissional = await r.json();
+
+                document.getElementById('formSenha').reset();
+                mostrarAlerta('alertaSenha', 'sucesso', 'Senha alterada com sucesso.');
+            } catch (e) {
+                console.error('Erro ao alterar senha', e);
+                mostrarAlerta('alertaSenha', 'erro', e.message || 'Não foi possível alterar a senha.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Alterar senha';
+            }
+        }
+
+        // ---------- 7. Eventos ----------
+        function ligarEventos() {
+            document.getElementById('btnEditarPerfil').addEventListener('click', () => {
+                if (state.modoEdicao) salvarPerfil();
+                else ativarEdicao();
+            });
+
+            document.getElementById('btnCancelarPerfil').addEventListener('click', () => {
+                esconderAlerta('alertaPerfil');
+                desativarEdicao(true);
+            });
+
+            document.getElementById('formPerfil').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (state.modoEdicao) salvarPerfil();
+            });
+
+            document.getElementById('formSenha').addEventListener('submit', alterarSenha);
+
+            document.getElementById('btnDesativarConta').addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja desativar sua conta? Os prontuários serão mantidos conforme exigido pelo CFP.')) {
+                    alert('A desativação de conta ainda não está disponível. Entre em contato com a coordenação do PAP.');
+                }
+            });
+
+            // Botão de foto (placeholder)
+            const btnFoto = document.querySelector('.btn-foto');
+            if (btnFoto) {
+                btnFoto.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    alert('A alteração de foto será disponibilizada em breve.');
+                });
+            }
+        }
+
+        // ---------- Inicialização ----------
+        document.addEventListener('DOMContentLoaded', async () => {
+            ligarEventos();
+
+            const u = await carregarUsuario();
+            if (!u) return;
+
+            await Promise.allSettled([
+                carregarProfissional(),
+                carregarNotificacoes()
+            ]);
+        });
+    })();
+</script>
+
+</body>
+</html>
