@@ -759,7 +759,7 @@
                 mostrarAlerta('alertaPerfil', 'erro', e.message || 'Não foi possível salvar suas alterações.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = state.modoEdicao ? 'Salvar' : textoOriginal;
+                btn.textContent = state.modoEdicao ? 'Salvar' : 'Editar';
             }
         }
 

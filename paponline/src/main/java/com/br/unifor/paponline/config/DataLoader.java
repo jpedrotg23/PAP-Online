@@ -49,23 +49,23 @@ public class DataLoader implements CommandLineRunner {
         admin.setDataCadastro(LocalDateTime.now());
         administradorRepository.save(admin);
 
-        Aluno aluno1 = criarAluno("Aluno", "aluno@edu.unifor.br", "(85) 99999-9999",
+        Aluno aluno1 = criarAluno("Aluno1", "aluno@edu.unifor.br", "(85) 99999-9999",
                 "2412345", "Ciência da Computação", senhaCriptografada);
         Aluno aluno2 = criarAluno("Aluno2", "aluno2@edu.unifor.br", "(85) 98888-8888",
                 "2412346", "Engenharia de Software", senhaCriptografada);
-        Aluno aluno3 = criarAluno("Aluna3", "aluno3@edu.unifor.br", "(85) 97777-1111",
+        Aluno aluno3 = criarAluno("Aluno3", "aluno3@edu.unifor.br", "(85) 97777-1111",
                 "2412347", "Design", senhaCriptografada);
 
-        Profissional camila = criarProfissional("Dra. Profissional", "profissional@unifor.br",
+        Profissional profissional1 = criarProfissional("Profissional1", "profissional@unifor.br",
                 "(85) 99876-5432", "CRP 11/54321", "Psicóloga e Psicopedagoga",
                 psicologia.getId(), senhaCriptografada);
-        Profissional prof2 = criarProfissional("Dr. Profissional", "prof2@unifor.br",
+        Profissional profissional2 = criarProfissional("Profissional2", "prof2@unifor.br",
                 "(85) 97777-7777", "CRP 11/12345", "Psicopedagoga",
                 psicopedagogia.getId(), senhaCriptografada);
 
         LocalDate hoje = LocalDate.now(FUSO_PAP);
-        criarHorariosFuturos(camila, hoje);
-        criarHorariosFuturos(prof2, hoje);
+        criarHorariosFuturos(profissional1, hoje);
+        criarHorariosFuturos(profissional2, hoje);
 
         criarAviso("Semana de Saúde Mental Unifor",
                 "De 12 a 16 de outubro, o PAP oferece rodas de conversa e oficinas abertas a todos os estudantes.",
@@ -74,41 +74,8 @@ public class DataLoader implements CommandLineRunner {
                 "Horários de outubro abertos para agendamento. Confira a disponibilidade na área de agendamento.",
                 "AVISO", false, "ALUNOS");
 
-        seedAtendimentosAluno(aluno1, aluno2, camila, prof2, psicologia, psicopedagogia);
-        seedAtendimentosProfissional(aluno3, camila, psicologia);
-
-        log.info("""
-
-                ============================================================
-                DataLoader PAP Online — dados de teste carregados
-                ============================================================
-                CONTAS (senha padrão: Senha@123):
-                  admin@unifor.br          -> ADMIN
-                  aluno@edu.unifor.br      -> ALUNO 1 (Aluno)
-                  aluno2@edu.unifor.br     -> ALUNO 2 (João Pedro Aluno)
-                  aluno3@edu.unifor.br     -> ALUNO 3 (Maria Teste Aluna)
-                  profissional@unifor.br   -> PROFISSIONAL 1 (camila, PSICOLOGIA)
-                  prof2@unifor.br          -> PROFISSIONAL 2 (PSICOPEDAGOGIA)
-
-                ATENDIMENTOS - TESTES DO ALUNO (aluno1 e aluno2):
-                  Aluno 1  REALIZADO   -5d   -> histórico
-                  Aluno 1  FALTA       -7d   -> histórico
-                  Aluno 1  CANCELADO   -9d   -> histórico
-                  Aluno 2  AGENDADO    -1h   -> ownership / finalizar (camila)
-                  Aluno 2  AGENDADO    -2h   -> registrar falta (prof2)
-                  Aluno 2  AGENDADO    -25h  -> RF32 (job @Scheduled)
-                  Aluno 2  FALTA       -10d, -12d, -14d -> RGN05
-
-                ATENDIMENTOS - TESTES DO PROFISSIONAL (logado como camila):
-                  Aluno 3  AGENDADO    -1h         -> finalizar (RF19)
-                  Aluno 3  AGENDADO    -3h         -> registrar falta
-                  Aluno 3  AGENDADO    -5h         -> profissional cancelar => CANCELADO (NOVO)
-                  Aluno 3  AGENDADO    hoje+1d 14h -> cancelamento normal
-                  Aluno 3  AGENDADO    hoje+2d 10h -> outro futuro
-                  Aluno 3  AGENDADO    -25h        -> RF32 (vira FALTA na próxima hora)
-                  Aluno 3  REALIZADO   -2d         -> finalizar de novo => 409
-                ============================================================
-                """);
+        seedAtendimentosAluno(aluno1, aluno2, profissional1, profissional2, psicologia, psicopedagogia);
+        seedAtendimentosProfissional(aluno3, profissional1, psicologia);
     }
 
     // ---------------------------------------------------------------
@@ -186,52 +153,52 @@ public class DataLoader implements CommandLineRunner {
     // Seeds
     // ---------------------------------------------------------------
 
-    private void seedAtendimentosAluno(Aluno aluno1, Aluno aluno2, Profissional camila,
-                                       Profissional prof2, AreaServico psicologia,
+    private void seedAtendimentosAluno(Aluno aluno1, Aluno aluno2, Profissional profissional1,
+                                       Profissional profissional2, AreaServico psicologia,
                                        AreaServico psicopedagogia) {
         LocalDateTime agora = LocalDateTime.now(FUSO_PAP).withMinute(0).withSecond(0).withNano(0);
 
-        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+        criarAtendimentoSemHorario(aluno1, profissional1, psicologia,
                 agora.minusDays(5), agora.minusDays(5).plusHours(1), "REALIZADO");
-        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+        criarAtendimentoSemHorario(aluno1, profissional1, psicologia,
                 agora.minusDays(7), agora.minusDays(7).plusHours(1), "FALTA");
-        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+        criarAtendimentoSemHorario(aluno1, profissional1, psicologia,
                 agora.minusDays(9), agora.minusDays(9).plusHours(1), "CANCELADO");
 
-        criarAtendimentoComHorario(aluno2, camila, psicologia,
+        criarAtendimentoComHorario(aluno2, profissional1, psicologia,
                 agora.minusHours(1), agora.minusHours(1).plusHours(1), "AGENDADO");
-        criarAtendimentoComHorario(aluno2, prof2, psicopedagogia,
+        criarAtendimentoComHorario(aluno2, profissional2, psicopedagogia,
                 agora.minusHours(2), agora.minusHours(2).plusHours(1), "AGENDADO");
-        criarAtendimentoComHorario(aluno2, camila, psicologia,
+        criarAtendimentoComHorario(aluno2, profissional1, psicologia,
                 agora.minusHours(25), agora.minusHours(25).plusHours(1), "AGENDADO");
 
-        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+        criarAtendimentoSemHorario(aluno2, profissional1, psicologia,
                 agora.minusDays(10), agora.minusDays(10).plusHours(1), "FALTA");
-        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+        criarAtendimentoSemHorario(aluno2, profissional1, psicologia,
                 agora.minusDays(12), agora.minusDays(12).plusHours(1), "FALTA");
-        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+        criarAtendimentoSemHorario(aluno2, profissional1, psicologia,
                 agora.minusDays(14), agora.minusDays(14).plusHours(1), "FALTA");
     }
 
-    private void seedAtendimentosProfissional(Aluno aluno3, Profissional camila,
+    private void seedAtendimentosProfissional(Aluno aluno3, Profissional profissional1,
                                               AreaServico psicologia) {
         LocalDate hoje = LocalDate.now(FUSO_PAP);
         int horaReferencia = Math.max(8, Math.min(20, LocalDateTime.now(FUSO_PAP).getHour()));
         LocalDateTime referencia = hoje.atTime(horaReferencia, 0);
 
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 referencia.minusHours(1), referencia, "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 referencia.minusHours(3), referencia.minusHours(2), "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 referencia.minusHours(5), referencia.minusHours(4), "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 hoje.plusDays(1).atTime(14, 0), hoje.plusDays(1).atTime(15, 0), "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 hoje.plusDays(2).atTime(10, 0), hoje.plusDays(2).atTime(11, 0), "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 referencia.minusHours(25), referencia.minusHours(24), "AGENDADO");
-        criarAtendimentoComHorario(aluno3, camila, psicologia,
+        criarAtendimentoComHorario(aluno3, profissional1, psicologia,
                 referencia.minusDays(2), referencia.minusDays(2).plusHours(1), "REALIZADO");
     }
 

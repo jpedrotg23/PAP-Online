@@ -68,3 +68,18 @@
     font:500 13px Inter,Arial,sans-serif;
     letter-spacing:.2px;
 }
+
+/* Campos readonly: sem caret visível e com cursor de "proibido" */
+.portal-form input[readonly],
+.portal-form textarea[readonly],
+.portal-form select[readonly] {
+    cursor: not-allowed !important;
+    caret-color: transparent;
+}
+
+/* Perfil admin/profissional usam .perfil-form em vez de .portal-form */
+.perfil-form input[readonly],
+.perfil-form textarea[readonly] {
+    cursor: not-allowed !important;
+    caret-color: transparent;
+}

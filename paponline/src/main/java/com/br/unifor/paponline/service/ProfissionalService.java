@@ -3,6 +3,7 @@ package com.br.unifor.paponline.service;
 import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.repository.ProfissionalRepository;
 import com.br.unifor.paponline.util.SenhaValidator;
+import com.br.unifor.paponline.util.TelefoneValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class ProfissionalService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Já existe um profissional com este CRP");
         }
+        validarTelefone(p.getTelefone());
         SenhaValidator.exigirValida(p.getSenha());
         p.setSenha(passwordEncoder.encode(p.getSenha()));
         return repository.save(p);
@@ -41,6 +43,7 @@ public class ProfissionalService {
 
     public Profissional atualizar(Long id, Profissional dados) {
         Profissional p = buscar(id);
+        validarTelefone(dados.getTelefone());
         p.setNome(dados.getNome());
         p.setEmail(dados.getEmail());
         p.setTelefone(dados.getTelefone());
@@ -49,7 +52,6 @@ public class ProfissionalService {
         if (dados.getAreaId() != null) {
             p.setAreaId(dados.getAreaId());
         }
-
         return repository.save(p);
     }
 
@@ -60,5 +62,13 @@ public class ProfissionalService {
 
     public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
         usuarioService.alterarSenha(id, senhaAtual, novaSenha);
+    }
+
+    private void validarTelefone(String telefone) {
+        try {
+            TelefoneValidator.exigirValido(telefone);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }

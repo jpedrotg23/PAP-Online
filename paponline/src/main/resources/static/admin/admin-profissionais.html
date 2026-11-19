@@ -830,7 +830,23 @@
       document.getElementById('novoEmail').value = prof.email || '';
       document.getElementById('novoTelefone').value = prof.telefone || '';
       document.getElementById('novoCrp').value = prof.crp || '';
-      document.getElementById('novoCargo').value = prof.cargo || '';
+
+      // --- CARGO ---
+      // Se o cargo atual não corresponde a nenhuma <option>, adiciona uma
+      // opção "extra" para o select não ficar vazio silenciosamente.
+      const selectCargo = document.getElementById('novoCargo');
+      // remove opções dinâmicas de edições anteriores
+      [...selectCargo.querySelectorAll('option[data-dinamica]')].forEach(o => o.remove());
+
+      if (prof.cargo && ![...selectCargo.options].some(o => o.value === prof.cargo)) {
+        const opt = document.createElement('option');
+        opt.value = prof.cargo;
+        opt.textContent = prof.cargo;
+        opt.dataset.dinamica = 'true';
+        selectCargo.appendChild(opt);
+      }
+      selectCargo.value = prof.cargo || '';
+
       document.getElementById('novaSenha').value = '';
       document.getElementById('novaSenha').placeholder = 'Deixe em branco para não alterar';
 
@@ -858,7 +874,11 @@
       if (nome.length < 5) { mostrarErroModal('Informe o nome completo.'); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { mostrarErroModal('Informe um e-mail válido.'); return; }
       if (!crp) { mostrarErroModal('Informe o CRP.'); return; }
-      if (!cargo) { mostrarErroModal('Selecione o cargo.'); return; }
+      if (!cargo) {
+        mostrarErroModal('O campo "Cargo" é obrigatório. Selecione uma opção.');
+        document.getElementById('novoCargo').focus();
+        return;
+      }
 
       if (modo === 'novo') {
         if (!senha) { mostrarErroModal('Informe a senha inicial.'); return; }

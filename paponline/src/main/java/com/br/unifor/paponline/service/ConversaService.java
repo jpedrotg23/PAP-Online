@@ -1,13 +1,13 @@
 package com.br.unifor.paponline.service;
 
 import com.br.unifor.paponline.config.SessionContext;
+import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.entidades.Conversa;
 import com.br.unifor.paponline.entidades.Mensagem;
-import com.br.unifor.paponline.repository.AlunoRepository;
-import com.br.unifor.paponline.repository.AtendimentoRepository;
+import com.br.unifor.paponline.entidades.Usuario;
 import com.br.unifor.paponline.repository.ConversaRepository;
 import com.br.unifor.paponline.repository.MensagemRepository;
-import com.br.unifor.paponline.repository.ProfissionalRepository;
+import com.br.unifor.paponline.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,164 +24,98 @@ public class ConversaService {
 
     private final ConversaRepository conversaRepository;
     private final MensagemRepository mensagemRepository;
-    private final AtendimentoRepository atendimentoRepository;
-    private final AlunoRepository alunoRepository;
-    private final ProfissionalRepository profissionalRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    @Transactional
-    public Conversa obterOuCriar(Long alunoIdParam, Long profissionalIdParam) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-
-        if ("ADMIN".equals(sessao.perfil())) {
-            return obterOuCriarAdmin(sessao, alunoIdParam, profissionalIdParam);
-        }
-
-        Long alunoId = alunoIdParam;
-        Long profissionalId = profissionalIdParam;
-
-        if ("ALUNO".equals(sessao.perfil())) {
-            if (alunoId != null && !Objects.equals(alunoId, sessao.userId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Você só pode iniciar conversas em seu próprio nome.");
-            }
-            alunoId = sessao.userId();
-        } else if ("PROFISSIONAL".equals(sessao.perfil())) {
-            if (profissionalId != null && !Objects.equals(profissionalId, sessao.userId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Você só pode iniciar conversas em seu próprio nome.");
-            }
-            profissionalId = sessao.userId();
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Perfil sem permissão para iniciar conversas.");
-        }
-
-        if (alunoId == null || profissionalId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Informe o aluno e o profissional para iniciar a conversa.");
-        }
-
-        if (!alunoRepository.existsById(alunoId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluno não encontrado.");
-        }
-        if (!profissionalRepository.existsById(profissionalId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profissional não encontrado.");
-        }
-
-        boolean possuemAtendimento = atendimentoRepository.existsByAlunoIdAndProfissionalId(alunoId, profissionalId);
-        if (!possuemAtendimento) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Só é possível criar conversa entre um aluno e um profissional que tenham ou tenham tido atendimento entre si.");
-        }
-
-        Long finalAlunoId = alunoId;
-        Long finalProfissionalId = profissionalId;
-
-        return conversaRepository.findByAlunoIdAndProfissionalId(finalAlunoId, finalProfissionalId)
+    public Conversa obterOuCriar(Long alunoId, Long profissionalId) {
+        return conversaRepository.findByAlunoIdAndProfissionalId(alunoId, profissionalId)
                 .orElseGet(() -> {
                     Conversa c = new Conversa();
-                    c.setAlunoId(finalAlunoId);
-                    c.setProfissionalId(finalProfissionalId);
+                    c.setAlunoId(alunoId);
+                    c.setProfissionalId(profissionalId);
                     return conversaRepository.save(c);
                 });
     }
 
-    private Conversa obterOuCriarAdmin(SessionContext.SessionInfo sessao,
-                                       Long alunoIdParam, Long profissionalIdParam) {
-        boolean temAluno = alunoIdParam != null;
-        boolean temProf = profissionalIdParam != null;
-
-        if (temAluno == temProf) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Informe exatamente um destinatário: aluno OU profissional.");
+    /**
+     * Cria (ou reabre) a conversa entre o profissional logado e a coordenação.
+     * Se for chamado por um ADMIN com profissionalId no parâmetro, também funciona
+     * (para uso futuro no admin-mensagens.html).
+     */
+    @Transactional
+    public Conversa criarComCoordenacao(Long profissionalIdParam) {
+        SessionContext.SessionInfo sessao = SessionContext.get();
+        if (sessao == null || sessao.userId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sessão expirada.");
         }
 
-        Long adminId = sessao.userId();
+        Long adminId;
+        Long profissionalId;
 
-        if (temAluno) {
-            if (!alunoRepository.existsById(alunoIdParam)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluno não encontrado.");
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            profissionalId = sessao.userId();
+            adminId = encontrarAdminAtivoId();
+        } else if ("ADMIN".equals(sessao.perfil())) {
+            adminId = sessao.userId();
+            if (profissionalIdParam == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Informe o profissionalId ao criar conversa como coordenação.");
             }
-            Long finalAluno = alunoIdParam;
-            return conversaRepository.findByAlunoIdAndAdminId(finalAluno, adminId)
-                    .orElseGet(() -> {
-                        Conversa c = new Conversa();
-                        c.setAlunoId(finalAluno);
-                        c.setAdminId(adminId);
-                        return conversaRepository.save(c);
-                    });
+            profissionalId = profissionalIdParam;
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Somente profissionais ou coordenação podem abrir este tipo de conversa.");
         }
 
-        if (!profissionalRepository.existsById(profissionalIdParam)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profissional não encontrado.");
-        }
-        Long finalProf = profissionalIdParam;
-        return conversaRepository.findByProfissionalIdAndAdminId(finalProf, adminId)
+        Long finalAdmin = adminId;
+        Long finalProf = profissionalId;
+        return conversaRepository.findByAdminIdAndProfissionalId(adminId, profissionalId)
                 .orElseGet(() -> {
                     Conversa c = new Conversa();
+                    c.setAdminId(finalAdmin);
                     c.setProfissionalId(finalProf);
-                    c.setAdminId(adminId);
                     return conversaRepository.save(c);
                 });
     }
 
     public List<Conversa> listarPorAluno(Long alunoId) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-        if (!"ADMIN".equals(sessao.perfil())
-                && (!"ALUNO".equals(sessao.perfil()) || !Objects.equals(sessao.userId(), alunoId))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não tem permissão para acessar estas conversas.");
-        }
         return conversaRepository.findByAlunoId(alunoId);
     }
 
     public List<Conversa> listarPorProfissional(Long profissionalId) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-        if (!"ADMIN".equals(sessao.perfil())
-                && (!"PROFISSIONAL".equals(sessao.perfil()) || !Objects.equals(sessao.userId(), profissionalId))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não tem permissão para acessar estas conversas.");
-        }
+        // Devolve as conversas onde o usuário é o profissional responsável
+        // — inclui tanto aluno↔prof quanto prof↔coordenação.
         return conversaRepository.findByProfissionalId(profissionalId);
     }
 
-    public List<Conversa> listarPorAdmin(Long adminId) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-        if (!"ADMIN".equals(sessao.perfil()) || !Objects.equals(sessao.userId(), adminId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não tem permissão para acessar estas conversas.");
-        }
-        return conversaRepository.findByAdminId(adminId);
-    }
-
     public List<Mensagem> listarMensagens(Long conversaId) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-        validarAcessoConversa(conversaId, sessao);
         return mensagemRepository.findByConversaIdOrderByEnviadaEmAsc(conversaId);
     }
 
     @Transactional
-    public Mensagem enviar(Long conversaId, String conteudo) {
-        SessionContext.SessionInfo sessao = exigirSessao();
-        Conversa conversa = validarAcessoConversa(conversaId, sessao);
+    public Mensagem enviar(Long conversaId, Long remetenteId, String conteudo) {
+        SessionContext.SessionInfo sessao = SessionContext.get();
+        if (sessao == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sessão expirada.");
+        }
+        // Sempre usa o id da sessão — não confia no body
+        Long efetivoRemetente = sessao.userId();
 
-        boolean participa = Objects.equals(conversa.getAlunoId(), sessao.userId())
-                || Objects.equals(conversa.getProfissionalId(), sessao.userId())
-                || Objects.equals(conversa.getAdminId(), sessao.userId());
+        Conversa conversa = conversaRepository.findById(conversaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversa não encontrada"));
 
+        // Verifica se o remetente participa da conversa
+        boolean participa = Objects.equals(efetivoRemetente, conversa.getAlunoId())
+                || Objects.equals(efetivoRemetente, conversa.getProfissionalId())
+                || Objects.equals(efetivoRemetente, conversa.getAdminId());
         if (!participa) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Apenas os participantes da conversa podem enviar mensagens.");
-        }
-
-        if (conteudo == null || conteudo.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mensagem não pode estar vazia.");
+                    "Você não participa desta conversa.");
         }
 
         Mensagem m = new Mensagem();
         m.setConversaId(conversaId);
-        m.setRemetenteId(sessao.userId());
-        m.setConteudo(conteudo.trim());
+        m.setRemetenteId(efetivoRemetente);
+        m.setConteudo(conteudo);
         m.setEnviadaEm(LocalDateTime.now());
         Mensagem salva = mensagemRepository.save(m);
 
@@ -191,40 +125,19 @@ public class ConversaService {
         return salva;
     }
 
-    @Transactional
     public void marcarComoLida(Long mensagemId) {
-        SessionContext.SessionInfo sessao = exigirSessao();
         Mensagem m = mensagemRepository.findById(mensagemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mensagem não encontrada"));
-        validarAcessoConversa(m.getConversaId(), sessao);
-
-        if (!Objects.equals(m.getRemetenteId(), sessao.userId())) {
-            m.setLida(true);
-            mensagemRepository.save(m);
-        }
+        m.setLida(true);
+        mensagemRepository.save(m);
     }
 
-    private Conversa validarAcessoConversa(Long conversaId, SessionContext.SessionInfo sessao) {
-        Conversa conversa = conversaRepository.findById(conversaId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversa não encontrada."));
-
-        boolean participa = Objects.equals(conversa.getAlunoId(), sessao.userId())
-                || Objects.equals(conversa.getProfissionalId(), sessao.userId())
-                || Objects.equals(conversa.getAdminId(), sessao.userId());
-
-        if (!participa && !"ADMIN".equals(sessao.perfil())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não tem permissão para acessar esta conversa.");
-        }
-        return conversa;
-    }
-
-    private SessionContext.SessionInfo exigirSessao() {
-        SessionContext.SessionInfo sessao = SessionContext.get();
-        if (sessao == null || sessao.userId() == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Sua sessão expirou. Entre novamente no PAP Online.");
-        }
-        return sessao;
+    private Long encontrarAdminAtivoId() {
+        return usuarioRepository.findAll().stream()
+                .filter(u -> u instanceof Administrador && Boolean.TRUE.equals(u.getAtivo()))
+                .findFirst()
+                .map(Usuario::getId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Nenhuma coordenação ativa no sistema."));
     }
 }

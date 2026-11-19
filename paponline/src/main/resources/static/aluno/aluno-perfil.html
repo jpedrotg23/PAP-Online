@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/portais.css">
   <style>
-    /* ============ Alertas (mesmo padrão do admin-perfil) ============ */
     .perfil-alerta{
       padding:11px 14px;
       border-radius:9px;
@@ -28,7 +27,6 @@
     }
     .perfil-alerta.visivel{ display:block; }
 
-    /* ============ Campos bloqueados (visual de readonly) ============ */
     .portal-form input[readonly]{
       background:#f2f5fa;
       color:#61708b;
@@ -39,7 +37,15 @@
       background:#fff;
     }
 
-    /* ============ Zona de perigo (igual ao admin-perfil) ============ */
+    .campo-erro{
+      display:block;
+      font-size:10px;
+      color:#b42318;
+      margin-top:4px;
+      line-height:1.4;
+      min-height:12px;
+    }
+
     .perfil-perigo{
       display:flex;
       align-items:center;
@@ -86,7 +92,6 @@
 
 <div class="portal-app">
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="portal-sidebar">
     <div class="portal-brand">
       <span class="portal-brand-mark">PAP</span>
@@ -117,7 +122,6 @@
     </button>
   </aside>
 
-  <!-- ============ MAIN ============ -->
   <main class="portal-main">
 
     <header class="portal-topbar">
@@ -141,7 +145,6 @@
 
     <section class="portal-content">
 
-      <!-- ============ RESUMO DO PERFIL ============ -->
       <section class="portal-profile-summary">
         <span class="portal-profile-avatar" id="profileAvatar">AL</span>
         <div>
@@ -155,7 +158,6 @@
         </div>
       </section>
 
-      <!-- ============ INFORMAÇÕES PESSOAIS ============ -->
       <section class="portal-panel">
         <div class="portal-panel-head">
           <div>
@@ -184,7 +186,9 @@
             </label>
             <label>
               Telefone
-              <input id="campoTelefone" type="tel" data-profile-field readonly>
+              <input id="campoTelefone" type="tel" data-profile-field readonly
+                     maxlength="15" inputmode="numeric" placeholder="(85) 99999-9999">
+              <span class="campo-erro" id="erroTelefone"></span>
             </label>
             <label>
               Curso
@@ -203,7 +207,6 @@
         </form>
       </section>
 
-      <!-- ============ SEGURANÇA ============ -->
       <section class="portal-panel">
         <div class="portal-panel-head">
           <div>
@@ -237,7 +240,6 @@
         </form>
       </section>
 
-      <!-- ============ ZONA DE PERIGO ============ -->
       <section class="perfil-perigo">
         <div>
           <b>Desativar minha conta</b>
@@ -265,7 +267,6 @@
     let aluno = null;
     let modoEdicao = false;
 
-    // ---------- Helpers ----------
     function set(id, valor) {
       const el = document.getElementById(id);
       if (el) el.textContent = valor;
@@ -284,14 +285,10 @@
     }
 
     function vinculoLabel(v) {
-      const map = {
-        GRADUACAO: 'Graduação',
-        POS_GRADUACAO: 'Pós-graduação'
-      };
+      const map = { GRADUACAO: 'Graduação', POS_GRADUACAO: 'Pós-graduação' };
       return map[v] || v || 'Vínculo';
     }
 
-    // Mesmo padrão do admin-perfil: alertas via classe
     function mostrarAlerta(id, tipo, mensagem) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -301,13 +298,69 @@
 
     function esconderAlerta(id) {
       const el = document.getElementById(id);
-      if (el) {
-        el.className = 'perfil-alerta';
-        el.textContent = '';
-      }
+      if (el) { el.className = 'perfil-alerta'; el.textContent = ''; }
     }
 
-    // ---------- 1. Usuário logado ----------
+    // ================================================================
+    // TELEFONE — máscara + validação
+    // ================================================================
+    const campoTelefone = document.getElementById('campoTelefone');
+    const erroTelefone = document.getElementById('erroTelefone');
+
+    function aplicarMascaraTelefone(input) {
+      input.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+
+        if (v.length === 0) { e.target.value = ''; return; }
+        if (v.length <= 2) {
+          e.target.value = '(' + v;
+        } else if (v.length <= 6) {
+          e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+        } else if (v.length <= 10) {
+          e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 6) + '-' + v.slice(6);
+        } else {
+          e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+        }
+
+        if (erroTelefone && erroTelefone.textContent) validarTelefone();
+      });
+
+      input.addEventListener('blur', () => validarTelefone());
+    }
+
+    function validarTelefone() {
+      const bruto = campoTelefone ? campoTelefone.value : '';
+      const digits = String(bruto || '').replace(/\D/g, '');
+      let mensagem = null;
+
+      if (!digits) {
+        mensagem = 'Informe seu telefone.';
+      } else if (digits.length !== 10 && digits.length !== 11) {
+        mensagem = 'Telefone deve ter 10 ou 11 dígitos com DDD.';
+      } else {
+        const ddd = parseInt(digits.substring(0, 2), 10);
+        if (ddd < 11 || ddd > 99) {
+          mensagem = 'DDD inválido (use 11 a 99).';
+        } else {
+          const primeiro = digits.charAt(2);
+          if (digits.length === 11 && primeiro !== '9') {
+            mensagem = 'Celular deve começar com 9 após o DDD.';
+          } else if (digits.length === 10 && !['2','3','4','5'].includes(primeiro)) {
+            mensagem = 'Telefone fixo deve começar com 2, 3, 4 ou 5 após o DDD.';
+          }
+        }
+      }
+
+      if (erroTelefone) erroTelefone.textContent = mensagem || '';
+      return mensagem;
+    }
+
+    if (campoTelefone) aplicarMascaraTelefone(campoTelefone);
+
+    // ================================================================
+    // USUÁRIO E ALUNO
+    // ================================================================
     async function carregarUsuario() {
       try {
         const r = await fetch('/auth/session', { credentials: 'include' });
@@ -318,7 +371,6 @@
         set('userDetail', usuario.email || 'Dados não carregados');
         const avatar = document.getElementById('userAvatar');
         if (avatar) avatar.textContent = iniciais(usuario.nome);
-
         return usuario;
       } catch (e) {
         console.error('Erro ao carregar usuário', e);
@@ -326,7 +378,6 @@
       }
     }
 
-    // ---------- 2. Dados completos do aluno ----------
     async function carregarAluno() {
       if (!usuario?.id) return null;
       try {
@@ -354,7 +405,6 @@
       }
     }
 
-    // ---------- 3. Notificações ----------
     async function carregarNotificacoes() {
       if (!usuario?.id) return;
       try {
@@ -370,10 +420,12 @@
             badge.style.display = 'none';
           }
         }
-      } catch (e) { /* silencioso */ }
+      } catch (_) {}
     }
 
-    // ---------- 4. Alternar modo de edição ----------
+    // ================================================================
+    // EDIÇÃO
+    // ================================================================
     function ativarEdicao() {
       modoEdicao = true;
       document.getElementById('campoNome').removeAttribute('readonly');
@@ -383,6 +435,7 @@
       document.getElementById('btnEditarPerfil').textContent = 'Salvar';
       document.getElementById('btnCancelarPerfil').style.display = '';
       esconderAlerta('alertaPerfil');
+      if (erroTelefone) erroTelefone.textContent = '';
     }
 
     function desativarEdicao(reverter) {
@@ -396,9 +449,9 @@
 
       document.getElementById('btnEditarPerfil').textContent = 'Editar';
       document.getElementById('btnCancelarPerfil').style.display = 'none';
+      if (erroTelefone) erroTelefone.textContent = '';
     }
 
-    // ---------- 5. Salvar perfil ----------
     async function salvarPerfil() {
       if (!aluno) return;
 
@@ -407,6 +460,12 @@
 
       if (!nome || nome.length < 5) {
         mostrarAlerta('alertaPerfil', 'erro', 'Informe seu nome completo.');
+        return;
+      }
+
+      const erroTel = validarTelefone();
+      if (erroTel) {
+        mostrarAlerta('alertaPerfil', 'erro', erroTel);
         return;
       }
 
@@ -454,11 +513,10 @@
         mostrarAlerta('alertaPerfil', 'erro', e.message || 'Não foi possível salvar suas alterações.');
       } finally {
         btn.disabled = false;
-        btn.textContent = modoEdicao ? 'Salvar' : original;
+        btn.textContent = modoEdicao ? 'Salvar' : 'Editar';
       }
     }
 
-    // ---------- 6. Alterar senha ----------
     async function alterarSenha(event) {
       event.preventDefault();
       if (!aluno) return;
@@ -509,7 +567,6 @@
       }
     }
 
-    // ---------- 7. Desativar conta (placeholder) ----------
     function desativarConta() {
       const confirmado = confirm(
               'Tem certeza que deseja desativar sua conta?\n\n' +
@@ -523,14 +580,10 @@
       );
     }
 
-    // ---------- 8. Eventos ----------
     function ligarEventos() {
       document.getElementById('btnEditarPerfil').addEventListener('click', () => {
-        if (modoEdicao) {
-          salvarPerfil();
-        } else {
-          ativarEdicao();
-        }
+        if (modoEdicao) salvarPerfil();
+        else ativarEdicao();
       });
 
       document.getElementById('btnCancelarPerfil').addEventListener('click', () => {
@@ -548,7 +601,6 @@
       document.getElementById('btnDesativarConta').addEventListener('click', desativarConta);
     }
 
-    // ---------- Inicialização ----------
     document.addEventListener('DOMContentLoaded', async () => {
       ligarEventos();
 

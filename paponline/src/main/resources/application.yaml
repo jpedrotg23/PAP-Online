@@ -1,3 +1,7 @@
+pap:
+  demo:
+    mostrar-codigo: true
+
 spring:
   application:
     name: paponline

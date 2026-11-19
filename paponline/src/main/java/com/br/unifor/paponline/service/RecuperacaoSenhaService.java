@@ -6,6 +6,7 @@ import com.br.unifor.paponline.repository.TokenRecuperacaoSenhaRepository;
 import com.br.unifor.paponline.repository.UsuarioRepository;
 import com.br.unifor.paponline.util.SenhaValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;                       // ← import novo
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j                                                   // ← anotação nova
 @Service
 @RequiredArgsConstructor
 public class RecuperacaoSenhaService {
@@ -23,10 +25,6 @@ public class RecuperacaoSenhaService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Retorna o código gerado se a conta existir; retorna null caso contrário.
-     * O AuthController decide se devolve codigoDemo com base em pap.demo.mostrar-codigo.
-     */
     public String solicitarCodigo(String identificador) {
         Optional<Usuario> opt = usuarioRepository.findByEmailOrTelefone(identificador, identificador);
         if (opt.isEmpty()) {
@@ -41,6 +39,9 @@ public class RecuperacaoSenhaService {
         token.setExpiraEm(LocalDateTime.now().plusMinutes(15));
         token.setTentativas(0);
         tokenRepository.save(token);
+
+        // ⬇⬇ NOVO: código aparece nos logs do servidor (console local e Render)
+        log.info("[RECUPERACAO] Código para {}: {}", identificador, codigo);
 
         // TODO em produção: enviar por e-mail/SMS. Nada de System.out.
         return codigo;

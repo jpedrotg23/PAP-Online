@@ -5,6 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PAP Online | Cadastro</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .curso-selector {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #dfe6f1;
+            border-radius: 10px;
+            background: #f8faff;
+            color: #34415a;
+            font: 500 14px Inter, Arial, sans-serif;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            box-sizing: border-box;
+        }
+        .curso-selector:hover { border-color: #7ba1f5; background: #f0f5ff; }
+        .curso-selector:focus-visible {
+            outline: none;
+            border-color: #7da3f7;
+            box-shadow: 0 0 0 3px rgba(32,89,220,.15);
+        }
+        .curso-selector.vazio span:first-child { color: #a8b0c0; }
+        .curso-selector span:first-child {
+            flex: 1; min-width: 0;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .curso-selector .chevron { flex-shrink: 0; color: #64738d; font-size: 12px; }
+
+        .curso-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(10,26,63,.55);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 99999; padding: 20px;
+            animation: papFade .15s ease;
+        }
+        @keyframes papFade { from { opacity: 0 } to { opacity: 1 } }
+        .curso-modal {
+            background: #fff; border-radius: 16px;
+            width: 100%; max-width: 520px; max-height: 80vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(10,26,63,.25);
+            animation: papSlide .2s ease;
+        }
+        @keyframes papSlide {
+            from { opacity: 0; transform: translateY(8px) scale(.98) }
+            to { opacity: 1; transform: translateY(0) scale(1) }
+        }
+        .curso-modal-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 22px; border-bottom: 1px solid #edf0f5; flex-shrink: 0;
+        }
+        .curso-modal-head h2 { font-size: 16px; font-weight: 700; color: #0f1b33; margin: 0; }
+        .curso-modal-close {
+            background: none; border: 0; font-size: 22px; line-height: 1;
+            color: #6b7280; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+        }
+        .curso-modal-close:hover { background: #f1f4f9; color: #0f1b33; }
+        .curso-modal-busca {
+            width: calc(100% - 44px); margin: 14px 22px 6px;
+            height: 42px; padding: 0 14px;
+            border: 1.5px solid #dfe6f1; border-radius: 10px;
+            background: #f8faff; color: #34415a;
+            font: 400 13px Inter, Arial, sans-serif; outline: none;
+            box-sizing: border-box;
+        }
+        .curso-modal-busca:focus { border-color: #7da3f7; background: #fff; }
+        .curso-modal-busca::placeholder { color: #a8b0c0; }
+        .curso-modal-lista { flex: 1; overflow-y: auto; padding: 10px 14px 16px; }
+        .curso-item {
+            width: 100%; padding: 12px 14px;
+            border: 1.5px solid transparent; border-radius: 10px;
+            background: transparent; color: #34415a;
+            font: 500 13px Inter, Arial, sans-serif; text-align: left;
+            cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+            gap: 8px; margin-bottom: 2px; box-sizing: border-box;
+            transition: background .12s, border-color .12s, color .12s;
+        }
+        .curso-item:hover { background: #f0f5ff; color: #1749a9; }
+        .curso-item.selecionado {
+            background: #e8f0ff; border-color: #2059dc; color: #1749a9; font-weight: 700;
+        }
+        .curso-item .check { color: #2059dc; font-weight: 800; opacity: 0; flex-shrink: 0; }
+        .curso-item.selecionado .check { opacity: 1; }
+        .curso-modal-vazio {
+            padding: 30px 20px; text-align: center; color: #94a0b3; font-size: 13px;
+        }
+        @media (max-width: 540px) {
+            .curso-modal { max-height: 90vh; }
+            .curso-modal-overlay { padding: 12px; }
+        }
+
+        /* Erro inline abaixo do campo */
+        .campo-erro {
+            display: block;
+            font-size: 11px;
+            color: #b42318;
+            margin-top: 4px;
+            line-height: 1.4;
+            min-height: 14px;
+        }
+    </style>
 </head>
 <body class="auth-bg">
 <main class="auth-card signup-card">
@@ -49,13 +153,18 @@
             </label>
             <label>
                 Telefone <em>*</em>
-                <input id="cadTelefone" required placeholder="(85) 99999-9999" autocomplete="tel">
+                <input id="cadTelefone" required placeholder="(85) 99999-9999" inputmode="numeric" maxlength="15">
+                <span class="campo-erro" id="erroTelefone"></span>
             </label>
         </div>
 
         <label class="full">
             Curso <em>*</em>
-            <input id="cadCurso" required placeholder="Ex.: Ciência da Computação">
+            <button type="button" id="btnAbrirCurso" class="curso-selector vazio">
+                <span id="cursoSelecionadoTexto">Selecione seu curso</span>
+                <span class="chevron">▾</span>
+            </button>
+            <input type="hidden" id="cadCurso">
         </label>
 
         <label>
@@ -104,6 +213,17 @@
 
 </main>
 
+<div class="curso-modal-overlay" id="cursoModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="cursoModalTitulo">
+    <div class="curso-modal">
+        <header class="curso-modal-head">
+            <h2 id="cursoModalTitulo">Escolha seu curso</h2>
+            <button type="button" class="curso-modal-close" id="btnFecharCurso" aria-label="Fechar">×</button>
+        </header>
+        <input type="search" id="cursoBusca" class="curso-modal-busca" placeholder="Buscar curso..." autocomplete="off">
+        <div class="curso-modal-lista" id="cursoLista"></div>
+    </div>
+</div>
+
 <script src="/js/api-config.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
@@ -113,7 +233,32 @@
     (function () {
         'use strict';
 
-        // ---------- Helpers ----------
+        const CURSOS_UNIFOR = [
+            'Administração',
+            'Arquitetura e Urbanismo',
+            'Biomedicina',
+            'Ciência da Computação',
+            'Ciências Contábeis',
+            'Design',
+            'Direito',
+            'Educação Física',
+            'Enfermagem',
+            'Engenharia Civil',
+            'Engenharia de Computação',
+            'Engenharia de Produção',
+            'Engenharia de Software',
+            'Engenharia Elétrica',
+            'Farmácia',
+            'Fisioterapia',
+            'Jornalismo',
+            'Medicina',
+            'Nutrição',
+            'Odontologia',
+            'Psicologia',
+            'Publicidade e Propaganda',
+            'Sistemas de Informação'
+        ];
+
         function valor(id) {
             const el = document.getElementById(id);
             return el ? el.value.trim() : '';
@@ -128,24 +273,159 @@
 
         function limparNoticia() {
             const n = document.getElementById('signupNotice');
-            if (n) {
-                n.textContent = '';
-                n.className = 'notice';
-            }
+            if (n) { n.textContent = ''; n.className = 'notice'; }
         }
 
         function senhaForte(senha) {
-            return senha.length >= 8
-                && /[A-Z]/.test(senha)
-                && /[a-z]/.test(senha)
-                && /\d/.test(senha);
+            return senha.length >= 8 && /[A-Z]/.test(senha) && /[a-z]/.test(senha) && /\d/.test(senha);
         }
 
         function validarEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
-        // ---------- Submit ----------
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[s]);
+        }
+
+        // ================================================================
+        // TELEFONE — máscara + validação
+        // ================================================================
+        const cadTelefone = document.getElementById('cadTelefone');
+        const erroTelefone = document.getElementById('erroTelefone');
+
+        function aplicarMascaraTelefone(input) {
+            input.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                if (v.length > 11) v = v.slice(0, 11);
+
+                if (v.length === 0) {
+                    e.target.value = '';
+                    return;
+                }
+                if (v.length <= 2) {
+                    e.target.value = '(' + v;
+                } else if (v.length <= 6) {
+                    e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+                } else if (v.length <= 10) {
+                    e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 6) + '-' + v.slice(6);
+                } else {
+                    e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+                }
+            });
+
+            input.addEventListener('blur', () => validarTelefoneInput(false));
+            input.addEventListener('input', () => {
+                if (erroTelefone && erroTelefone.textContent) {
+                    validarTelefoneInput(false);
+                }
+            });
+        }
+
+        /**
+         * Valida o telefone do input.
+         * @returns {string|null} mensagem de erro, ou null se válido
+         */
+        function validarTelefoneInput(mostrarErro = true) {
+            const bruto = cadTelefone ? cadTelefone.value : '';
+            const digits = String(bruto || '').replace(/\D/g, '');
+
+            let mensagem = null;
+
+            if (!digits) {
+                mensagem = 'Informe seu telefone.';
+            } else if (digits.length !== 10 && digits.length !== 11) {
+                mensagem = 'Telefone deve ter 10 ou 11 dígitos com DDD.';
+            } else {
+                const ddd = parseInt(digits.substring(0, 2), 10);
+                if (ddd < 11 || ddd > 99) {
+                    mensagem = 'DDD inválido (use 11 a 99).';
+                } else {
+                    const primeiro = digits.charAt(2);
+                    if (digits.length === 11 && primeiro !== '9') {
+                        mensagem = 'Celular deve começar com 9 após o DDD.';
+                    } else if (digits.length === 10 && !['2','3','4','5'].includes(primeiro)) {
+                        mensagem = 'Telefone fixo deve começar com 2, 3, 4 ou 5 após o DDD.';
+                    }
+                }
+            }
+
+            if (erroTelefone) {
+                erroTelefone.textContent = mostrarErro ? (mensagem || '') : (mensagem || '');
+            }
+            return mensagem;
+        }
+
+        if (cadTelefone) aplicarMascaraTelefone(cadTelefone);
+
+        // ================================================================
+        // MODAL DE CURSO
+        // ================================================================
+        const btnAbrirCurso = document.getElementById('btnAbrirCurso');
+        const cursoModal = document.getElementById('cursoModal');
+        const cursoBusca = document.getElementById('cursoBusca');
+        const cursoLista = document.getElementById('cursoLista');
+        const cursoSelecionadoTexto = document.getElementById('cursoSelecionadoTexto');
+        const cadCurso = document.getElementById('cadCurso');
+        const btnFecharCurso = document.getElementById('btnFecharCurso');
+
+        function renderizarCursos(filtro = '') {
+            const termo = filtro.toLowerCase().trim();
+            const lista = CURSOS_UNIFOR.filter(c => c.toLowerCase().includes(termo));
+
+            if (!lista.length) {
+                cursoLista.innerHTML = '<div class="curso-modal-vazio">Nenhum curso encontrado.</div>';
+                return;
+            }
+
+            const selecionadoAtual = cadCurso.value;
+            cursoLista.innerHTML = lista.map(curso => {
+                const sel = selecionadoAtual === curso;
+                return `
+                    <button type="button" class="curso-item ${sel ? 'selecionado' : ''}" data-curso="${escapeHtml(curso)}">
+                        <span>${escapeHtml(curso)}</span>
+                        <span class="check">✓</span>
+                    </button>
+                `;
+            }).join('');
+
+            cursoLista.querySelectorAll('[data-curso]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const curso = btn.dataset.curso;
+                    cadCurso.value = curso;
+                    cursoSelecionadoTexto.textContent = curso;
+                    btnAbrirCurso.classList.remove('vazio');
+                    fecharModalCurso();
+                });
+            });
+        }
+
+        function abrirModalCurso() {
+            cursoModal.style.display = 'flex';
+            cursoBusca.value = '';
+            renderizarCursos();
+            setTimeout(() => cursoBusca.focus(), 50);
+        }
+
+        function fecharModalCurso() { cursoModal.style.display = 'none'; }
+
+        if (btnAbrirCurso) btnAbrirCurso.addEventListener('click', abrirModalCurso);
+        if (btnFecharCurso) btnFecharCurso.addEventListener('click', fecharModalCurso);
+        if (cursoBusca) cursoBusca.addEventListener('input', (e) => renderizarCursos(e.target.value));
+        if (cursoModal) cursoModal.addEventListener('click', (e) => {
+            if (e.target === cursoModal) fecharModalCurso();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && cursoModal && cursoModal.style.display === 'flex') {
+                fecharModalCurso();
+            }
+        });
+
+        // ================================================================
+        // SUBMIT
+        // ================================================================
         const form = document.getElementById('signupForm');
         if (!form) return;
 
@@ -163,7 +443,6 @@
             const confirmar = valor('confirmPassword');
             const consent = document.getElementById('cadConsent')?.checked;
 
-            // Validações no cliente
             if (nome.length < 5 || !nome.includes(' ')) {
                 mostrarNoticia('Informe seu nome completo.');
                 document.getElementById('cadNome').focus();
@@ -184,14 +463,18 @@
                 document.getElementById('cadEmail').focus();
                 return;
             }
-            if (telefone.length < 8) {
-                mostrarNoticia('Informe um telefone válido.');
+
+            // Telefone: validação forte
+            const erroTel = validarTelefoneInput(true);
+            if (erroTel) {
+                mostrarNoticia(erroTel);
                 document.getElementById('cadTelefone').focus();
                 return;
             }
-            if (curso.length < 2) {
-                mostrarNoticia('Informe seu curso.');
-                document.getElementById('cadCurso').focus();
+
+            if (!curso) {
+                mostrarNoticia('Selecione seu curso.');
+                btnAbrirCurso.focus();
                 return;
             }
             if (!senhaForte(senha)) {
@@ -209,7 +492,6 @@
                 return;
             }
 
-            // Envia para o backend
             const btn = document.getElementById('btnCriarConta');
             const textoOriginal = btn.textContent;
             btn.disabled = true;
@@ -246,9 +528,8 @@
                 }
 
                 const aluno = await r.json();
-
-                // Auto-login
                 mostrarNoticia('Conta criada! Entrando…', 'sucesso');
+
                 const login = await fetch('/auth/login', {
                     method: 'POST',
                     credentials: 'include',
@@ -261,13 +542,11 @@
                 });
 
                 if (!login.ok) {
-                    // Conta criada mas login falhou — manda para a tela de login
                     mostrarNoticia('Conta criada com sucesso! Faça login para continuar.', 'sucesso');
                     setTimeout(() => { window.location.href = '/index.html'; }, 1200);
                     return;
                 }
 
-                // Sucesso total
                 window.location.href = '/aluno/aluno-inicial.html';
             } catch (e) {
                 console.error('Erro no cadastro', e);

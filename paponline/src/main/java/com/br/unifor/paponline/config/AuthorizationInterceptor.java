@@ -15,8 +15,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
     /**
      * Apenas rotas que começam com esses prefixos exigem sessão autenticada.
-     * Tudo o mais (/, /index.html, /login.html, /css/**, /js/**, /aluno/*.html,
-     * /profissional/*.html, /auth/** e o H2 console) passa sem verificação.
+     * Exceção: POST /alunos e POST /profissionais (auto-cadastro público).
      */
     private static final List<String> PREFIXOS_PROTEGIDOS = List.of(
             "/alunos",
@@ -44,6 +43,21 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         boolean precisaSessao = PREFIXOS_PROTEGIDOS.stream().anyMatch(path::startsWith);
         if (!precisaSessao) {
+            return true;
+        }
+
+        // AUTO-CADASTRO PÚBLICO: POST /alunos e POST /profissionais
+        // não exigem sessão (vêm da tela cadastro.html).
+        // Se por acaso houver sessão (ex.: admin criando via tela admin),
+        // ainda populamos o SessionContext para os services que precisarem.
+        if ("POST".equalsIgnoreCase(request.getMethod())
+                && ("/alunos".equals(path) || "/profissionais".equals(path))) {
+            HttpSession sessionAuto = request.getSession(false);
+            if (sessionAuto != null && sessionAuto.getAttribute("usuarioId") != null) {
+                Long userId = ((Number) sessionAuto.getAttribute("usuarioId")).longValue();
+                String perfil = (String) sessionAuto.getAttribute("perfil");
+                SessionContext.set(userId, perfil);
+            }
             return true;
         }
 

@@ -7,16 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversaRepository extends JpaRepository<Conversa, Long> {
-
-    Optional<Conversa> findByAlunoIdAndProfissionalId(Long alunoId, Long profissionalId);
-
-    Optional<Conversa> findByAlunoIdAndAdminId(Long alunoId, Long adminId);
-
-    Optional<Conversa> findByProfissionalIdAndAdminId(Long profissionalId, Long adminId);
-
     List<Conversa> findByAlunoId(Long alunoId);
-
     List<Conversa> findByProfissionalId(Long profissionalId);
-
-    List<Conversa> findByAdminId(Long adminId);
+    Optional<Conversa> findByAlunoIdAndProfissionalId(Long alunoId, Long profissionalId);
+    Optional<Conversa> findByAdminIdAndProfissionalId(Long adminId, Long profissionalId);
+    Optional<Conversa> findByAdminIdAndAlunoId(Long adminId, Long alunoId);
 }

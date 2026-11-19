@@ -3,6 +3,7 @@ package com.br.unifor.paponline.service;
 import com.br.unifor.paponline.entidades.Aluno;
 import com.br.unifor.paponline.repository.AlunoRepository;
 import com.br.unifor.paponline.util.SenhaValidator;
+import com.br.unifor.paponline.util.TelefoneValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,7 @@ public class AlunoService {
         if (repository.existsByEmail(aluno.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um usuário com este e-mail");
         }
+        validarTelefone(aluno.getTelefone());
         SenhaValidator.exigirValida(aluno.getSenha());
         aluno.setSenha(passwordEncoder.encode(aluno.getSenha()));
         return repository.save(aluno);
@@ -42,6 +44,7 @@ public class AlunoService {
 
     public Aluno atualizar(Long id, Aluno dados) {
         Aluno a = buscar(id);
+        validarTelefone(dados.getTelefone());
         a.setNome(dados.getNome());
         a.setEmail(dados.getEmail());
         a.setTelefone(dados.getTelefone());
@@ -59,5 +62,13 @@ public class AlunoService {
 
     public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
         usuarioService.alterarSenha(id, senhaAtual, novaSenha);
+    }
+
+    private void validarTelefone(String telefone) {
+        try {
+            TelefoneValidator.exigirValido(telefone);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }
