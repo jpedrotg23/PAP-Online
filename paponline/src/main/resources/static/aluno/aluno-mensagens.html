@@ -317,6 +317,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
@@ -525,8 +526,9 @@
       }
 
       container.innerHTML = filtradas.map(c => {
+        const ehCoordenacao = !c.profissionalId && !!c.adminId;
         const prof = state.profissionaisCache[c.profissionalId];
-        const nome = prof?.nome || 'Profissional';
+        const nome = ehCoordenacao ? 'Coordenação PAP' : (prof?.nome || 'Profissional');
         const mensagens = state.mensagensCache[c.id] || [];
         const ultima = mensagens[mensagens.length - 1];
         const preview = ultima
@@ -562,13 +564,14 @@
       const conversa = state.conversas.find(c => c.id === conversaId);
       if (!conversa) return;
 
+      const ehCoordenacao = !conversa.profissionalId && !!conversa.adminId;
       const prof = state.profissionaisCache[conversa.profissionalId];
-      const nome = prof?.nome || 'Profissional';
+      const nome = ehCoordenacao ? 'Coordenação PAP' : (prof?.nome || 'Profissional');
 
       set('chatName', nome);
-      set('chatStatus', prof?.crp ? `${prof.crp} · ${prof.cargo || 'Profissional'}` : 'Profissional do PAP');
-      const avatar = document.getElementById('chatAvatar');
-      if (avatar) avatar.textContent = iniciais(nome);
+      set('chatStatus', ehCoordenacao
+              ? 'Coordenação do PAP'
+              : (prof?.crp ? `${prof.crp} · ${prof.cargo || 'Profissional'}` : 'Profissional do PAP'));
 
       // Habilita input
       document.getElementById('chatInput').disabled = false;

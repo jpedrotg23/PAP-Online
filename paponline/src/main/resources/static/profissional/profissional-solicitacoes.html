@@ -13,537 +13,127 @@
             font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
         }
 
-        /* ========== Filtros ========== */
-        .sol-toolbar{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            flex-wrap:wrap;
-            margin-bottom:16px;
-        }
-        .sol-filtros{
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-            flex:1;
-        }
+        .sol-toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+        .sol-filtros{ display:flex; gap:8px; flex-wrap:wrap; flex:1; }
         .sol-chip{
-            padding:8px 14px;
-            border-radius:99px;
-            background:#fff;
-            border:1px solid #dfe6f1;
-            color:#64738d;
-            font:600 11px Inter,Arial,sans-serif;
-            cursor:pointer;
-            transition:all .15s;
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
+            padding:8px 14px; border-radius:99px; background:#fff;
+            border:1px solid #dfe6f1; color:#64738d;
+            font:600 11px Inter,Arial,sans-serif; cursor:pointer;
+            transition:all .15s; display:inline-flex; align-items:center; gap:6px;
         }
         .sol-chip:hover{ border-color:#7ba1f5; color:#2059dc; }
-        .sol-chip.ativo{
-            background:#2059dc;
-            color:#fff;
-            border-color:#2059dc;
-        }
-        .sol-chip-count{
-            background:rgba(0,0,0,.08);
-            border-radius:99px;
-            padding:1px 7px;
-            font-size:10px;
-            font-weight:700;
-        }
-        .sol-chip.ativo .sol-chip-count{
-            background:rgba(255,255,255,.22);
-        }
+        .sol-chip.ativo{ background:#2059dc; color:#fff; border-color:#2059dc; }
+        .sol-chip-count{ background:rgba(0,0,0,.08); border-radius:99px; padding:1px 7px; font-size:10px; font-weight:700; }
+        .sol-chip.ativo .sol-chip-count{ background:rgba(255,255,255,.22); }
         .sol-toolbar select{
-            height:36px;
-            padding:0 12px;
-            border:1px solid #dfe6f1;
-            border-radius:8px;
-            background:#fff;
-            color:#34415a;
-            font:600 11px Inter,Arial,sans-serif;
-            cursor:pointer;
+            height:36px; padding:0 12px; border:1px solid #dfe6f1; border-radius:8px;
+            background:#fff; color:#34415a; font:600 11px Inter,Arial,sans-serif; cursor:pointer;
         }
 
-        /* ========== Stats ========== */
-        .sol-stats{
-            display:grid;
-            grid-template-columns:repeat(4,minmax(0,1fr));
-            gap:12px;
-            margin-bottom:20px;
-        }
-        .sol-stat{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:16px;
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-radius:12px;
-        }
-        .sol-stat-ico{
-            width:40px;
-            height:40px;
-            border-radius:10px;
-            display:grid;
-            place-items:center;
-            font-size:17px;
-            flex-shrink:0;
-        }
+        .sol-stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+        .sol-stat{ display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid var(--portal-line); border-radius:12px; }
+        .sol-stat-ico{ width:40px; height:40px; border-radius:10px; display:grid; place-items:center; font-size:17px; flex-shrink:0; }
         .sol-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
         .sol-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
         .sol-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
         .sol-stat-ico.red{ background:#ffeae8; color:#d42f26; }
-        .sol-stat small{
-            display:block;
-            font-size:10px;
-            color:#7e8ba2;
-            margin-bottom:3px;
-        }
-        .sol-stat strong{
-            font-size:20px;
-            color:var(--portal-text);
-            line-height:1;
-        }
+        .sol-stat small{ display:block; font-size:10px; color:#7e8ba2; margin-bottom:3px; }
+        .sol-stat strong{ font-size:20px; color:var(--portal-text); line-height:1; }
 
-        /* ========== Layout 2 colunas ========== */
-        .sol-layout{
-            display:grid;
-            grid-template-columns:400px minmax(0,1fr);
-            gap:16px;
-            align-items:start;
-        }
+        .sol-layout{ display:grid; grid-template-columns:400px minmax(0,1fr); gap:16px; align-items:start; }
 
-        /* ========== Lista ========== */
-        .sol-lista{
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-radius:14px;
-            overflow:hidden;
-            display:flex;
-            flex-direction:column;
-            max-height:calc(100vh - 260px);
-        }
-        .sol-lista-head{
-            padding:14px 18px;
-            border-bottom:1px solid #edf0f5;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-        }
-        .sol-lista-head h2{
-            font-size:14px;
-            margin:0;
-            color:var(--portal-text);
-        }
-        .sol-lista-body{
-            flex:1;
-            overflow-y:auto;
-            padding:8px;
-        }
+        .sol-lista{ background:#fff; border:1px solid var(--portal-line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; max-height:calc(100vh - 260px); }
+        .sol-lista-head{ padding:14px 18px; border-bottom:1px solid #edf0f5; display:flex; align-items:center; justify-content:space-between; }
+        .sol-lista-head h2{ font-size:14px; margin:0; color:var(--portal-text); }
+        .sol-lista-body{ flex:1; overflow-y:auto; padding:8px; }
         .sol-card{
-            display:flex;
-            gap:11px;
-            padding:13px 12px;
-            border-radius:10px;
-            cursor:pointer;
-            border:1px solid transparent;
-            transition:background .15s, border-color .15s;
-            margin-bottom:2px;
+            display:flex; gap:11px; padding:13px 12px; border-radius:10px; cursor:pointer;
+            border:1px solid transparent; transition:background .15s, border-color .15s; margin-bottom:2px;
         }
         .sol-card:hover{ background:#f7faff; }
-        .sol-card.selecionado{
-            background:#eaf1ff;
-            border-color:#c7d9f5;
-        }
-        .sol-card-avatar{
-            width:38px;
-            height:38px;
-            border-radius:50%;
-            background:#3b7bea;
-            color:#fff;
-            display:grid;
-            place-items:center;
-            font-size:11px;
-            font-weight:700;
-            flex-shrink:0;
-        }
-        .sol-card-info{
-            flex:1;
-            min-width:0;
-        }
-        .sol-card-topo{
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            gap:8px;
-            margin-bottom:4px;
-        }
-        .sol-card-nome{
-            font-size:12px;
-            font-weight:700;
-            color:var(--portal-text);
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-        .sol-card-hora{
-            font-size:10px;
-            color:#98a3b5;
-            white-space:nowrap;
-            flex-shrink:0;
-        }
-        .sol-card-titulo{
-            font-size:11px;
-            color:#52617a;
-            margin:0 0 6px;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            font-weight:500;
-        }
-        .sol-card-meta{
-            display:flex;
-            align-items:center;
-            gap:6px;
-            flex-wrap:wrap;
-        }
-        .sol-card-protocolo{
-            font-size:10px;
-            color:#94a0b3;
-            font-family:monospace;
-        }
+        .sol-card.selecionado{ background:#eaf1ff; border-color:#c7d9f5; }
+        .sol-card-avatar{ width:38px; height:38px; border-radius:50%; background:#3b7bea; color:#fff; display:grid; place-items:center; font-size:11px; font-weight:700; flex-shrink:0; }
+        .sol-card-info{ flex:1; min-width:0; }
+        .sol-card-topo{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:4px; }
+        .sol-card-nome{ font-size:12px; font-weight:700; color:var(--portal-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sol-card-hora{ font-size:10px; color:#98a3b5; white-space:nowrap; flex-shrink:0; }
+        .sol-card-titulo{ font-size:11px; color:#52617a; margin:0 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; }
+        .sol-card-meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .sol-card-protocolo{ font-size:10px; color:#94a0b3; font-family:monospace; }
 
-        /* ========== Detalhe ========== */
-        .sol-detalhe{
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-radius:14px;
-            padding:24px 26px;
-            position:sticky;
-            top:20px;
-        }
-        .sol-detalhe-vazio{
-            padding:60px 24px;
-            text-align:center;
-            color:#75829c;
-            font-size:12px;
-            line-height:1.6;
-        }
-        .sol-detalhe-vazio b{
-            display:block;
-            font-size:14px;
-            color:#34415a;
-            margin-bottom:6px;
-        }
-        .sol-detalhe-vazio .ico{
-            width:52px;
-            height:52px;
-            border-radius:50%;
-            background:#e8f0ff;
-            color:#2059dc;
-            display:grid;
-            place-items:center;
-            font-size:22px;
-            margin:0 auto 14px;
-        }
+        .sol-detalhe{ background:#fff; border:1px solid var(--portal-line); border-radius:14px; padding:24px 26px; position:sticky; top:20px; }
+        .sol-detalhe-vazio{ padding:60px 24px; text-align:center; color:#75829c; font-size:12px; line-height:1.6; }
+        .sol-detalhe-vazio b{ display:block; font-size:14px; color:#34415a; margin-bottom:6px; }
+        .sol-detalhe-vazio .ico{ width:52px; height:52px; border-radius:50%; background:#e8f0ff; color:#2059dc; display:grid; place-items:center; font-size:22px; margin:0 auto 14px; }
 
-        /* Header do detalhe */
-        .sol-detalhe-head{
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            gap:16px;
-            padding-bottom:18px;
-            border-bottom:1px solid #edf0f5;
-            margin-bottom:18px;
-        }
-        .sol-detalhe-titulo{
-            font-size:16px;
-            font-weight:700;
-            color:var(--portal-text);
-            margin:0 0 6px;
-            line-height:1.3;
-        }
-        .sol-detalhe-protocolo{
-            font-size:11px;
-            color:#94a0b3;
-            font-family:monospace;
-        }
+        .sol-detalhe-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:18px; border-bottom:1px solid #edf0f5; margin-bottom:18px; }
+        .sol-detalhe-titulo{ font-size:16px; font-weight:700; color:var(--portal-text); margin:0 0 6px; line-height:1.3; }
+        .sol-detalhe-protocolo{ font-size:11px; color:#94a0b3; font-family:monospace; }
 
-        /* Seções */
-        .sol-secao{
-            margin-bottom:20px;
-        }
-        .sol-secao-titulo{
-            font-size:11px;
-            font-weight:700;
-            color:var(--portal-text);
-            margin:0 0 8px;
-            text-transform:uppercase;
-            letter-spacing:.4px;
-            display:flex;
-            align-items:center;
-            gap:6px;
-        }
-        .sol-secao-titulo .ico{
-            width:16px;
-            height:16px;
-            color:#2059dc;
-        }
-        .sol-secao-texto{
-            font-size:13px;
-            color:#52617a;
-            line-height:1.65;
-            margin:0;
-        }
+        .sol-secao{ margin-bottom:20px; }
+        .sol-secao-titulo{ font-size:11px; font-weight:700; color:var(--portal-text); margin:0 0 8px; text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; gap:6px; }
+        .sol-secao-titulo .ico{ width:16px; height:16px; color:#2059dc; }
+        .sol-secao-texto{ font-size:13px; color:#52617a; line-height:1.65; margin:0; }
 
-        /* Aluno info */
-        .sol-aluno-info{
-            display:flex;
-            align-items:center;
-            gap:14px;
-            padding:14px 16px;
-            background:#f8faff;
-            border:1px solid #edf0f5;
-            border-radius:11px;
-            margin-bottom:18px;
-        }
-        .sol-aluno-avatar{
-            width:44px;
-            height:44px;
-            border-radius:50%;
-            background:#3b7bea;
-            color:#fff;
-            display:grid;
-            place-items:center;
-            font-size:13px;
-            font-weight:700;
-            flex-shrink:0;
-        }
+        .sol-anexos-lista{ display:grid; gap:8px; }
+        .sol-anexo-item{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border:1px solid #e2e7f0; border-radius:10px; background:#f8faff; }
+        .sol-anexo-info{ min-width:0; flex:1; }
+        .sol-anexo-nome{ display:block; font-size:12px; font-weight:700; color:var(--portal-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sol-anexo-meta{ display:block; font-size:10px; color:#7e8ba2; margin-top:2px; }
+        .sol-anexo-link{ display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px; background:#2059dc; color:#fff; font-size:11px; font-weight:700; text-decoration:none; white-space:nowrap; }
+        .sol-anexo-link:hover{ filter:brightness(1.08); }
+
+        .sol-aluno-info{ display:flex; align-items:center; gap:14px; padding:14px 16px; background:#f8faff; border:1px solid #edf0f5; border-radius:11px; margin-bottom:18px; }
+        .sol-aluno-avatar{ width:44px; height:44px; border-radius:50%; background:#3b7bea; color:#fff; display:grid; place-items:center; font-size:13px; font-weight:700; flex-shrink:0; }
         .sol-aluno-dados{ flex:1; min-width:0; }
-        .sol-aluno-nome{
-            font-size:13px;
-            font-weight:700;
-            color:var(--portal-text);
-            margin:0 0 3px;
-        }
-        .sol-aluno-meta{
-            font-size:11px;
-            color:#7e8ba2;
-            margin:0;
-        }
+        .sol-aluno-nome{ font-size:13px; font-weight:700; color:var(--portal-text); margin:0 0 3px; }
+        .sol-aluno-meta{ font-size:11px; color:#7e8ba2; margin:0; }
 
-        /* Timeline */
-        .sol-timeline{
-            position:relative;
-            padding-left:24px;
-        }
-        .sol-timeline::before{
-            content:"";
-            position:absolute;
-            left:8px;
-            top:6px;
-            bottom:6px;
-            width:2px;
-            background:#e4eaf2;
-        }
-        .sol-tl-item{
-            position:relative;
-            padding-bottom:14px;
-        }
+        .sol-timeline{ position:relative; padding-left:24px; }
+        .sol-timeline::before{ content:""; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:#e4eaf2; }
+        .sol-tl-item{ position:relative; padding-bottom:14px; }
         .sol-tl-item:last-child{ padding-bottom:0; }
-        .sol-tl-marcador{
-            position:absolute;
-            left:-24px;
-            top:2px;
-            width:18px;
-            height:18px;
-            border-radius:50%;
-            background:#fff;
-            border:2px solid #cfd5e2;
-            display:grid;
-            place-items:center;
-        }
-        .sol-tl-marcador::after{
-            content:"";
-            width:6px;
-            height:6px;
-            border-radius:50%;
-            background:#cfd5e2;
-        }
+        .sol-tl-marcador{ position:absolute; left:-24px; top:2px; width:18px; height:18px; border-radius:50%; background:#fff; border:2px solid #cfd5e2; display:grid; place-items:center; }
+        .sol-tl-marcador::after{ content:""; width:6px; height:6px; border-radius:50%; background:#cfd5e2; }
         .sol-tl-marcador.concluido{ border-color:#0b8b61; background:#e5f6ef; }
         .sol-tl-marcador.concluido::after{ background:#0b8b61; }
-        .sol-tl-marcador.ativo{ border-color:#2059dc; background:#2059dc; }
-        .sol-tl-marcador.ativo::after{ background:#fff; }
-        .sol-tl-titulo{
-            font-size:12px;
-            font-weight:700;
-            color:var(--portal-text);
-            margin:0 0 2px;
-        }
-        .sol-tl-data{
-            font-size:11px;
-            color:#8290a6;
-            margin:0;
-        }
+        .sol-tl-titulo{ font-size:12px; font-weight:700; color:var(--portal-text); margin:0 0 2px; }
+        .sol-tl-data{ font-size:11px; color:#8290a6; margin:0; }
 
-        /* Parecer atual */
-        .sol-parecer-box{
-            padding:14px 16px;
-            border-radius:10px;
-            font-size:12px;
-            line-height:1.6;
-        }
-        .sol-parecer-box.deferida{
-            background:#f0faf5;
-            border:1px solid #b8e4d3;
-            color:#0a5a3d;
-        }
-        .sol-parecer-box.indeferida{
-            background:#fff0ee;
-            border:1px solid #ffc7c1;
-            color:#8a221a;
-        }
-        .sol-parecer-box.pendente{
-            background:#f3ecff;
-            border:1px solid #d9c9f5;
-            color:#4b2a82;
-        }
-        .sol-parecer-assinatura{
-            margin-top:8px;
-            font-size:10px;
-            font-style:italic;
-            opacity:.8;
-        }
+        .sol-parecer-box{ padding:14px 16px; border-radius:10px; font-size:12px; line-height:1.6; }
+        .sol-parecer-box.deferida{ background:#f0faf5; border:1px solid #b8e4d3; color:#0a5a3d; }
+        .sol-parecer-box.indeferida{ background:#fff0ee; border:1px solid #ffc7c1; color:#8a221a; }
+        .sol-parecer-box.pendente{ background:#f3ecff; border:1px solid #d9c9f5; color:#4b2a82; }
+        .sol-parecer-assinatura{ margin-top:8px; font-size:10px; font-style:italic; opacity:.8; }
 
-        /* Ações */
-        .sol-acoes{
-            display:flex;
-            gap:9px;
-            margin-top:24px;
-            padding-top:18px;
-            border-top:1px solid #edf0f5;
-            flex-wrap:wrap;
-        }
-        .sol-acoes .btn{
-            flex:1;
-            min-width:130px;
-            padding:12px 16px;
-            border-radius:9px;
-            font:700 12px Inter,Arial,sans-serif;
-            cursor:pointer;
-            border:0;
-            transition:all .15s;
-        }
-        .btn-aprovar{
-            background:#0b8b61;
-            color:#fff;
-        }
+        .sol-acoes{ display:flex; gap:9px; margin-top:24px; padding-top:18px; border-top:1px solid #edf0f5; flex-wrap:wrap; }
+        .sol-acoes .btn{ flex:1; min-width:130px; padding:12px 16px; border-radius:9px; font:700 12px Inter,Arial,sans-serif; cursor:pointer; border:0; transition:all .15s; }
+        .btn-iniciar{ background:#2059dc; color:#fff; }
+        .btn-iniciar:hover{ filter:brightness(1.08); }
+        .btn-aprovar{ background:#0b8b61; color:#fff; }
         .btn-aprovar:hover{ filter:brightness(1.08); }
-        .btn-rejeitar{
-            background:#fff;
-            border:1.5px solid #f7c9c4;
-            color:#d42f26;
-        }
+        .btn-rejeitar{ background:#fff; border:1.5px solid #f7c9c4; color:#d42f26; }
         .btn-rejeitar:hover{ background:#fff0ee; }
-        .btn-neutral{
-            background:#fff;
-            border:1.5px solid #dfe6f1;
-            color:#64738d;
-        }
+        .btn-neutral{ background:#fff; border:1.5px solid #dfe6f1; color:#64738d; }
         .btn-neutral:hover{ border-color:#7ba1f5; color:#2059dc; }
 
-        /* Modal */
-        .modal-overlay{
-            position:fixed;
-            inset:0;
-            background:rgba(10,26,63,.55);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            z-index:9999;
-            padding:20px;
-        }
-        .modal-box{
-            background:#fff;
-            border-radius:14px;
-            padding:26px 28px;
-            max-width:520px;
-            width:100%;
-            box-shadow:0 20px 60px rgba(10,26,63,.25);
-        }
-        .modal-box h2{
-            font-size:16px;
-            margin:0 0 6px;
-            color:var(--portal-text);
-        }
-        .modal-box p{
-            font-size:12px;
-            color:var(--portal-muted);
-            margin:0 0 18px;
-            line-height:1.55;
-        }
-        .modal-box label{
-            display:block;
-            font-size:11px;
-            font-weight:600;
-            color:#3b4860;
-            margin-bottom:6px;
-        }
-        .modal-box textarea{
-            width:100%;
-            padding:12px;
-            border:1px solid #dfe6f1;
-            border-radius:9px;
-            background:#f8faff;
-            color:#34415a;
-            font:400 12px Inter,Arial,sans-serif;
-            resize:vertical;
-            min-height:120px;
-            outline:none;
-            margin-bottom:16px;
-        }
+        .modal-overlay{ position:fixed; inset:0; background:rgba(10,26,63,.55); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
+        .modal-box{ background:#fff; border-radius:14px; padding:26px 28px; max-width:520px; width:100%; box-shadow:0 20px 60px rgba(10,26,63,.25); }
+        .modal-box h2{ font-size:16px; margin:0 0 6px; color:var(--portal-text); }
+        .modal-box p{ font-size:12px; color:var(--portal-muted); margin:0 0 18px; line-height:1.55; }
+        .modal-box label{ display:block; font-size:11px; font-weight:600; color:#3b4860; margin-bottom:6px; }
+        .modal-box textarea{ width:100%; padding:12px; border:1px solid #dfe6f1; border-radius:9px; background:#f8faff; color:#34415a; font:400 12px Inter,Arial,sans-serif; resize:vertical; min-height:120px; outline:none; margin-bottom:16px; }
         .modal-box textarea:focus{ border-color:#7da3f7; }
-        .modal-actions{
-            display:flex;
-            gap:9px;
-            justify-content:flex-end;
-        }
-        .modal-btn{
-            padding:10px 16px;
-            border-radius:8px;
-            font:700 12px Inter,Arial,sans-serif;
-            border:0;
-            cursor:pointer;
-        }
-        .modal-btn.cancel{
-            background:#fff;
-            border:1px solid #dfe6f1;
-            color:#64738d;
-        }
-        .modal-btn.confirm{
-            color:#fff;
-        }
+        .modal-actions{ display:flex; gap:9px; justify-content:flex-end; }
+        .modal-btn{ padding:10px 16px; border-radius:8px; font:700 12px Inter,Arial,sans-serif; border:0; cursor:pointer; }
+        .modal-btn.cancel{ background:#fff; border:1px solid #dfe6f1; color:#64738d; }
+        .modal-btn.confirm{ color:#fff; }
         .modal-btn.confirm.aprovar{ background:#0b8b61; }
         .modal-btn.confirm.rejeitar{ background:#d42f26; }
-        .modal-btn.confirm:disabled{
-            opacity:.55;
-            cursor:not-allowed;
-        }
+        .modal-btn.confirm.pendente{ background:#7732d9; }
+        .modal-btn.confirm:disabled{ opacity:.55; cursor:not-allowed; }
 
-        /* Status pill */
-        .sol-pill{
-            display:inline-flex;
-            align-items:center;
-            padding:5px 11px;
-            border-radius:99px;
-            font-size:10px;
-            font-weight:700;
-            white-space:nowrap;
-        }
+        .sol-pill{ display:inline-flex; align-items:center; padding:5px 11px; border-radius:99px; font-size:10px; font-weight:700; white-space:nowrap; }
         .sol-pill.ENVIADA{ background:#eaf1ff; color:#2059dc; }
         .sol-pill.EM_ANALISE{ background:#fff1df; color:#c35b0b; }
         .sol-pill.DEFERIDA{ background:#e5f6ef; color:#0b8b61; }
@@ -556,46 +146,28 @@
             .sol-detalhe{ position:static; }
             .sol-stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
         }
-        @media (max-width:760px){
-            .sol-stats{ grid-template-columns:1fr; }
-            .sol-detalhe{ padding:18px; }
-        }
+        @media (max-width:760px){ .sol-stats{ grid-template-columns:1fr; } .sol-detalhe{ padding:18px; } }
     </style>
 </head>
 <body class="pro-body">
 <div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
 
-<!-- ============ SIDEBAR ============ -->
 <aside class="pro-sidebar">
     <div class="pro-brand">
         <span>PAP</span>
         <b>PAP Online</b>
     </div>
     <nav>
-        <a class="side-link" href="/profissional/profissional-inicial.html">
-            <span class="nav-ico">⌂</span>Início
-        </a>
-        <a class="side-link" href="/profissional/profissional-agenda.html">
-            <span class="nav-ico">▣</span>Agenda
-        </a>
-        <a class="side-link" href="/profissional/profissional-mensagens.html">
-            <span class="nav-ico">▢</span>Mensagens
-        </a>
-        <a class="side-link selected" href="/profissional/profissional-solicitacoes.html">
-            <span class="nav-ico">♧</span>Solicitações
-        </a>
-        <a class="side-link" href="/profissional/profissional-perfil.html">
-            <span class="nav-ico">♙</span>Perfil
-        </a>
+        <a class="side-link" href="/profissional/profissional-inicial.html"><span class="nav-ico">⌂</span>Início</a>
+        <a class="side-link" href="/profissional/profissional-agenda.html"><span class="nav-ico">▣</span>Agenda</a>
+        <a class="side-link" href="/profissional/profissional-mensagens.html"><span class="nav-ico">▢</span>Mensagens</a>
+        <a class="side-link selected" href="/profissional/profissional-solicitacoes.html"><span class="nav-ico">♧</span>Solicitações</a>
+        <a class="side-link" href="/profissional/profissional-perfil.html"><span class="nav-ico">♙</span>Perfil</a>
     </nav>
-    <button class="exit-link" type="button" data-role-logout>
-        ↪ &nbsp; Sair
-    </button>
+    <button class="exit-link" type="button" data-role-logout>↪ &nbsp; Sair</button>
 </aside>
 
-<!-- ============ MAIN ============ -->
 <main class="pro-main">
-
     <header class="pro-header">
         <div>
             <h1>Solicitações de adaptação</h1>
@@ -608,66 +180,25 @@
                 <small id="userDetail">Dados não carregados</small>
             </div>
         </div>
-        <button class="bell" type="button" aria-label="Notificações">
-            ♧<i id="badgeNotificacoes" style="display:none">0</i>
-        </button>
+        <button class="bell" type="button" aria-label="Notificações">♧<i id="badgeNotificacoes" style="display:none">0</i></button>
     </header>
 
     <div class="pro-content">
-
-        <!-- Stats -->
         <div class="sol-stats">
-            <article class="sol-stat">
-                <span class="sol-stat-ico blue">▤</span>
-                <div>
-                    <small>Total</small>
-                    <strong id="statTotal">—</strong>
-                </div>
-            </article>
-            <article class="sol-stat">
-                <span class="sol-stat-ico orange">◷</span>
-                <div>
-                    <small>Em análise</small>
-                    <strong id="statAnalise">—</strong>
-                </div>
-            </article>
-            <article class="sol-stat">
-                <span class="sol-stat-ico green">✓</span>
-                <div>
-                    <small>Deferidas</small>
-                    <strong id="statDeferidas">—</strong>
-                </div>
-            </article>
-            <article class="sol-stat">
-                <span class="sol-stat-ico red">✕</span>
-                <div>
-                    <small>Indeferidas</small>
-                    <strong id="statIndeferidas">—</strong>
-                </div>
-            </article>
+            <article class="sol-stat"><span class="sol-stat-ico blue">▤</span><div><small>Total</small><strong id="statTotal">—</strong></div></article>
+            <article class="sol-stat"><span class="sol-stat-ico orange">◷</span><div><small>Em análise</small><strong id="statAnalise">—</strong></div></article>
+            <article class="sol-stat"><span class="sol-stat-ico green">✓</span><div><small>Deferidas</small><strong id="statDeferidas">—</strong></div></article>
+            <article class="sol-stat"><span class="sol-stat-ico red">✕</span><div><small>Indeferidas</small><strong id="statIndeferidas">—</strong></div></article>
         </div>
 
-        <!-- Toolbar -->
         <div class="sol-toolbar">
             <div class="sol-filtros">
-                <button class="sol-chip ativo" data-filtro="all" type="button">
-                    Todas <span class="sol-chip-count" id="countAll">0</span>
-                </button>
-                <button class="sol-chip" data-filtro="EM_ANALISE" type="button">
-                    Em análise <span class="sol-chip-count" id="countAnalise">0</span>
-                </button>
-                <button class="sol-chip" data-filtro="ENVIADA" type="button">
-                    Enviadas <span class="sol-chip-count" id="countEnviada">0</span>
-                </button>
-                <button class="sol-chip" data-filtro="DEFERIDA" type="button">
-                    Deferidas <span class="sol-chip-count" id="countDeferida">0</span>
-                </button>
-                <button class="sol-chip" data-filtro="INDEFERIDA" type="button">
-                    Indeferidas <span class="sol-chip-count" id="countIndeferida">0</span>
-                </button>
-                <button class="sol-chip" data-filtro="PENDENTE_DOCUMENTACAO" type="button">
-                    Pendentes <span class="sol-chip-count" id="countPendente">0</span>
-                </button>
+                <button class="sol-chip ativo" data-filtro="all" type="button">Todas <span class="sol-chip-count" id="countAll">0</span></button>
+                <button class="sol-chip" data-filtro="EM_ANALISE" type="button">Em análise <span class="sol-chip-count" id="countAnalise">0</span></button>
+                <button class="sol-chip" data-filtro="ENVIADA" type="button">Enviadas <span class="sol-chip-count" id="countEnviada">0</span></button>
+                <button class="sol-chip" data-filtro="DEFERIDA" type="button">Deferidas <span class="sol-chip-count" id="countDeferida">0</span></button>
+                <button class="sol-chip" data-filtro="INDEFERIDA" type="button">Indeferidas <span class="sol-chip-count" id="countIndeferida">0</span></button>
+                <button class="sol-chip" data-filtro="PENDENTE_DOCUMENTACAO" type="button">Pendentes <span class="sol-chip-count" id="countPendente">0</span></button>
             </div>
             <select id="ordenacao" aria-label="Ordenar solicitações">
                 <option value="recentes">Mais recentes</option>
@@ -675,23 +206,17 @@
             </select>
         </div>
 
-        <!-- Layout 2 colunas -->
         <div class="sol-layout">
-
-            <!-- ========== LISTA ========== -->
             <aside class="sol-lista">
                 <div class="sol-lista-head">
                     <h2>Solicitações</h2>
                     <span class="sol-pill ENVIADA" id="badgeFiltroAtual" style="display:none"></span>
                 </div>
                 <div class="sol-lista-body" id="listaSolicitacoes">
-                    <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px">
-                        Carregando…
-                    </div>
+                    <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px">Carregando…</div>
                 </div>
             </aside>
 
-            <!-- ========== DETALHE ========== -->
             <section class="sol-detalhe" id="detalheSolicitacao">
                 <div class="sol-detalhe-vazio">
                     <div class="ico">♧</div>
@@ -699,13 +224,10 @@
                     <p>Escolha um pedido na lista à esquerda para analisar os detalhes.</p>
                 </div>
             </section>
-
         </div>
-
     </div>
 </main>
 
-<!-- ============ MODAL ANALISAR ============ -->
 <div class="modal-overlay" id="modalAnalisar" style="display:none">
     <div class="modal-box">
         <h2 id="modalTitulo">Analisar solicitação</h2>
@@ -723,27 +245,21 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/pro.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
     (function () {
         'use strict';
 
-        // Pré-requisitos no backend:
-        //   GET   /auth/session
-        //   GET   /profissionais/{id}
-        //   GET   /solicitacoes
-        //   PATCH /solicitacoes/{id}/analisar
-        //   GET   /alunos/{id}
-        //   GET   /notificacoes/usuario/{id}/count
-
         const state = {
             usuario: null,
             solicitacoes: [],
             alunosCache: {},
+            anexosCache: {},
             selecionada: null,
             filtro: 'all',
             ordenacao: 'recentes',
-            modalAberto: null   // { tipo: 'aprovar' | 'rejeitar' | 'pendente', solicitacaoId }
+            acaoAtual: null
         };
 
         const STATUS_INFO = {
@@ -763,7 +279,6 @@
             OUTRO: 'Outro'
         };
 
-        // ---------- Helpers ----------
         function set(id, valor) {
             const el = document.getElementById(id);
             if (el) el.textContent = valor;
@@ -782,13 +297,6 @@
             })[s]);
         }
 
-        function fmtData(iso) {
-            if (!iso) return '—';
-            return new Date(iso).toLocaleDateString('pt-BR', {
-                day: '2-digit', month: 'short', year: 'numeric'
-            }).replace('.', '');
-        }
-
         function fmtDataHora(iso) {
             if (!iso) return '—';
             const d = new Date(iso);
@@ -798,24 +306,43 @@
 
         function fmtDataLonga(iso) {
             if (!iso) return '—';
-            const r = new Date(iso).toLocaleDateString('pt-BR', {
+            const valor = iso.length === 10 ? iso + 'T00:00:00' : iso;
+            return new Date(valor).toLocaleDateString('pt-BR', {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
-            return r;
         }
 
-        function capitalizar(s) {
-            if (!s) return '';
-            return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+        function fmtTamanho(bytes) {
+            if (!bytes && bytes !== 0) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
         }
 
-        // ---------- 1. Usuário ----------
+        function atualizarContadores() {
+            const total = state.solicitacoes.length;
+            const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE').length;
+            const deferidas = state.solicitacoes.filter(s => s.status === 'DEFERIDA').length;
+            const indeferidas = state.solicitacoes.filter(s => s.status === 'INDEFERIDA').length;
+
+            set('statTotal', String(total));
+            set('statAnalise', String(emAnalise));
+            set('statDeferidas', String(deferidas));
+            set('statIndeferidas', String(indeferidas));
+
+            set('countAll', String(total));
+            set('countAnalise', String(emAnalise));
+            set('countEnviada', String(state.solicitacoes.filter(s => s.status === 'ENVIADA').length));
+            set('countDeferida', String(deferidas));
+            set('countIndeferida', String(indeferidas));
+            set('countPendente', String(state.solicitacoes.filter(s => s.status === 'PENDENTE_DOCUMENTACAO').length));
+        }
+
         async function carregarUsuario() {
             try {
                 const r = await fetch('/auth/session', { credentials: 'include' });
                 if (!r.ok) return null;
                 state.usuario = await r.json();
-
                 set('userName', state.usuario.nome || 'Profissional');
                 set('userDetail', state.usuario.email || 'Dados não carregados');
                 const avatar = document.getElementById('userAvatar');
@@ -836,7 +363,6 @@
             }
         }
 
-        // ---------- 2. Notificações ----------
         async function carregarNotificacoes() {
             if (!state.usuario?.id) return;
             try {
@@ -855,7 +381,6 @@
             } catch (_) {}
         }
 
-        // ---------- 3. Aluno (cache) ----------
         async function buscarAluno(alunoId) {
             if (!alunoId) return null;
             if (state.alunosCache[alunoId]) return state.alunosCache[alunoId];
@@ -870,62 +395,50 @@
             }
         }
 
-        // ---------- 4. Carregar solicitações ----------
+        async function buscarAnexos(solicitacaoId) {
+            try {
+                const r = await fetch(`/solicitacoes/${solicitacaoId}/anexos`, { credentials: 'include' });
+                if (!r.ok) return [];
+                const anexos = await r.json();
+                state.anexosCache[solicitacaoId] = anexos;
+                return anexos;
+            } catch (_) {
+                return [];
+            }
+        }
+
         async function carregarSolicitacoes() {
             try {
                 const r = await fetch('/solicitacoes', { credentials: 'include' });
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 state.solicitacoes = await r.json();
 
-                // Pré-carrega alunos (paralelo)
                 const alunoIds = [...new Set(state.solicitacoes.map(s => s.alunoId).filter(Boolean))];
                 await Promise.allSettled(alunoIds.map(id => buscarAluno(id)));
 
-                // Stats
-                const total = state.solicitacoes.length;
-                const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE').length;
-                const deferidas = state.solicitacoes.filter(s => s.status === 'DEFERIDA').length;
-                const indeferidas = state.solicitacoes.filter(s => s.status === 'INDEFERIDA').length;
-
-                set('statTotal', String(total));
-                set('statAnalise', String(emAnalise));
-                set('statDeferidas', String(deferidas));
-                set('statIndeferidas', String(indeferidas));
-
-                // Counters dos chips
-                set('countAll', String(total));
-                set('countAnalise', String(emAnalise));
-                set('countEnviada', String(state.solicitacoes.filter(s => s.status === 'ENVIADA').length));
-                set('countDeferida', String(deferidas));
-                set('countIndeferida', String(indeferidas));
-                set('countPendente', String(state.solicitacoes.filter(s => s.status === 'PENDENTE_DOCUMENTACAO').length));
-
+                atualizarContadores();
                 renderizarLista();
             } catch (e) {
                 console.error('Erro ao carregar solicitações', e);
                 document.getElementById('listaSolicitacoes').innerHTML = `
-        <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px">
-          <b style="display:block;color:#34415a;margin-bottom:6px">Erro ao carregar</b>
-          Tente novamente em instantes.
-        </div>`;
+                    <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px">
+                        <b style="display:block;color:#34415a;margin-bottom:6px">Erro ao carregar</b>
+                        Tente novamente em instantes.
+                    </div>`;
             }
         }
 
-        // ---------- 5. Renderizar lista ----------
         function renderizarLista() {
             const container = document.getElementById('listaSolicitacoes');
             const filtradas = state.solicitacoes.filter(s =>
-                state.filtro === 'all' || s.status === state.filtro
-            );
+                state.filtro === 'all' || s.status === state.filtro);
 
-            // Ordena
             filtradas.sort((a, b) => {
                 const da = new Date(a.dataEnvio);
                 const db = new Date(b.dataEnvio);
                 return state.ordenacao === 'recentes' ? db - da : da - db;
             });
 
-            // Badge do filtro atual no header
             const badgeFiltro = document.getElementById('badgeFiltroAtual');
             if (state.filtro !== 'all') {
                 const info = STATUS_INFO[state.filtro];
@@ -938,37 +451,34 @@
 
             if (!filtradas.length) {
                 container.innerHTML = `
-        <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px;line-height:1.6">
-          <b style="display:block;color:#34415a;margin-bottom:6px">Nenhuma solicitação</b>
-          ${state.filtro === 'all'
-                    ? 'Nenhum pedido recebido ainda.'
-                    : 'Nenhuma solicitação com este status.'}
-        </div>`;
+                    <div style="padding:40px 20px;text-align:center;color:#75829c;font-size:12px;line-height:1.6">
+                        <b style="display:block;color:#34415a;margin-bottom:6px">Nenhuma solicitação</b>
+                        ${state.filtro === 'all' ? 'Nenhum pedido recebido ainda.' : 'Nenhuma solicitação com este status.'}
+                    </div>`;
                 return;
             }
 
             container.innerHTML = filtradas.map(s => {
                 const aluno = state.alunosCache[s.alunoId];
-                const nome = aluno?.nome || 'Aluno #' + s.alunoId;
+                const nome = aluno?.nome || ('Aluno #' + s.alunoId);
                 const info = STATUS_INFO[s.status] || { rotulo: s.status, classe: 'ENVIADA' };
                 const selecionado = state.selecionada === s.id ? 'selecionado' : '';
 
                 return `
-        <div class="sol-card ${selecionado}" data-sol-id="${s.id}">
-          <span class="sol-card-avatar">${iniciais(nome)}</span>
-          <div class="sol-card-info">
-            <div class="sol-card-topo">
-              <span class="sol-card-nome">${escapeHtml(nome)}</span>
-              <span class="sol-card-hora">${fmtDataHora(s.dataEnvio)}</span>
-            </div>
-            <div class="sol-card-titulo">${escapeHtml(s.titulo)}</div>
-            <div class="sol-card-meta">
-              <span class="sol-pill ${info.classe}">${info.rotulo}</span>
-              <span class="sol-card-protocolo">${escapeHtml(s.protocolo || '')}</span>
-            </div>
-          </div>
-        </div>
-      `;
+                    <div class="sol-card ${selecionado}" data-sol-id="${s.id}">
+                        <span class="sol-card-avatar">${iniciais(nome)}</span>
+                        <div class="sol-card-info">
+                            <div class="sol-card-topo">
+                                <span class="sol-card-nome">${escapeHtml(nome)}</span>
+                                <span class="sol-card-hora">${fmtDataHora(s.dataEnvio)}</span>
+                            </div>
+                            <div class="sol-card-titulo">${escapeHtml(s.titulo)}</div>
+                            <div class="sol-card-meta">
+                                <span class="sol-pill ${info.classe}">${info.rotulo}</span>
+                                <span class="sol-card-protocolo">${escapeHtml(s.protocolo || '')}</span>
+                            </div>
+                        </div>
+                    </div>`;
             }).join('');
 
             container.querySelectorAll('.sol-card').forEach(card => {
@@ -976,281 +486,262 @@
             });
         }
 
-        // ---------- 6. Selecionar ----------
-        function selecionar(id) {
+        async function selecionar(id) {
             state.selecionada = id;
             renderizarLista();
             renderizarDetalhe();
+            await buscarAnexos(id);
+            if (state.selecionada === id) {
+                renderizarDetalhe();
+            }
         }
 
-        // ---------- 7. Renderizar detalhe ----------
         function renderizarDetalhe() {
             const container = document.getElementById('detalheSolicitacao');
             const s = state.solicitacoes.find(x => x.id === state.selecionada);
 
             if (!s) {
                 container.innerHTML = `
-        <div class="sol-detalhe-vazio">
-          <div class="ico">♧</div>
-          <b>Selecione uma solicitação</b>
-          <p>Escolha um pedido na lista à esquerda para analisar os detalhes.</p>
-        </div>`;
+                    <div class="sol-detalhe-vazio">
+                        <div class="ico">♧</div>
+                        <b>Selecione uma solicitação</b>
+                        <p>Escolha um pedido na lista à esquerda para analisar os detalhes.</p>
+                    </div>`;
                 return;
             }
 
             const aluno = state.alunosCache[s.alunoId];
-            const nomeAluno = aluno?.nome || 'Aluno #' + s.alunoId;
+            const nomeAluno = aluno?.nome || ('Aluno #' + s.alunoId);
             const matricula = aluno?.matricula || '';
             const curso = aluno?.curso || '';
             const info = STATUS_INFO[s.status] || { rotulo: s.status, classe: 'ENVIADA' };
             const tipo = TIPO_INFO[s.tipo] || s.tipo || '—';
+            const anexos = state.anexosCache[s.id];
 
-            // Timeline
             const temEnvio = !!s.dataEnvio;
             const temAnalise = s.status !== 'ENVIADA';
             const temResultado = s.status === 'DEFERIDA' || s.status === 'INDEFERIDA';
 
-            let blocoTimeline = `
-      <div class="sol-timeline">
-        <div class="sol-tl-item">
-          <div class="sol-tl-marcador ${temEnvio ? 'concluido' : ''}"></div>
-          <p class="sol-tl-titulo">Solicitação enviada</p>
-          <p class="sol-tl-data">${s.dataEnvio ? fmtDataLonga(s.dataEnvio) : '—'}</p>
-        </div>
-        <div class="sol-tl-item">
-          <div class="sol-tl-marcador ${temAnalise ? 'concluido' : ''}"></div>
-          <p class="sol-tl-titulo">${temAnalise ? 'Em análise' : 'Aguardando análise'}</p>
-          <p class="sol-tl-data">${s.status === 'EM_ANALISE' ? 'Em avaliação pela equipe' : (temAnalise ? 'Analisada' : 'Aguardando distribuição')}</p>
-        </div>
-        <div class="sol-tl-item">
-          <div class="sol-tl-marcador ${temResultado ? 'concluido' : ''}"></div>
-          <p class="sol-tl-titulo">Resultado</p>
-          <p class="sol-tl-data">${s.dataParecer ? fmtDataLonga(s.dataParecer) : 'Aguardando parecer'}</p>
-        </div>
-      </div>
-    `;
+            const blocoTimeline = `
+                <div class="sol-timeline">
+                    <div class="sol-tl-item">
+                        <div class="sol-tl-marcador ${temEnvio ? 'concluido' : ''}"></div>
+                        <p class="sol-tl-titulo">Solicitação enviada</p>
+                        <p class="sol-tl-data">${s.dataEnvio ? fmtDataLonga(s.dataEnvio) : '—'}${s.prazoParecer ? ' · Prazo do parecer: ' + fmtDataLonga(s.prazoParecer) : ''}</p>
+                    </div>
+                    <div class="sol-tl-item">
+                        <div class="sol-tl-marcador ${temAnalise ? 'concluido' : ''}"></div>
+                        <p class="sol-tl-titulo">${temAnalise ? 'Em análise' : 'Aguardando análise'}</p>
+                        <p class="sol-tl-data">${s.status === 'EM_ANALISE' ? 'Em avaliação pela equipe' : (temAnalise ? 'Analisada' : 'Aguardando início da análise')}</p>
+                    </div>
+                    <div class="sol-tl-item">
+                        <div class="sol-tl-marcador ${temResultado ? 'concluido' : ''}"></div>
+                        <p class="sol-tl-titulo">Resultado</p>
+                        <p class="sol-tl-data">${s.dataParecer ? fmtDataLonga(s.dataParecer) : 'Aguardando parecer'}</p>
+                    </div>
+                </div>`;
 
-            // Parecer atual
-            let blocoParecer = '';
-            if (s.parecer && (s.status === 'DEFERIDA' || s.status === 'INDEFERIDA' || s.status === 'PENDENTE_DOCUMENTACAO')) {
-                const classe = s.status === 'DEFERIDA' ? 'deferida' : s.status === 'INDEFERIDA' ? 'indeferida' : 'pendente';
-                blocoParecer = `
-        <div class="sol-secao">
-          <h3 class="sol-secao-titulo">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            Parecer registrado
-          </h3>
-          <div class="sol-parecer-box ${classe}">
-            ${escapeHtml(s.parecer)}
-            ${s.dataParecer ? `<div class="sol-parecer-assinatura">Emitido em ${fmtDataLonga(s.dataParecer)}</div>` : ''}
-          </div>
-        </div>
-      `;
+            let blocoAnexos;
+            if (anexos === undefined) {
+                blocoAnexos = `<p class="sol-secao-texto" style="font-size:12px;color:#8290a6">Carregando anexos…</p>`;
+            } else if (!anexos.length) {
+                blocoAnexos = `<p class="sol-secao-texto" style="font-size:12px;color:#8290a6">Nenhum documento anexado a esta solicitação.</p>`;
+            } else {
+                blocoAnexos = `
+                    <div class="sol-anexos-lista">
+                        ${anexos.map(a => `
+                            <div class="sol-anexo-item">
+                                <div class="sol-anexo-info">
+                                    <span class="sol-anexo-nome">${escapeHtml(a.nomeArquivo)}</span>
+                                    <span class="sol-anexo-meta">${escapeHtml(a.tipoMime || 'arquivo')} · ${fmtTamanho(a.tamanho)}</span>
+                                </div>
+                                <a class="sol-anexo-link"
+                                   href="/solicitacoes/${s.id}/anexos/${a.id}"
+                                   target="_blank"
+                                   download="${escapeHtml(a.nomeArquivo)}">
+                                    Baixar
+                                </a>
+                            </div>
+                        `).join('')}
+                    </div>`;
             }
 
-            // Ações (só aparecem se ainda não foi analisada)
+            let blocoParecer = '';
+            if (s.parecer && (s.status === 'DEFERIDA' || s.status === 'INDEFERIDA' || s.status === 'PENDENTE_DOCUMENTACAO')) {
+                const classe = s.status === 'DEFERIDA' ? 'deferida'
+                    : s.status === 'INDEFERIDA' ? 'indeferida' : 'pendente';
+                blocoParecer = `
+                    <div class="sol-secao">
+                        <h3 class="sol-secao-titulo">Parecer registrado</h3>
+                        <div class="sol-parecer-box ${classe}">
+                            ${escapeHtml(s.parecer)}
+                            ${s.dataParecer ? `<div class="sol-parecer-assinatura">Emitido em ${fmtDataLonga(s.dataParecer)}</div>` : ''}
+                        </div>
+                    </div>`;
+            }
+
             let blocoAcoes = '';
-            if (s.status === 'EM_ANALISE' || s.status === 'ENVIADA' || s.status === 'PENDENTE_DOCUMENTACAO') {
+            if (s.status === 'ENVIADA' || s.status === 'PENDENTE_DOCUMENTACAO') {
+                const label = s.status === 'ENVIADA' ? 'Iniciar análise' : 'Retomar análise';
                 blocoAcoes = `
-        <div class="sol-acoes">
-          <button class="btn btn-aprovar" data-acao="aprovar" data-id="${s.id}" type="button">
-            ✓ Deferir
-          </button>
-          <button class="btn btn-rejeitar" data-acao="rejeitar" data-id="${s.id}" type="button">
-            ✕ Indeferir
-          </button>
-          <button class="btn btn-neutral" data-acao="pendente" data-id="${s.id}" type="button">
-            Solicitar documentação
-          </button>
-        </div>
-      `;
+                    <div class="sol-acoes">
+                        <button class="btn btn-iniciar" data-acao="iniciar" data-id="${s.id}" type="button">▶ ${label}</button>
+                    </div>`;
+            } else if (s.status === 'EM_ANALISE') {
+                blocoAcoes = `
+                    <div class="sol-acoes">
+                        <button class="btn btn-aprovar" data-acao="aprovar" data-id="${s.id}" type="button">✓ Deferir</button>
+                        <button class="btn btn-rejeitar" data-acao="rejeitar" data-id="${s.id}" type="button">✕ Indeferir</button>
+                        <button class="btn btn-neutral" data-acao="pendente" data-id="${s.id}" type="button">Solicitar documentação</button>
+                    </div>`;
             }
 
             container.innerHTML = `
-      <div class="sol-detalhe-head">
-        <div>
-          <h2 class="sol-detalhe-titulo">${escapeHtml(s.titulo)}</h2>
-          <div class="sol-detalhe-protocolo">Protocolo ${escapeHtml(s.protocolo || '—')}</div>
-        </div>
-        <span class="sol-pill ${info.classe}">${info.rotulo}</span>
-      </div>
+                <div class="sol-detalhe-head">
+                    <div>
+                        <h2 class="sol-detalhe-titulo">${escapeHtml(s.titulo)}</h2>
+                        <div class="sol-detalhe-protocolo">Protocolo ${escapeHtml(s.protocolo || '—')}</div>
+                    </div>
+                    <span class="sol-pill ${info.classe}">${info.rotulo}</span>
+                </div>
 
-      <div class="sol-aluno-info">
-        <span class="sol-aluno-avatar">${iniciais(nomeAluno)}</span>
-        <div class="sol-aluno-dados">
-          <p class="sol-aluno-nome">${escapeHtml(nomeAluno)}</p>
-          <p class="sol-aluno-meta">
-            ${matricula ? 'Matrícula ' + escapeHtml(matricula) : ''}
-            ${matricula && curso ? ' · ' : ''}
-            ${curso ? escapeHtml(curso) : ''}
-          </p>
-        </div>
-      </div>
+                <div class="sol-aluno-info">
+                    <span class="sol-aluno-avatar">${iniciais(nomeAluno)}</span>
+                    <div class="sol-aluno-dados">
+                        <p class="sol-aluno-nome">${escapeHtml(nomeAluno)}</p>
+                        <p class="sol-aluno-meta">
+                            ${matricula ? 'Matrícula ' + escapeHtml(matricula) : ''}
+                            ${matricula && curso ? ' · ' : ''}
+                            ${curso ? escapeHtml(curso) : ''}
+                        </p>
+                    </div>
+                </div>
 
-      <div class="sol-secao">
-        <h3 class="sol-secao-titulo">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          Tipo de adaptação
-        </h3>
-        <p class="sol-secao-texto">${escapeHtml(tipo)}</p>
-      </div>
+                <div class="sol-secao">
+                    <h3 class="sol-secao-titulo">Tipo de adaptação</h3>
+                    <p class="sol-secao-texto">${escapeHtml(tipo)}</p>
+                </div>
 
-      <div class="sol-secao">
-        <h3 class="sol-secao-titulo">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Justificativa do aluno
-        </h3>
-        <p class="sol-secao-texto">${escapeHtml(s.justificativa || 'Não informada.')}</p>
-      </div>
+                <div class="sol-secao">
+                    <h3 class="sol-secao-titulo">Justificativa do aluno</h3>
+                    <p class="sol-secao-texto">${escapeHtml(s.justificativa || 'Não informada.')}</p>
+                </div>
 
-      ${blocoParecer}
+                <div class="sol-secao">
+                    <h3 class="sol-secao-titulo">Documentos anexados</h3>
+                    ${blocoAnexos}
+                </div>
 
-      <div class="sol-secao">
-        <h3 class="sol-secao-titulo">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Histórico
-        </h3>
-        ${blocoTimeline}
-      </div>
+                <div class="sol-secao">
+                    <h3 class="sol-secao-titulo">Linha do tempo</h3>
+                    ${blocoTimeline}
+                </div>
 
-      ${blocoAcoes}
-    `;
+                ${blocoParecer}
+                ${blocoAcoes}
+            `;
 
-            // Liga ações
             container.querySelectorAll('[data-acao]').forEach(btn => {
-                btn.addEventListener('click', () => abrirModalAnalise(btn.dataset.acao, Number(btn.dataset.id)));
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    const acao = btn.dataset.acao;
+                    const sol = state.solicitacoes.find(x => x.id === id);
+                    if (!sol) return;
+                    if (acao === 'iniciar') {
+                        executarAnalise(id, 'EM_ANALISE', 'Iniciar análise',
+                            'A solicitação será movida para EM_ANALISE.', 'iniciar', false);
+                    } else if (acao === 'aprovar') {
+                        abrirModal(id, 'DEFERIDA', 'aprovar');
+                    } else if (acao === 'rejeitar') {
+                        abrirModal(id, 'INDEFERIDA', 'rejeitar');
+                    } else if (acao === 'pendente') {
+                        abrirModal(id, 'PENDENTE_DOCUMENTACAO', 'pendente');
+                    }
+                });
             });
         }
 
-        // ---------- 8. Modal analisar ----------
-        function abrirModalAnalise(tipo, solicitacaoId) {
-            const s = state.solicitacoes.find(x => x.id === solicitacaoId);
+        function abrirModal(id, novoStatus, modo) {
+            const s = state.solicitacoes.find(x => x.id === id);
             if (!s) return;
 
-            state.modalAberto = { tipo, solicitacaoId };
+            state.acaoAtual = { id, novoStatus, modo };
 
-            const titulo = document.getElementById('modalTitulo');
-            const descricao = document.getElementById('modalDescricao');
-            const textarea = document.getElementById('inputParecer');
+            const titulo = modo === 'aprovar' ? 'Deferir solicitação'
+                : modo === 'rejeitar' ? 'Indeferir solicitação'
+                    : 'Solicitar documentação';
+
+            const descricao = modo === 'aprovar'
+                ? 'O parecer é obrigatório. Descreva a decisão que será enviada ao aluno.'
+                : modo === 'rejeitar'
+                    ? 'O parecer é obrigatório. Justifique o indeferimento.'
+                    : 'O parecer é obrigatório. Informe quais documentos precisam ser enviados.';
+
+            document.getElementById('modalTitulo').textContent = titulo;
+            document.getElementById('modalDescricao').textContent = descricao;
+            document.getElementById('inputParecer').value = '';
+
             const btnConfirmar = document.getElementById('btnConfirmarModal');
-
-            const config = {
-                aprovar: {
-                    titulo: 'Deferir solicitação',
-                    descricao: 'Registre o parecer favorável que será enviado ao aluno.',
-                    textoBotao: 'Deferir',
-                    classe: 'aprovar',
-                    placeholder: 'Parecer favorável: justificativa, orientações e o que foi aprovado...'
-                },
-                rejeitar: {
-                    titulo: 'Indeferir solicitação',
-                    descricao: 'Registre o motivo da negativa e orientações para o aluno.',
-                    textoBotao: 'Indeferir',
-                    classe: 'rejeitar',
-                    placeholder: 'Motivo do indeferimento, orientação sobre recurso à coordenação...'
-                },
-                pendente: {
-                    titulo: 'Solicitar documentação',
-                    descricao: 'Registre quais documentos ou informações estão faltando.',
-                    textoBotao: 'Solicitar',
-                    classe: 'aprovar',
-                    placeholder: 'Documentos necessários para prosseguir com a análise...'
-                }
-            }[tipo];
-
-            titulo.textContent = config.titulo;
-            descricao.textContent = config.descricao;
-            textarea.value = '';
-            textarea.placeholder = config.placeholder;
-            btnConfirmar.textContent = config.textoBotao;
-            btnConfirmar.className = 'modal-btn confirm ' + config.classe;
+            btnConfirmar.className = 'modal-btn confirm ' +
+                (modo === 'aprovar' ? 'aprovar' : modo === 'rejeitar' ? 'rejeitar' : 'pendente');
+            btnConfirmar.textContent = 'Confirmar';
+            btnConfirmar.disabled = false;
 
             document.getElementById('modalAnalisar').style.display = 'flex';
-            setTimeout(() => textarea.focus(), 100);
         }
 
         function fecharModal() {
+            state.acaoAtual = null;
             document.getElementById('modalAnalisar').style.display = 'none';
-            state.modalAberto = null;
         }
 
-        // ---------- 9. Confirmar análise ----------
-        async function confirmarAnalise() {
-            if (!state.modalAberto) return;
+        async function executarAnalise(id, status, titulo, descricao, modo, exigeParecer) {
+            const parecer = exigeParecer
+                ? (document.getElementById('inputParecer').value || '').trim()
+                : '';
 
-            const { tipo, solicitacaoId } = state.modalAberto;
-            const parecer = document.getElementById('inputParecer').value.trim();
-
-            if (!parecer || parecer.length < 10) {
-                alert('Digite um parecer com pelo menos 10 caracteres.');
+            if (exigeParecer && !parecer) {
+                alert('Informe o parecer antes de confirmar.');
                 return;
             }
 
-            const novoStatus = tipo === 'aprovar' ? 'DEFERIDA'
-                : tipo === 'rejeitar' ? 'INDEFERIDA'
-                    : 'PENDENTE_DOCUMENTACAO';
-
-            const btn = document.getElementById('btnConfirmarModal');
-            const textoOriginal = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Salvando…';
+            const btnConfirmar = document.getElementById('btnConfirmarModal');
+            if (btnConfirmar) {
+                btnConfirmar.disabled = true;
+                btnConfirmar.textContent = 'Enviando…';
+            }
 
             try {
-                const r = await fetch(`/solicitacoes/${solicitacaoId}/analisar`, {
+                const body = { status };
+                if (parecer) body.parecer = parecer;
+
+                const r = await fetch(`/solicitacoes/${id}/analisar`, {
                     method: 'PATCH',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        parecer,
-                        status: novoStatus,
-                        profissionalId: state.usuario.id
-                    })
+                    body: JSON.stringify(body)
                 });
 
                 if (!r.ok) {
                     const erro = await r.json().catch(() => ({}));
-                    throw new Error(erro.message || 'Erro ao analisar');
+                    throw new Error(erro.message || 'Não foi possível atualizar a solicitação.');
                 }
 
-                const atualizada = await r.json();
-
-                // Atualiza no state
-                const idx = state.solicitacoes.findIndex(x => x.id === solicitacaoId);
-                if (idx !== -1) state.solicitacoes[idx] = atualizada;
-
+                await carregarSolicitacoes();
+                if (state.selecionada === id) {
+                    await selecionar(id);
+                }
                 fecharModal();
-
-                // Recarrega stats e lista
-                const total = state.solicitacoes.length;
-                const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE').length;
-                const deferidas = state.solicitacoes.filter(s => s.status === 'DEFERIDA').length;
-                const indeferidas = state.solicitacoes.filter(s => s.status === 'INDEFERIDA').length;
-
-                set('statTotal', String(total));
-                set('statAnalise', String(emAnalise));
-                set('statDeferidas', String(deferidas));
-                set('statIndeferidas', String(indeferidas));
-
-                set('countAll', String(total));
-                set('countAnalise', String(emAnalise));
-                set('countEnviada', String(state.solicitacoes.filter(s => s.status === 'ENVIADA').length));
-                set('countDeferida', String(deferidas));
-                set('countIndeferida', String(indeferidas));
-                set('countPendente', String(state.solicitacoes.filter(s => s.status === 'PENDENTE_DOCUMENTACAO').length));
-
-                renderizarLista();
-                renderizarDetalhe();
-            } catch (e) {
-                console.error('Erro ao analisar', e);
-                alert(e.message || 'Não foi possível salvar o parecer. Tente novamente.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = textoOriginal;
+            } catch (err) {
+                alert(err.message || 'Erro ao analisar solicitação.');
+                if (btnConfirmar) {
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.textContent = 'Confirmar';
+                }
             }
         }
 
-        // ---------- 10. Filtros ----------
-        function ligarFiltros() {
+        function ligarEventosFixos() {
             document.querySelectorAll('.sol-chip').forEach(chip => {
                 chip.addEventListener('click', () => {
                     document.querySelectorAll('.sol-chip').forEach(c => c.classList.remove('ativo'));
@@ -1264,39 +755,34 @@
                 state.ordenacao = e.target.value;
                 renderizarLista();
             });
-        }
 
-        // ---------- 11. Eventos ----------
-        function ligarEventos() {
             document.getElementById('btnCancelarModal').addEventListener('click', fecharModal);
-            document.getElementById('btnConfirmarModal').addEventListener('click', confirmarAnalise);
-
             document.getElementById('modalAnalisar').addEventListener('click', (e) => {
                 if (e.target.id === 'modalAnalisar') fecharModal();
             });
 
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && document.getElementById('modalAnalisar').style.display === 'flex') {
-                    fecharModal();
-                }
+            document.getElementById('btnConfirmarModal').addEventListener('click', () => {
+                if (!state.acaoAtual) return;
+                const { id, novoStatus, modo } = state.acaoAtual;
+                executarAnalise(id, novoStatus, '', '', modo, true);
             });
         }
 
-        // ---------- Inicialização ----------
         document.addEventListener('DOMContentLoaded', async () => {
-            ligarFiltros();
-            ligarEventos();
-
-            const u = await carregarUsuario();
-            if (!u) return;
-
-            await Promise.allSettled([
-                carregarSolicitacoes(),
-                carregarNotificacoes()
-            ]);
+            ligarEventosFixos();
+            const overlay = document.getElementById('papLoadingOverlay');
+            try {
+                const u = await carregarUsuario();
+                if (!u) {
+                    if (overlay) overlay.style.display = 'none';
+                    return;
+                }
+                await Promise.allSettled([carregarSolicitacoes(), carregarNotificacoes()]);
+            } finally {
+                if (overlay) overlay.style.display = 'none';
+            }
         });
     })();
 </script>
-
 </body>
 </html>

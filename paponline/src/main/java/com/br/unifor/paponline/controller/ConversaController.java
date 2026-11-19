@@ -18,7 +18,8 @@ public class ConversaController {
     private final ConversaService service;
 
     @PostMapping
-    public Conversa obterOuCriar(@RequestParam Long alunoId, @RequestParam Long profissionalId) {
+    public Conversa obterOuCriar(@RequestParam(required = false) Long alunoId,
+                                 @RequestParam(required = false) Long profissionalId) {
         return service.obterOuCriar(alunoId, profissionalId);
     }
 
@@ -32,6 +33,11 @@ public class ConversaController {
         return service.listarPorProfissional(profissionalId);
     }
 
+    @GetMapping("/admin/{adminId}")
+    public List<Conversa> listarPorAdmin(@PathVariable Long adminId) {
+        return service.listarPorAdmin(adminId);
+    }
+
     @GetMapping("/{conversaId}/mensagens")
     public List<Mensagem> listarMensagens(@PathVariable Long conversaId) {
         return service.listarMensagens(conversaId);
@@ -39,10 +45,12 @@ public class ConversaController {
 
     @PostMapping("/{conversaId}/mensagens")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mensagem enviar(@PathVariable Long conversaId, @RequestBody Map<String, Object> body) {
-        Long remetenteId = ((Number) body.get("remetenteId")).longValue();
-        String conteudo = (String) body.get("conteudo");
-        return service.enviar(conversaId, remetenteId, conteudo);
+    public Mensagem enviar(@PathVariable Long conversaId,
+                           @RequestBody Map<String, Object> body) {
+        String conteudo = body != null && body.get("conteudo") != null
+                ? String.valueOf(body.get("conteudo"))
+                : null;
+        return service.enviar(conversaId, conteudo);
     }
 
     @PatchMapping("/mensagens/{mensagemId}/lida")

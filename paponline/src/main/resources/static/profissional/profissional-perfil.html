@@ -480,6 +480,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/pro.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
     (function () {
@@ -773,68 +774,30 @@
 
             esconderAlerta('alertaSenha');
 
-            if (!atual) {
-                mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.');
-                return;
-            }
+            if (!atual) { mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.'); return; }
             if (!senhaForte(nova)) {
                 mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter 8+ caracteres com maiúscula, minúscula e número.');
                 return;
             }
-            if (nova !== confirmar) {
-                mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.');
-                return;
-            }
-            if (nova === atual) {
-                mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.');
-                return;
-            }
+            if (nova !== confirmar) { mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.'); return; }
+            if (nova === atual) { mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.'); return; }
 
             const btn = document.getElementById('btnAlterarSenha');
             btn.disabled = true;
             btn.textContent = 'Alterando…';
 
             try {
-                // Valida a senha atual pelo login
-                const check = await fetch('/auth/login', {
-                    method: 'POST',
+                const r = await fetch(`/profissionais/${state.profissional.id}/senha`, {
+                    method: 'PATCH',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        identifier: state.profissional.email,
-                        password: atual,
-                        requestedRole: 'professional'
-                    })
-                });
-
-                if (!check.ok) {
-                    mostrarAlerta('alertaSenha', 'erro', 'Senha atual incorreta.');
-                    return;
-                }
-
-                // Atualiza via PUT
-                const payload = {
-                    nome: state.profissional.nome,
-                    email: state.profissional.email,
-                    telefone: state.profissional.telefone,
-                    crp: state.profissional.crp,
-                    cargo: state.profissional.cargo,
-                    senha: nova
-                };
-
-                const r = await fetch(`/profissionais/${state.profissional.id}`, {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ senhaAtual: atual, novaSenha: nova })
                 });
 
                 if (!r.ok) {
                     const erro = await r.json().catch(() => ({}));
                     throw new Error(erro.message || 'Erro ao alterar senha');
                 }
-
-                state.profissional = await r.json();
 
                 document.getElementById('formSenha').reset();
                 mostrarAlerta('alertaSenha', 'sucesso', 'Senha alterada com sucesso.');

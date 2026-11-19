@@ -13,419 +13,168 @@
       font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
     }
 
-    /* ========== Filtros de categoria ========== */
     .admin-chat-categorias{
-      display:flex;
-      gap:6px;
-      padding:10px 16px;
-      border-bottom:1px solid #edf0f5;
-      background:#fafbfe;
-      flex-wrap:wrap;
+      display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid #edf0f5;
+      background:#fafbfe;flex-wrap:wrap;
     }
     .admin-chat-categoria{
-      padding:6px 11px;
-      border-radius:99px;
-      background:#fff;
-      border:1px solid #dfe6f1;
-      color:#64738d;
-      font:600 10px Inter,Arial,sans-serif;
-      cursor:pointer;
-      transition:all .15s;
-      display:inline-flex;
-      align-items:center;
-      gap:5px;
+      padding:6px 11px;border-radius:99px;background:#fff;border:1px solid #dfe6f1;
+      color:#64738d;font:600 10px Inter,Arial,sans-serif;cursor:pointer;
+      transition:all .15s;display:inline-flex;align-items:center;gap:5px;
     }
     .admin-chat-categoria:hover{ border-color:#7ba1f5; color:#2059dc; }
-    .admin-chat-categoria.ativo{
-      background:#2059dc;
-      color:#fff;
-      border-color:#2059dc;
-    }
+    .admin-chat-categoria.ativo{ background:#2059dc; color:#fff; border-color:#2059dc; }
 
-    /* ========== Avatar com tipo ========== */
-    .admin-chat-avatar{
-      position:relative;
-    }
+    .admin-chat-avatar{ position:relative; }
     .admin-chat-avatar .tipo-badge{
-      position:absolute;
-      bottom:-2px;
-      right:-2px;
-      width:16px;
-      height:16px;
-      border-radius:50%;
-      background:#0b8b61;
-      color:#fff;
-      display:grid;
-      place-items:center;
-      font-size:8px;
-      font-weight:700;
-      border:2px solid #fff;
+      position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;
+      border-radius:50%;background:#0b8b61;color:#fff;display:grid;
+      place-items:center;font-size:8px;font-weight:700;border:2px solid #fff;
     }
-    .admin-chat-avatar .tipo-badge.coordenacao{
-      background:#7732d9;
-    }
+    .admin-chat-avatar .tipo-badge.coordenacao{ background:#7732d9; }
 
-    /* ========== Modal nova conversa ========== */
     .modal-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(10,26,63,.55);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-      padding:20px;
+      position:fixed;inset:0;background:rgba(10,26,63,.55);display:flex;
+      align-items:center;justify-content:center;z-index:9999;padding:20px;
     }
     .modal-box{
-      background:#fff;
-      border-radius:14px;
-      padding:26px 28px;
-      max-width:460px;
-      width:100%;
-      box-shadow:0 20px 60px rgba(10,26,63,.25);
+      background:#fff;border-radius:14px;padding:26px 28px;max-width:480px;
+      width:100%;box-shadow:0 20px 60px rgba(10,26,63,.25);
     }
-    .modal-box h2{
-      font-size:16px;
-      margin:0 0 6px;
-      color:var(--portal-text);
-    }
-    .modal-box p{
-      font-size:12px;
-      color:var(--portal-muted);
-      margin:0 0 18px;
-      line-height:1.55;
-    }
-    .modal-box label{
-      display:block;
-      font-size:11px;
-      font-weight:600;
-      color:#3b4860;
-      margin-bottom:6px;
-    }
+    .modal-box h2{ font-size:16px; margin:0 0 6px; color:var(--portal-text); }
+    .modal-box p{ font-size:12px; color:var(--portal-muted); margin:0 0 18px; line-height:1.55; }
+    .modal-box label{ display:block; font-size:11px; font-weight:600; color:#3b4860; margin-bottom:6px; }
     .modal-box select{
-      width:100%;
-      height:42px;
-      padding:0 12px;
-      border:1px solid #dfe6f1;
-      border-radius:9px;
-      background:#f8faff;
-      color:#34415a;
-      font:400 12px Inter,Arial,sans-serif;
-      margin-bottom:16px;
-      outline:none;
+      width:100%;height:42px;padding:0 12px;border:1px solid #dfe6f1;border-radius:9px;
+      background:#f8faff;color:#34415a;font:400 12px Inter,Arial,sans-serif;
+      margin-bottom:16px;outline:none;
     }
     .modal-box select:focus{ border-color:#7da3f7; }
-    .modal-actions{
-      display:flex;
-      gap:9px;
-      justify-content:flex-end;
-    }
-    .modal-btn{
-      padding:10px 16px;
-      border-radius:8px;
-      font:700 12px Inter,Arial,sans-serif;
-      border:0;
-      cursor:pointer;
-    }
-    .modal-btn.cancel{
-      background:#fff;
-      border:1px solid #dfe6f1;
-      color:#64738d;
-    }
-    .modal-btn.cancel:hover{ border-color:#7ba1f5; color:#2059dc; }
-    .modal-btn.confirm{
-      background:#2059dc;
-      color:#fff;
-    }
-    .modal-btn.confirm:hover{ filter:brightness(1.08); }
-    .modal-btn.confirm:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
 
-    /* ========== Chat layout (mesmo padrão das outras telas) ========== */
+    .modal-tipo-row{ display:flex; gap:10px; margin-bottom:16px; }
+    .modal-tipo-opcao{
+      flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;
+      border:1px solid #dfe6f1;border-radius:9px;background:#f8faff;
+      cursor:pointer;font-size:12px;color:#34415a;font-weight:600;
+      transition:all .15s;
+    }
+    .modal-tipo-opcao:hover{ border-color:#7ba1f5; background:#f0f5ff; }
+    .modal-tipo-opcao input{ margin:0; accent-color:#2059dc; }
+    .modal-tipo-opcao.selecionado{ border-color:#2059dc; background:#e8f0ff; color:#1749a9; }
+
+    .modal-actions{ display:flex; gap:9px; justify-content:flex-end; }
+    .modal-btn{ padding:10px 16px;border-radius:8px;font:700 12px Inter,Arial,sans-serif;border:0;cursor:pointer; }
+    .modal-btn.cancel{ background:#fff;border:1px solid #dfe6f1;color:#64738d; }
+    .modal-btn.cancel:hover{ border-color:#7ba1f5; color:#2059dc; }
+    .modal-btn.confirm{ background:#2059dc;color:#fff; }
+    .modal-btn.confirm:hover{ filter:brightness(1.08); }
+    .modal-btn.confirm:disabled{ opacity:.55; cursor:not-allowed; }
+
     .admin-chat-layout{
-      display:grid;
-      grid-template-columns:minmax(0,340px) minmax(0,1fr);
-      gap:16px;
-      height:calc(100vh - 180px);
-      min-height:560px;
+      display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);
+      gap:16px;height:calc(100vh - 180px);min-height:560px;
     }
     .admin-chat-list{
-      background:#fff;
-      border:1px solid var(--portal-line);
-      border-radius:14px;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      overflow:hidden;
+      background:#fff;border:1px solid var(--portal-line);border-radius:14px;
+      display:flex;flex-direction:column;min-height:0;overflow:hidden;
     }
     .admin-chat-list-head{
-      padding:16px 18px 12px;
-      border-bottom:1px solid #edf0f5;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+      padding:16px 18px 12px;border-bottom:1px solid #edf0f5;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    .admin-chat-list-head h2{
-      font-size:15px;
-      margin:0;
-      color:var(--portal-text);
-    }
+    .admin-chat-list-head h2{ font-size:15px;margin:0;color:var(--portal-text); }
     .btn-nova-conversa{
-      display:inline-flex;
-      align-items:center;
-      gap:5px;
-      padding:6px 11px;
-      border-radius:7px;
-      background:#2059dc;
-      color:#fff;
-      font:700 11px Inter,Arial,sans-serif;
-      border:0;
-      cursor:pointer;
-      white-space:nowrap;
+      display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:7px;
+      background:#2059dc;color:#fff;font:700 11px Inter,Arial,sans-serif;border:0;
+      cursor:pointer;white-space:nowrap;
     }
     .btn-nova-conversa:hover{ filter:brightness(1.08); }
 
-    .admin-chat-list .portal-search{
-      width:calc(100% - 32px);
-      margin:10px 16px 8px;
-    }
-    .admin-chat-contacts{
-      flex:1;
-      overflow-y:auto;
-      padding:6px 8px 8px;
-    }
+    .admin-chat-list .portal-search{ width:calc(100% - 32px); margin:10px 16px 8px; }
+    .admin-chat-contacts{ flex:1;overflow-y:auto;padding:6px 8px 8px; }
 
     .admin-chat-contact{
-      display:flex;
-      align-items:center;
-      gap:11px;
-      width:100%;
-      padding:11px 10px;
-      border:0;
-      border-radius:10px;
-      background:transparent;
-      text-align:left;
-      color:var(--portal-text);
-      cursor:pointer;
-      transition:background .15s;
+      display:flex;align-items:center;gap:11px;width:100%;padding:11px 10px;
+      border:0;border-radius:10px;background:transparent;text-align:left;
+      color:var(--portal-text);cursor:pointer;transition:background .15s;
     }
     .admin-chat-contact:hover{ background:#f7faff; }
     .admin-chat-contact.selecionado{ background:#eaf1ff; }
+    .admin-chat-contact .avatar{ flex-shrink:0;width:40px;height:40px;font-size:11px; }
 
-    .admin-chat-contact .avatar{
-      flex-shrink:0;
-      width:40px;
-      height:40px;
-      font-size:11px;
-    }
-
-    .admin-chat-contact-info{
-      flex:1;
-      min-width:0;
-    }
+    .admin-chat-contact-info{ flex:1;min-width:0; }
     .admin-chat-contact-nome{
-      font-size:12px;
-      font-weight:700;
-      color:var(--portal-text);
-      margin:0 0 3px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-size:12px;font-weight:700;color:var(--portal-text);margin:0 0 3px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .admin-chat-contact-preview{
-      font-size:11px;
-      color:#8290a6;
-      margin:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      line-height:1.4;
+      font-size:11px;color:#8290a6;margin:0;white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis;line-height:1.4;
     }
     .admin-chat-contact.selecionado .admin-chat-contact-preview,
-    .admin-chat-contact.nao-lida .admin-chat-contact-preview{
-      color:#3b4860;
-      font-weight:600;
-    }
+    .admin-chat-contact.nao-lida .admin-chat-contact-preview{ color:#3b4860;font-weight:600; }
     .admin-chat-contact-meta{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:4px;
-      flex-shrink:0;
+      display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;
     }
-    .admin-chat-contact-hora{
-      font-size:10px;
-      color:#98a3b5;
-      white-space:nowrap;
-    }
+    .admin-chat-contact-hora{ font-size:10px;color:#98a3b5;white-space:nowrap; }
     .admin-chat-contact-unread{
-      background:#d92d20;
-      color:#fff;
-      border-radius:50%;
-      min-width:18px;
-      height:18px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-size:9px;
-      font-weight:700;
-      padding:0 4px;
+      background:#d92d20;color:#fff;border-radius:50%;min-width:18px;height:18px;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;padding:0 4px;
     }
 
-    /* ========== Janela de chat ========== */
     .admin-chat-window{
-      background:#fff;
-      border:1px solid var(--portal-line);
-      border-radius:14px;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      overflow:hidden;
+      background:#fff;border:1px solid var(--portal-line);border-radius:14px;
+      display:flex;flex-direction:column;min-height:0;overflow:hidden;
     }
     .admin-chat-top{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:14px 18px;
-      border-bottom:1px solid #edf0f5;
-      flex-shrink:0;
+      display:flex;align-items:center;gap:12px;padding:14px 18px;
+      border-bottom:1px solid #edf0f5;flex-shrink:0;
     }
-    .admin-chat-top-info{ flex:1; min-width:0; }
-    .admin-chat-top-nome{
-      font-size:13px;
-      font-weight:700;
-      color:var(--portal-text);
-      margin:0 0 3px;
-    }
-    .admin-chat-top-detalhe{
-      font-size:11px;
-      color:#8290a6;
-      margin:0;
-    }
+    .admin-chat-top-info{ flex:1;min-width:0; }
+    .admin-chat-top-nome{ font-size:13px;font-weight:700;color:var(--portal-text);margin:0 0 3px; }
+    .admin-chat-top-detalhe{ font-size:11px;color:#8290a6;margin:0; }
 
     .admin-chat-messages{
-      flex:1;
-      overflow-y:auto;
-      padding:22px;
-      background:#f8faff;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+      flex:1;overflow-y:auto;padding:22px;background:#f8faff;
+      display:flex;flex-direction:column;gap:12px;
     }
-    .chat-day{
-      align-self:center;
-      padding:5px 12px;
-      background:#fff;
-      border-radius:20px;
-      color:#94a0b3;
-      font-size:9px;
-      font-weight:700;
-      letter-spacing:.3px;
-    }
-    .chat-bubble{
-      max-width:72%;
-      padding:11px 15px;
-      border-radius:14px;
-      font-size:12px;
-      line-height:1.55;
-      word-wrap:break-word;
-    }
-    .chat-bubble.enviada{
-      align-self:flex-end;
-      background:#2059dc;
-      color:#fff;
-      border-bottom-right-radius:4px;
-    }
-    .chat-bubble.recebida{
-      align-self:flex-start;
-      background:#fff;
-      border:1px solid #edf0f5;
-      color:#0a1a3f;
-      border-bottom-left-radius:4px;
-    }
-    .chat-time{
-      font-size:9px;
-      color:#98a3b5;
-      padding:0 4px;
-      margin-top:-4px;
-    }
+    .chat-bubble{ max-width:72%;padding:11px 15px;border-radius:14px;font-size:12px;line-height:1.55;word-wrap:break-word; }
+    .chat-bubble.enviada{ align-self:flex-end;background:#2059dc;color:#fff;border-bottom-right-radius:4px; }
+    .chat-bubble.recebida{ align-self:flex-start;background:#fff;border:1px solid #edf0f5;color:#0a1a3f;border-bottom-left-radius:4px; }
+    .chat-time{ font-size:9px;color:#98a3b5;padding:0 4px;margin-top:-4px; }
     .chat-time.enviada{ align-self:flex-end; }
     .chat-time.recebida{ align-self:flex-start; }
 
     .admin-chat-compose{
-      display:flex;
-      gap:9px;
-      padding:14px 16px;
-      border-top:1px solid #edf0f5;
-      flex-shrink:0;
+      display:flex;gap:9px;padding:14px 16px;border-top:1px solid #edf0f5;flex-shrink:0;
     }
     .admin-chat-compose input{
-      flex:1;
-      min-width:0;
-      height:42px;
-      padding:0 14px;
-      border:1px solid #dfe6f1;
-      border-radius:9px;
-      background:#f8faff;
-      color:#34415a;
-      font:400 12px Inter,Arial,sans-serif;
-      outline:none;
+      flex:1;min-width:0;height:42px;padding:0 14px;border:1px solid #dfe6f1;
+      border-radius:9px;background:#f8faff;color:#34415a;
+      font:400 12px Inter,Arial,sans-serif;outline:none;
     }
     .admin-chat-compose input:focus{ border-color:#7da3f7; }
-    .admin-chat-compose input:disabled{ opacity:.6; cursor:not-allowed; }
+    .admin-chat-compose input:disabled{ opacity:.6;cursor:not-allowed; }
     .admin-chat-compose button{
-      height:42px;
-      padding:0 18px;
-      border-radius:9px;
-      background:#2059dc;
-      color:#fff;
-      border:0;
-      font:700 12px Inter,Arial,sans-serif;
-      cursor:pointer;
+      height:42px;padding:0 18px;border-radius:9px;background:#2059dc;color:#fff;
+      border:0;font:700 12px Inter,Arial,sans-serif;cursor:pointer;
     }
-    .admin-chat-compose button:disabled{ opacity:.55; cursor:not-allowed; }
+    .admin-chat-compose button:disabled{ opacity:.55;cursor:not-allowed; }
 
-    /* ========== Empty states ========== */
     .chat-empty-wrap{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:40px 24px;
-      color:#75829c;
-      font-size:12px;
-      line-height:1.6;
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;padding:40px 24px;color:#75829c;font-size:12px;line-height:1.6;
     }
     .chat-empty-wrap .chat-empty-icon{
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      background:#e8f0ff;
-      color:#2059dc;
-      display:grid;
-      place-items:center;
-      font-size:24px;
-      margin-bottom:14px;
+      width:56px;height:56px;border-radius:50%;background:#e8f0ff;color:#2059dc;
+      display:grid;place-items:center;font-size:24px;margin-bottom:14px;
     }
-    .chat-empty-wrap b{
-      font-size:14px;
-      color:#34415a;
-      margin-bottom:6px;
-      display:block;
-    }
-    .chat-empty-wrap p{ margin:0; max-width:320px; }
+    .chat-empty-wrap b{ font-size:14px;color:#34415a;margin-bottom:6px;display:block; }
+    .chat-empty-wrap p{ margin:0;max-width:320px; }
 
     @media (max-width:760px){
-      .admin-chat-layout{
-        grid-template-columns:1fr;
-        height:auto;
-        min-height:0;
-      }
+      .admin-chat-layout{ grid-template-columns:1fr;height:auto;min-height:0; }
       .admin-chat-list{ max-height:260px; }
       .admin-chat-window{ height:540px; }
     }
@@ -436,7 +185,6 @@
 
 <div class="portal-app">
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="portal-sidebar">
     <div class="portal-brand">
       <span class="portal-brand-mark">PAP</span>
@@ -470,13 +218,12 @@
     </button>
   </aside>
 
-  <!-- ============ MAIN ============ -->
   <main class="portal-main">
 
     <header class="portal-topbar">
       <div class="portal-heading">
         <h1>Mensagens</h1>
-        <p>Acompanhe a comunicação entre estudantes, profissionais e coordenação.</p>
+        <p>Converse com alunos e profissionais do PAP.</p>
       </div>
       <div class="portal-top-actions">
         <div class="portal-user-chip">
@@ -496,26 +243,16 @@
 
       <div class="admin-chat-layout">
 
-        <!-- ========== LISTA ========== -->
         <aside class="admin-chat-list">
-
           <div class="admin-chat-list-head">
             <h2>Conversas</h2>
-            <button type="button" class="btn-nova-conversa" id="btnAbrirNovaConversa">
-              + Nova
-            </button>
+            <button type="button" class="btn-nova-conversa" id="btnAbrirNovaConversa">+ Nova</button>
           </div>
 
           <div class="admin-chat-categorias">
-            <button type="button" class="admin-chat-categoria ativo" data-categoria="all">
-              Todas
-            </button>
-            <button type="button" class="admin-chat-categoria" data-categoria="PROFISSIONAL">
-              Profissionais
-            </button>
-            <button type="button" class="admin-chat-categoria" data-categoria="COORDENACAO">
-              Coordenação
-            </button>
+            <button type="button" class="admin-chat-categoria ativo" data-categoria="all">Todas</button>
+            <button type="button" class="admin-chat-categoria" data-categoria="ALUNO">Alunos</button>
+            <button type="button" class="admin-chat-categoria" data-categoria="PROFISSIONAL">Profissionais</button>
           </div>
 
           <input class="portal-search" type="search" id="buscaConversa"
@@ -526,12 +263,9 @@
               <b>Carregando…</b>
             </div>
           </div>
-
         </aside>
 
-        <!-- ========== CHAT ========== -->
         <section class="admin-chat-window">
-
           <header class="admin-chat-top">
             <span class="avatar" id="chatAvatar">—</span>
             <div class="admin-chat-top-info">
@@ -553,13 +287,12 @@
                    aria-label="Mensagem" required autocomplete="off" disabled>
             <button type="submit" id="chatSendBtn" disabled>Enviar</button>
           </form>
-
         </section>
 
       </div>
 
       <p class="portal-info-box" style="margin-top:14px">
-        A comunicação real depende da autenticação, autorização e armazenamento seguro do backend.
+        Como administrador, você pode conversar com alunos e profissionais. As conversas são separadas por contato.
       </p>
 
     </section>
@@ -571,10 +304,22 @@
 <div class="modal-overlay" id="modalNovaConversa" style="display:none">
   <div class="modal-box">
     <h2>Nova conversa</h2>
-    <p>Selecione um profissional para iniciar uma conversa com a coordenação do PAP.</p>
+    <p>Escolha com quem você quer conversar.</p>
 
-    <label for="selectProfissional">Profissional</label>
-    <select id="selectProfissional" disabled>
+    <label>Tipo de contato</label>
+    <div class="modal-tipo-row">
+      <label class="modal-tipo-opcao selecionado" id="tipoAlunoLabel">
+        <input type="radio" name="tipoNovaConversa" value="ALUNO" checked>
+        <span>Aluno</span>
+      </label>
+      <label class="modal-tipo-opcao" id="tipoProfissionalLabel">
+        <input type="radio" name="tipoNovaConversa" value="PROFISSIONAL">
+        <span>Profissional</span>
+      </label>
+    </div>
+
+    <label for="selectDestinatario">Destinatário</label>
+    <select id="selectDestinatario" disabled>
       <option>Carregando…</option>
     </select>
 
@@ -589,33 +334,28 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
     'use strict';
 
-    // Pré-requisitos no backend:
-    //   GET   /auth/session
-    //   GET   /profissionais
-    //   GET   /conversas/profissional/{id}   (o admin usa o ID dele mesmo se quiser)
-    //   GET   /conversas/{id}/mensagens
-    //   POST  /conversas/{id}/mensagens
-    //   PATCH /conversas/mensagens/{id}/lida
-    //   POST  /conversas?alunoId=X&profissionalId=Y
-    //   GET   /notificacoes/usuario/{id}/count
-
     const state = {
       usuario: null,
       conversas: [],
       mensagensCache: {},
+      alunosCache: {},
       profissionaisCache: {},
       conversaAtiva: null,
       categoriaAtiva: 'all',
       busca: '',
-      enviando: false
+      enviando: false,
+      // modal nova conversa
+      tipoNovo: 'ALUNO',
+      alunosDisponiveis: [],
+      profissionaisDisponiveis: []
     };
 
-    // ---------- Helpers ----------
     function set(id, valor) {
       const el = document.getElementById(id);
       if (el) el.textContent = valor;
@@ -668,32 +408,28 @@
       if (el) el.scrollTop = el.scrollHeight;
     }
 
-    // Verifica se o profissional pertence à coordenação (para classificar)
-    function ehCoordenacao(prof) {
-      const cargo = (prof?.cargo || '').toLowerCase();
-      return cargo.includes('coorden');
-    }
-
-    // ---------- 1. Usuário ----------
-    async function carregarUsuario() {
-      try {
-        const r = await fetch('/auth/session', { credentials: 'include' });
-        if (!r.ok) return null;
-        state.usuario = await r.json();
-
-        set('userName', state.usuario.nome || 'Administrador');
-        set('userDetail', state.usuario.email || 'Dados não carregados');
-        const avatar = document.getElementById('userAvatar');
-        if (avatar) avatar.textContent = iniciais(state.usuario.nome);
-
-        return state.usuario;
-      } catch (e) {
-        console.error('Erro ao carregar usuário', e);
-        return null;
+    // Para uma conversa em que o admin é participante, descobre quem é "o outro lado"
+    function contraparteConversa(c) {
+      if (c.alunoId) {
+        return { tipo: 'ALUNO', id: c.alunoId, nome: (state.alunosCache[c.alunoId]?.nome) || ('Aluno #' + c.alunoId), detalhe: state.alunosCache[c.alunoId]?.matricula };
       }
+      if (c.profissionalId) {
+        return { tipo: 'PROFISSIONAL', id: c.profissionalId, nome: (state.profissionaisCache[c.profissionalId]?.nome) || ('Profissional #' + c.profissionalId), detalhe: state.profissionaisCache[c.profissionalId]?.crp };
+      }
+      return { tipo: 'DESCONHECIDO', id: null, nome: 'Contato', detalhe: null };
     }
 
-    // ---------- 2. Notificações ----------
+    async function carregarUsuario() {
+      const r = await fetch('/auth/session', { credentials: 'include' });
+      if (!r.ok) return null;
+      state.usuario = await r.json();
+      set('userName', state.usuario.nome || 'Administrador');
+      set('userDetail', state.usuario.email || 'Dados não carregados');
+      const avatar = document.getElementById('userAvatar');
+      if (avatar) avatar.textContent = iniciais(state.usuario.nome);
+      return state.usuario;
+    }
+
     async function carregarNotificacoes() {
       if (!state.usuario?.id) return;
       try {
@@ -712,53 +448,53 @@
       } catch (_) {}
     }
 
-    // ---------- 3. Profissional (cache) ----------
-    async function buscarProfissional(profId) {
-      if (!profId) return null;
-      if (state.profissionaisCache[profId]) return state.profissionaisCache[profId];
+    async function buscarAluno(id) {
+      if (!id || state.alunosCache[id]) return state.alunosCache[id] || null;
       try {
-        const r = await fetch(`/profissionais/${profId}`, { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const prof = await r.json();
-        state.profissionaisCache[profId] = prof;
-        return prof;
-      } catch (_) {
-        return null;
-      }
+        const r = await fetch(`/alunos/${id}`, { credentials: 'include' });
+        if (!r.ok) return null;
+        const a = await r.json();
+        state.alunosCache[id] = a;
+        return a;
+      } catch (_) { return null; }
     }
 
-    // ---------- 4. Mensagens (cache) ----------
+    async function buscarProfissional(id) {
+      if (!id || state.profissionaisCache[id]) return state.profissionaisCache[id] || null;
+      try {
+        const r = await fetch(`/profissionais/${id}`, { credentials: 'include' });
+        if (!r.ok) return null;
+        const p = await r.json();
+        state.profissionaisCache[id] = p;
+        return p;
+      } catch (_) { return null; }
+    }
+
     async function buscarMensagens(conversaId) {
       if (state.mensagensCache[conversaId]) return state.mensagensCache[conversaId];
       try {
         const r = await fetch(`/conversas/${conversaId}/mensagens`, { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const mensagens = await r.json();
-        state.mensagensCache[conversaId] = mensagens;
-        return mensagens;
-      } catch (_) {
-        return [];
-      }
+        if (!r.ok) return [];
+        const msgs = await r.json();
+        state.mensagensCache[conversaId] = msgs;
+        return msgs;
+      } catch (_) { return []; }
     }
 
-    // ---------- 5. Carregar conversas ----------
     async function carregarConversas() {
       if (!state.usuario?.id) return;
-
       try {
-        // Admin usa o próprio ID como "profissional" — o backend precisa aceitar
-        // (ou trocar por um endpoint específico /conversas/admin/{id})
-        const r = await fetch(`/conversas/profissional/${state.usuario.id}`, { credentials: 'include' });
+        const r = await fetch(`/conversas/admin/${state.usuario.id}`, { credentials: 'include' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         state.conversas = await r.json();
 
-        // Pré-carrega profissionais e mensagens
+        // Preenche caches
         await Promise.all(state.conversas.map(async c => {
-          await buscarProfissional(c.profissionalId);
+          if (c.alunoId) await buscarAluno(c.alunoId);
+          if (c.profissionalId) await buscarProfissional(c.profissionalId);
           await buscarMensagens(c.id);
         }));
 
-        // Ordena pela última atualização
         state.conversas.sort((a, b) =>
                 new Date(b.atualizadoEm || b.criadoEm) - new Date(a.atualizadoEm || a.criadoEm)
         );
@@ -771,61 +507,53 @@
       } catch (e) {
         console.error('Erro ao carregar conversas', e);
         document.getElementById('listaConversas').innerHTML = `
-        <div class="chat-empty-wrap" style="min-height:120px">
-          <b>Erro ao carregar</b>
-          <p>Tente novamente mais tarde.</p>
-        </div>`;
+          <div class="chat-empty-wrap" style="min-height:120px">
+            <b>Erro ao carregar</b>
+            <p>Tente novamente mais tarde.</p>
+          </div>`;
       }
     }
 
-    // ---------- 6. Renderizar lista ----------
     function renderizarLista() {
       const container = document.getElementById('listaConversas');
 
       if (!state.conversas.length) {
         container.innerHTML = `
-        <div class="chat-empty-wrap">
-          <b>Nenhuma conversa ainda</b>
-          <p>Clique em "+ Nova" para iniciar uma conversa com um profissional.</p>
-        </div>`;
+          <div class="chat-empty-wrap">
+            <b>Nenhuma conversa ainda</b>
+            <p>Clique em "+ Nova" para iniciar uma conversa com um aluno ou profissional.</p>
+          </div>`;
         return;
       }
 
-      // Filtra por categoria
+      // Filtro por categoria
       let filtradas = state.conversas;
-
-      if (state.categoriaAtiva !== 'all') {
-        filtradas = filtradas.filter(c => {
-          const prof = state.profissionaisCache[c.profissionalId];
-          const ehCoord = ehCoordenacao(prof);
-          if (state.categoriaAtiva === 'COORDENACAO') return ehCoord;
-          if (state.categoriaAtiva === 'PROFISSIONAL') return !ehCoord;
-          return true;
-        });
+      if (state.categoriaAtiva === 'ALUNO') {
+        filtradas = filtradas.filter(c => !!c.alunoId);
+      } else if (state.categoriaAtiva === 'PROFISSIONAL') {
+        filtradas = filtradas.filter(c => !!c.profissionalId);
       }
 
-      // Filtra por busca
+      // Filtro por busca
       if (state.busca) {
         const termo = state.busca.toLowerCase();
         filtradas = filtradas.filter(c => {
-          const prof = state.profissionaisCache[c.profissionalId];
-          return (prof?.nome || '').toLowerCase().includes(termo);
+          const contraparte = contraparteConversa(c);
+          return (contraparte.nome || '').toLowerCase().includes(termo);
         });
       }
 
       if (!filtradas.length) {
         container.innerHTML = `
-        <div class="chat-empty-wrap" style="min-height:120px">
-          <b>Nenhum resultado</b>
-          <p>Ajuste a busca ou a categoria.</p>
-        </div>`;
+          <div class="chat-empty-wrap" style="min-height:120px">
+            <b>Nenhum resultado</b>
+            <p>Ajuste a busca ou a categoria.</p>
+          </div>`;
         return;
       }
 
       container.innerHTML = filtradas.map(c => {
-        const prof = state.profissionaisCache[c.profissionalId];
-        const nome = prof?.nome || 'Profissional';
-        const ehCoord = ehCoordenacao(prof);
+        const contraparte = contraparteConversa(c);
         const mensagens = state.mensagensCache[c.id] || [];
         const ultima = mensagens[mensagens.length - 1];
         const preview = ultima
@@ -835,26 +563,25 @@
         const unread = mensagens.filter(m => m.remetenteId !== state.usuario.id && !m.lida).length;
         const ativa = state.conversaAtiva === c.id ? 'selecionado' : '';
         const naoLida = unread > 0 ? 'nao-lida' : '';
-        const badgeTipo = ehCoord
-                ? '<span class="tipo-badge coordenacao">C</span>'
-                : '<span class="tipo-badge">P</span>';
+        const badgeTipo = contraparte.tipo === 'ALUNO'
+                ? '<span class="tipo-badge">A</span>'
+                : '<span class="tipo-badge coordenacao">P</span>';
 
         return `
-        <button type="button" class="admin-chat-contact ${ativa} ${naoLida}" data-conversa-id="${c.id}">
-          <span class="admin-chat-avatar">
-            <span class="avatar">${iniciais(nome)}</span>
-            ${badgeTipo}
-          </span>
-          <span class="admin-chat-contact-info">
-            <span class="admin-chat-contact-nome">${escapeHtml(nome)}</span>
-            <span class="admin-chat-contact-preview">${escapeHtml(previewCurto)}</span>
-          </span>
-          <span class="admin-chat-contact-meta">
-            <span class="admin-chat-contact-hora">${fmtHoraLista(c.atualizadoEm || c.criadoEm)}</span>
-            ${unread > 0 ? `<span class="admin-chat-contact-unread">${unread > 9 ? '9+' : unread}</span>` : ''}
-          </span>
-        </button>
-      `;
+          <button type="button" class="admin-chat-contact ${ativa} ${naoLida}" data-conversa-id="${c.id}">
+            <span class="admin-chat-avatar">
+              <span class="avatar">${iniciais(contraparte.nome)}</span>
+              ${badgeTipo}
+            </span>
+            <span class="admin-chat-contact-info">
+              <span class="admin-chat-contact-nome">${escapeHtml(contraparte.nome)}</span>
+              <span class="admin-chat-contact-preview">${escapeHtml(previewCurto)}</span>
+            </span>
+            <span class="admin-chat-contact-meta">
+              <span class="admin-chat-contact-hora">${fmtHoraLista(c.atualizadoEm || c.criadoEm)}</span>
+              ${unread > 0 ? `<span class="admin-chat-contact-unread">${unread > 9 ? '9+' : unread}</span>` : ''}
+            </span>
+          </button>`;
       }).join('');
 
       container.querySelectorAll('.admin-chat-contact').forEach(btn => {
@@ -862,26 +589,21 @@
       });
     }
 
-    // ---------- 7. Selecionar conversa ----------
     async function selecionarConversa(conversaId) {
       state.conversaAtiva = conversaId;
       const conversa = state.conversas.find(c => c.id === conversaId);
       if (!conversa) return;
 
-      const prof = state.profissionaisCache[conversa.profissionalId];
-      const nome = prof?.nome || 'Profissional';
-      const ehCoord = ehCoordenacao(prof);
-
-      set('chatName', nome);
+      const contraparte = contraparteConversa(conversa);
+      set('chatName', contraparte.nome);
       set('chatStatus',
-              ehCoord
-                      ? 'Coordenação · ' + (prof?.crp || '')
-                      : (prof?.crp || '') + (prof?.cargo ? ' · ' + prof.cargo : '')
+              contraparte.tipo === 'ALUNO'
+                      ? (contraparte.detalhe ? 'Matrícula ' + contraparte.detalhe : 'Estudante')
+                      : (contraparte.detalhe || 'Profissional')
       );
       const avatar = document.getElementById('chatAvatar');
-      if (avatar) avatar.textContent = iniciais(nome);
+      if (avatar) avatar.textContent = iniciais(contraparte.nome);
 
-      // Habilita input
       document.getElementById('chatInput').disabled = false;
       document.getElementById('chatSendBtn').disabled = false;
       document.getElementById('chatInput').focus();
@@ -889,35 +611,30 @@
       renderizarMensagens();
       renderizarLista();
 
-      // Marca mensagens não lidas como lidas
       marcarComoLidas(conversaId);
     }
 
-    // ---------- 8. Marcar como lidas ----------
     async function marcarComoLidas(conversaId) {
       const mensagens = state.mensagensCache[conversaId] || [];
       const naoLidas = mensagens.filter(m => m.remetenteId !== state.usuario.id && !m.lida);
-
       await Promise.allSettled(naoLidas.map(m =>
               fetch(`/conversas/mensagens/${m.id}/lida`, {
                 method: 'PATCH',
                 credentials: 'include'
               })
       ));
-
       naoLidas.forEach(m => { m.lida = true; });
     }
 
-    // ---------- 9. Renderizar mensagens ----------
     function renderizarMensagens() {
       const container = document.getElementById('chatMessages');
       if (!state.conversaAtiva) {
         container.innerHTML = `
-        <div class="chat-empty-wrap">
-          <div class="chat-empty-icon">✉</div>
-          <b>Selecione uma conversa</b>
-          <p>Escolha um contato na lista à esquerda para começar.</p>
-        </div>`;
+          <div class="chat-empty-wrap">
+            <div class="chat-empty-icon">✉</div>
+            <b>Selecione uma conversa</b>
+            <p>Escolha um contato na lista à esquerda.</p>
+          </div>`;
         return;
       }
 
@@ -925,26 +642,25 @@
 
       if (!mensagens.length) {
         container.innerHTML = `
-        <div class="chat-empty-wrap">
-          <div class="chat-empty-icon">💬</div>
-          <b>Nenhuma mensagem ainda</b>
-          <p>Envie a primeira mensagem para iniciar a conversa.</p>
-        </div>`;
+          <div class="chat-empty-wrap">
+            <div class="chat-empty-icon">💬</div>
+            <b>Nenhuma mensagem ainda</b>
+            <p>Envie a primeira mensagem para iniciar a conversa.</p>
+          </div>`;
         return;
       }
 
       container.innerHTML = mensagens.map(m => {
         const enviada = m.remetenteId === state.usuario.id;
         return `
-        <div class="chat-bubble ${enviada ? 'enviada' : 'recebida'}">${escapeHtml(m.conteudo)}</div>
-        <div class="chat-time ${enviada ? 'enviada' : 'recebida'}">${fmtDataMensagem(m.enviadaEm)}</div>
-      `;
+          <div class="chat-bubble ${enviada ? 'enviada' : 'recebida'}">${escapeHtml(m.conteudo)}</div>
+          <div class="chat-time ${enviada ? 'enviada' : 'recebida'}">${fmtDataMensagem(m.enviadaEm)}</div>
+        `;
       }).join('');
 
       scrollParaFim();
     }
 
-    // ---------- 10. Enviar mensagem ----------
     async function enviarMensagem(event) {
       event.preventDefault();
       if (state.enviando || !state.conversaAtiva) return;
@@ -963,10 +679,7 @@
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            remetenteId: state.usuario.id,
-            conteudo: texto
-          })
+          body: JSON.stringify({ conteudo: texto })
         });
 
         if (!r.ok) {
@@ -975,7 +688,6 @@
         }
 
         const nova = await r.json();
-
         if (!state.mensagensCache[state.conversaAtiva]) state.mensagensCache[state.conversaAtiva] = [];
         state.mensagensCache[state.conversaAtiva].push(nova);
 
@@ -996,75 +708,98 @@
       }
     }
 
-    // ---------- 11. Nova conversa ----------
+    // ---------- Nova conversa ----------
     async function abrirModalNovaConversa() {
       const modal = document.getElementById('modalNovaConversa');
-      const select = document.getElementById('selectProfissional');
-      const btnConfirmar = document.getElementById('btnConfirmarNovaConversa');
-
       modal.style.display = 'flex';
+
+      state.tipoNovo = 'ALUNO';
+      document.getElementById('tipoAlunoLabel').classList.add('selecionado');
+      document.getElementById('tipoProfissionalLabel').classList.remove('selecionado');
+
+      await carregarOpcoesNovaConversa();
+    }
+
+    async function carregarOpcoesNovaConversa() {
+      const select = document.getElementById('selectDestinatario');
+      const btnConfirmar = document.getElementById('btnConfirmarNovaConversa');
       select.innerHTML = '<option>Carregando…</option>';
       select.disabled = true;
       btnConfirmar.disabled = true;
 
       try {
-        const r = await fetch('/profissionais', { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const todos = await r.json();
+        // Já existentes (para excluir da lista)
+        const emConversa = new Set(
+                state.conversas
+                        .filter(c => state.tipoNovo === 'ALUNO' ? !!c.alunoId : !!c.profissionalId)
+                        .map(c => state.tipoNovo === 'ALUNO' ? c.alunoId : c.profissionalId)
+        );
 
-        // Cacheia
-        todos.forEach(p => { state.profissionaisCache[p.id] = p; });
-
-        // Filtra os que já têm conversa com o admin
-        const comConversa = new Set(state.conversas.map(c => c.profissionalId));
-        const disponiveis = todos.filter(p => !comConversa.has(p.id));
-
-        if (!disponiveis.length) {
-          select.innerHTML = '<option value="">Nenhum profissional disponível</option>';
-          return;
+        if (state.tipoNovo === 'ALUNO') {
+          if (!state.alunosDisponiveis.length) {
+            const r = await fetch('/alunos', { credentials: 'include' });
+            state.alunosDisponiveis = r.ok ? await r.json() : [];
+          }
+          const disponiveis = state.alunosDisponiveis.filter(a => !emConversa.has(a.id));
+          if (!disponiveis.length) {
+            select.innerHTML = '<option value="">Nenhum aluno disponível</option>';
+            return;
+          }
+          select.innerHTML = '<option value="">Selecione…</option>' +
+                  disponiveis
+                          .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''))
+                          .map(a => `<option value="${a.id}">${escapeHtml(a.nome)}${a.matricula ? ' · ' + escapeHtml(a.matricula) : ''}</option>`)
+                          .join('');
+        } else {
+          if (!state.profissionaisDisponiveis.length) {
+            const r = await fetch('/profissionais', { credentials: 'include' });
+            state.profissionaisDisponiveis = r.ok ? await r.json() : [];
+          }
+          const disponiveis = state.profissionaisDisponiveis.filter(p => !emConversa.has(p.id));
+          if (!disponiveis.length) {
+            select.innerHTML = '<option value="">Nenhum profissional disponível</option>';
+            return;
+          }
+          select.innerHTML = '<option value="">Selecione…</option>' +
+                  disponiveis
+                          .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''))
+                          .map(p => `<option value="${p.id}">${escapeHtml(p.nome)}${p.crp ? ' · ' + escapeHtml(p.crp) : ''}</option>`)
+                          .join('');
         }
 
-        select.innerHTML = '<option value="">Selecione…</option>' +
-                disponiveis.map(p =>
-                        `<option value="${p.id}">${escapeHtml(p.nome)}${p.crp ? ' · ' + escapeHtml(p.crp) : ''}</option>`
-                ).join('');
         select.disabled = false;
-
-        select.onchange = () => {
-          btnConfirmar.disabled = !select.value;
-        };
+        select.onchange = () => { btnConfirmar.disabled = !select.value; };
       } catch (e) {
-        console.error('Erro ao carregar profissionais', e);
+        console.error('Erro ao carregar opções', e);
         select.innerHTML = '<option value="">Erro ao carregar</option>';
       }
     }
 
-    function fecharModalNovaConversa() {
-      document.getElementById('modalNovaConversa').style.display = 'none';
-    }
-
     async function criarNovaConversa() {
-      const select = document.getElementById('selectProfissional');
-      const profId = Number(select.value);
-      if (!profId) return;
+      const select = document.getElementById('selectDestinatario');
+      const id = Number(select.value);
+      if (!id) return;
 
       const btn = document.getElementById('btnConfirmarNovaConversa');
       btn.disabled = true;
       btn.textContent = 'Criando…';
 
       try {
-        // O admin usa o próprio ID como se fosse o "aluno" na conversa com o profissional
-        const r = await fetch(
-                `/conversas?alunoId=${state.usuario.id}&profissionalId=${profId}`,
-                { method: 'POST', credentials: 'include' }
-        );
+        const url = state.tipoNovo === 'ALUNO'
+                ? `/conversas?alunoId=${id}`
+                : `/conversas?profissionalId=${id}`;
 
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const r = await fetch(url, { method: 'POST', credentials: 'include' });
+        if (!r.ok) {
+          const erro = await r.json().catch(() => ({}));
+          throw new Error(erro.message || 'HTTP ' + r.status);
+        }
         const conversa = await r.json();
 
         if (!state.conversas.find(c => c.id === conversa.id)) {
           state.conversas.unshift(conversa);
-          await buscarProfissional(conversa.profissionalId);
+          if (conversa.alunoId) await buscarAluno(conversa.alunoId);
+          if (conversa.profissionalId) await buscarProfissional(conversa.profissionalId);
           await buscarMensagens(conversa.id);
         }
 
@@ -1073,14 +808,17 @@
         selecionarConversa(conversa.id);
       } catch (e) {
         console.error('Erro ao criar conversa', e);
-        alert('Não foi possível criar a conversa. Tente novamente.');
+        alert(e.message || 'Não foi possível criar a conversa. Tente novamente.');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Criar conversa';
       }
     }
 
-    // ---------- 12. Eventos ----------
+    function fecharModalNovaConversa() {
+      document.getElementById('modalNovaConversa').style.display = 'none';
+    }
+
     function ligarEventos() {
       const input = document.getElementById('chatInput');
       const form = document.getElementById('chatForm');
@@ -1101,7 +839,6 @@
         });
       }
 
-      // Filtros de categoria
       document.querySelectorAll('.admin-chat-categoria').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.admin-chat-categoria').forEach(b => b.classList.remove('ativo'));
@@ -1111,9 +848,19 @@
         });
       });
 
+      // Modal nova conversa
       document.getElementById('btnAbrirNovaConversa').addEventListener('click', abrirModalNovaConversa);
       document.getElementById('btnCancelarNovaConversa').addEventListener('click', fecharModalNovaConversa);
       document.getElementById('btnConfirmarNovaConversa').addEventListener('click', criarNovaConversa);
+
+      document.querySelectorAll('input[name="tipoNovaConversa"]').forEach(radio => {
+        radio.addEventListener('change', async () => {
+          state.tipoNovo = radio.value;
+          document.getElementById('tipoAlunoLabel').classList.toggle('selecionado', radio.value === 'ALUNO');
+          document.getElementById('tipoProfissionalLabel').classList.toggle('selecionado', radio.value === 'PROFISSIONAL');
+          await carregarOpcoesNovaConversa();
+        });
+      });
 
       document.getElementById('modalNovaConversa').addEventListener('click', (e) => {
         if (e.target.id === 'modalNovaConversa') fecharModalNovaConversa();
@@ -1126,13 +873,10 @@
       });
     }
 
-    // ---------- Inicialização ----------
     document.addEventListener('DOMContentLoaded', async () => {
       ligarEventos();
-
       const u = await carregarUsuario();
       if (!u) return;
-
       await Promise.allSettled([
         carregarConversas(),
         carregarNotificacoes()

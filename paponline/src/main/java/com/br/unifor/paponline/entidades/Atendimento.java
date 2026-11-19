@@ -1,40 +1,29 @@
 package com.br.unifor.paponline.entidades;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
-@Table(name = "atendimentos")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Atendimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private Long alunoId;
-
-    @Column(nullable = false)
     private Long profissionalId;
+    private Long areaId;       // NOVO — obrigatório na regra de negócio (validado no DTO)
+    private Long horarioId;    // NOVO — opcional
 
-    @Column(nullable = false)
     private LocalDateTime dataHoraInicio;
-
-    @Column(nullable = false)
     private LocalDateTime dataHoraFim;
 
-    @Column(nullable = false)
-    private String modalidade; // PRESENCIAL, REMOTO
-
+    private String modalidade;
     private String local;
 
-    @Column(nullable = false)
-    private String status; // AGENDADO, CONFIRMADO, REALIZADO, CANCELADO, FALTA
+    private String status;
+    private LocalDateTime dataCriacao;
 }

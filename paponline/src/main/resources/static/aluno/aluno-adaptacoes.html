@@ -7,111 +7,146 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/portais.css">
     <style>
-        /* Estilos específicos da lista de adaptações */
-        .adaptacoes-lista { display: grid; gap: 12px; }
-        .adaptacao-card {
-            border: 1px solid var(--portal-line);
-            border-radius: 12px;
-            padding: 18px 20px;
-            background: #fff;
-            transition: border-color .15s;
-        }
-        .adaptacao-card:hover { border-color: #b9c8e6; }
-        .adaptacao-card-topo {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 14px;
-            margin-bottom: 10px;
-        }
-        .adaptacao-card-titulo {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--portal-text);
-            margin: 0 0 4px;
-            line-height: 1.35;
-        }
-        .adaptacao-card-meta {
-            font-size: 11px;
-            color: var(--portal-muted);
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .adaptacao-card-meta b { color: #34415a; font-weight: 600; }
-        .adaptacao-card-data {
-            font-size: 11px;
-            color: #8995a9;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .adaptacao-card-body {
-            font-size: 12px;
-            color: #52617a;
-            line-height: 1.55;
-            margin: 10px 0 0;
-        }
-        .adaptacao-parecer {
-            margin-top: 12px;
-            padding: 12px 14px;
-            border-radius: 9px;
-            font-size: 12px;
-            line-height: 1.55;
-        }
-        .adaptacao-parecer.titulo {
-            font-weight: 700;
-            font-size: 11px;
-            margin-bottom: 6px;
-            display: block;
-            letter-spacing: .2px;
-        }
-        .adaptacao-parecer.deferida {
-            background: #e5f6ef;
-            border: 1px solid #b8e4d3;
-            color: #0b6b4a;
-        }
-        .adaptacao-parecer.indeferida {
-            background: #fff0ee;
-            border: 1px solid #ffc7c1;
-            color: #8a221a;
-        }
-        .adaptacao-parecer.analise {
-            background: #fff8eb;
-            border: 1px solid #ffe0b6;
-            color: #7c4a10;
-        }
-        .adaptacao-parecer.documentacao {
-            background: #f3ecff;
-            border: 1px solid #d9c9f5;
-            color: #4b2a82;
-        }
-        .adaptacao-assinatura {
-            margin-top: 6px;
-            font-size: 10px;
-            opacity: .75;
-            font-style: italic;
-        }
-        .adaptacao-prazo {
+        .pap-upload-area {
             margin-top: 8px;
-            padding: 8px 11px;
-            border-radius: 8px;
-            background: #fff8eb;
-            border: 1px solid #ffe0b6;
-            color: #7c4a10;
+            padding: 20px 16px;
+            border: 2px dashed #7ba1f5;
+            border-radius: 12px;
+            background: #f0f5ff;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            position: relative;
+        }
+
+        .pap-upload-area:hover,
+        .pap-upload-area.drag-over {
+            border-color: #2059dc;
+            background: #e1ecff;
+        }
+
+        .pap-upload-area .pap-upload-icon {
+            font-size: 26px;
+            display: block;
+            margin-bottom: 6px;
+            color: #2059dc;
+        }
+
+        .pap-upload-area .pap-upload-titulo {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1749a9;
+            margin-bottom: 4px;
+        }
+
+        .pap-upload-area .pap-upload-hint {
+            display: block;
             font-size: 11px;
+            color: #52617a;
+            line-height: 1.5;
+        }
+
+        .pap-upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .pap-upload-lista {
+            display: grid;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .pap-upload-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #dfe6f1;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #34415a;
+        }
+
+        .pap-upload-item span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pap-upload-remover {
+            border: 0;
+            background: none;
+            color: #d42f26;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        .pap-anexos-box {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pap-anexo-chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #f0f5ff;
+            border: 1px solid #d6e3fb;
+            color: #1749a9;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
         }
-        .adaptacao-filtros {
-            display: flex;
+
+        .pap-anexo-chip:hover {
+            background: #e1ecff;
+        }
+
+        .pap-anexar-mais {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1.5px dashed #7ba1f5;
+            color: #2059dc;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
         }
-        @media (max-width: 760px) {
-            .adaptacao-card-topo { flex-direction: column; }
-            .adaptacao-card-data { align-self: flex-start; }
-            .adaptacao-filtros { flex-direction: column; align-items: stretch; width: 100%; }
+
+        .pap-anexar-mais:hover {
+            background: #f0f5ff;
+        }
+
+        .pap-parecer-card {
+            margin-top: 8px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #f8faff;
+            border: 1px solid #e2e7f0;
+            font-size: 11px;
+            color: #34415a;
+            line-height: 1.5;
+        }
+
+        .pap-feedback-erro {
+            color: #b42318 !important;
         }
     </style>
 </head>
@@ -119,8 +154,6 @@
 <div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
 
 <div class="portal-app">
-
-    <!-- ============ SIDEBAR ============ -->
     <aside class="portal-sidebar">
         <div class="portal-brand">
             <span class="portal-brand-mark">PAP</span>
@@ -151,13 +184,11 @@
         </button>
     </aside>
 
-    <!-- ============ MAIN ============ -->
     <main class="portal-main">
-
         <header class="portal-topbar">
             <div class="portal-heading">
-                <h1>Solicitações de adaptação</h1>
-                <p>Solicite e acompanhe adaptações acadêmicas.</p>
+                <h1>Adaptações acadêmicas</h1>
+                <p>Solicite recursos de acessibilidade e acompanhe o parecer da equipe PAP.</p>
             </div>
             <div class="portal-top-actions">
                 <div class="portal-user-chip">
@@ -173,89 +204,27 @@
             </div>
         </header>
 
-        <section class="portal-content">
-
-            <!-- Welcome row -->
-            <div class="portal-welcome-row">
-                <div>
-                    <h2>Minhas adaptações</h2>
-                    <p>Acompanhe pedidos e envie uma nova solicitação.</p>
-                </div>
-                <span class="portal-date">Área do estudante</span>
-            </div>
-
-            <!-- Stats -->
-            <div class="portal-stats portal-stats-3">
-                <article class="portal-stat">
-                    <span class="portal-stat-icon blue">▤</span>
-                    <div>
-                        <small>Total de solicitações</small>
-                        <strong id="statTotal">—</strong>
-                        <em id="statTotalDetalhe">Carregando…</em>
-                    </div>
-                </article>
-                <article class="portal-stat">
-                    <span class="portal-stat-icon orange">◷</span>
-                    <div>
-                        <small>Em análise</small>
-                        <strong id="statAnalise">—</strong>
-                        <em id="statAnaliseDetalhe">Carregando…</em>
-                    </div>
-                </article>
-                <article class="portal-stat">
-                    <span class="portal-stat-icon green">✓</span>
-                    <div>
-                        <small>Concluídas</small>
-                        <strong id="statConcluidas">—</strong>
-                        <em id="statConcluidasDetalhe">Carregando…</em>
-                    </div>
-                </article>
-            </div>
-
-            <!-- ============ MINHAS SOLICITAÇÕES ============ -->
+        <div class="portal-content">
             <section class="portal-panel">
                 <div class="portal-panel-head">
                     <div>
-                        <h2>Minhas solicitações</h2>
-                        <p>Acompanhe o andamento dos pedidos enviados.</p>
-                    </div>
-                    <div class="adaptacao-filtros">
-                        <select class="portal-filter-select" id="filtroStatus" aria-label="Filtrar solicitações">
-                            <option value="all">Todas</option>
-                            <option value="ENVIADA">Enviadas</option>
-                            <option value="EM_ANALISE">Em análise</option>
-                            <option value="DEFERIDA">Deferidas</option>
-                            <option value="INDEFERIDA">Indeferidas</option>
-                            <option value="PENDENTE_DOCUMENTACAO">Pendentes de documentação</option>
-                        </select>
+                        <h2>Nova solicitação de adaptação</h2>
+                        <p>O prazo para análise e emissão de parecer é de 5 dias úteis após o envio.</p>
                     </div>
                 </div>
 
-                <div id="listaAdaptacoes" class="adaptacoes-lista">
-                    <div class="portal-empty">
-                        <b>Carregando…</b>
-                        <p>Buscando suas solicitações.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ============ NOVA SOLICITAÇÃO ============ -->
-            <section class="portal-panel" id="nova-solicitacao">
-                <div class="portal-panel-head">
-                    <div>
-                        <h2>Nova solicitação</h2>
-                        <p>Descreva a adaptação acadêmica de que precisa. A equipe entrará em contato para orientar os próximos passos.</p>
-                    </div>
-                </div>
-
-                <div id="alertaNova" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
-
-                <form class="portal-form" id="formNovaSolicitacao" novalidate>
+                <form class="portal-form" id="formSolicitacao">
                     <div class="portal-form-grid">
                         <label>
-                            Tipo de solicitação
+                            Título da solicitação
+                            <input type="text" id="tituloSolicitacao" required
+                                   placeholder="Ex.: Tempo adicional em avaliações">
+                        </label>
+
+                        <label>
+                            Tipo de adaptação
                             <select id="tipoSolicitacao" required>
-                                <option value="">Selecione...</option>
+                                <option value="">Selecione…</option>
                                 <option value="PROVA">Prova / avaliação</option>
                                 <option value="PRAZO">Prazo / entrega</option>
                                 <option value="MATERIAL">Material didático</option>
@@ -265,32 +234,58 @@
                             </select>
                         </label>
 
-                        <label>
-                            Título
-                            <input id="tituloSolicitacao" required maxlength="100"
-                                   placeholder="Ex.: Tempo adicional em avaliações">
-                            <small>Um resumo curto da sua necessidade.</small>
+                        <label class="span-2">
+                            Justificativa
+                            <textarea id="justificativaSolicitacao" rows="4" required
+                                      placeholder="Descreva sua necessidade educacional e como a adaptação auxiliará nas atividades acadêmicas..."></textarea>
                         </label>
 
-                        <label class="span-2">
-                            Descreva sua necessidade
-                            <textarea id="justificativaSolicitacao" rows="4" required minlength="20"
-                                      placeholder="Descreva a adaptação solicitada com o máximo de detalhes possível."></textarea>
-                            <small>Quanto mais contexto, mais rápido a equipe pode avaliar.</small>
-                        </label>
+                        <div class="span-2">
+                            <label for="anexosInput">Documentos comprobatórios (opcional)</label>
+                            <div class="pap-upload-area" id="dropZone">
+                                <span class="pap-upload-icon">⬆</span>
+                                <span class="pap-upload-titulo">Clique aqui ou arraste seus arquivos</span>
+                                <span class="pap-upload-hint">
+                                    PDF, JPG ou PNG · até 10 MB por arquivo<br>
+                                    O envio só acontece quando você clicar em <b>“Enviar solicitação”</b> abaixo.
+                                </span>
+                                <input type="file" id="anexosInput"
+                                       accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                       multiple>
+                            </div>
+                            <div class="pap-upload-lista" id="listaArquivosSelecionados"></div>
+                        </div>
                     </div>
 
+                    <p class="portal-form-feedback" id="feedbackSolicitacao" role="status"></p>
+
                     <div class="portal-form-actions">
-                        <span class="portal-help-text">Seus dados serão tratados pela equipe autorizada do PAP.</span>
-                        <button class="portal-button" type="submit" id="btnEnviarSolicitacao">
-                            Enviar solicitação
+                        <span class="portal-help-text">
+                            Seus documentos são acessíveis apenas a você e aos profissionais do PAP.
+                        </span>
+                        <button type="reset" class="portal-outline-button" id="btnLimparForm">Limpar</button>
+                        <button type="submit" class="portal-button" id="btnEnviarSolicitacao">Enviar solicitação
                         </button>
                     </div>
                 </form>
             </section>
 
-        </section>
+            <section class="portal-panel">
+                <div class="portal-panel-head">
+                    <div>
+                        <h2>Minhas solicitações</h2>
+                        <p>Acompanhe o andamento, pareceres e documentos anexados.</p>
+                    </div>
+                </div>
 
+                <div id="listaMinhasSolicitacoes">
+                    <div class="portal-empty">
+                        <b>Carregando…</b>
+                        <p>Buscando suas solicitações cadastradas.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 </div>
 
@@ -298,36 +293,40 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
     (function () {
         'use strict';
-
         let usuario = null;
-        let solicitacoes = [];
+
+        const MAX_BYTES = 10 * 1024 * 1024;
+        const TIPOS_PERMITIDOS = ['application/pdf', 'image/jpeg', 'image/png'];
+        const EXT_PERMITIDAS = ['.pdf', '.jpg', '.jpeg', '.png'];
 
         const STATUS_INFO = {
-            ENVIADA:               { rotulo: 'Enviada',                   classe: 'info' },
-            EM_ANALISE:            { rotulo: 'Em análise',                classe: 'warning' },
-            DEFERIDA:              { rotulo: 'Deferida',                  classe: 'success' },
-            INDEFERIDA:            { rotulo: 'Indeferida',                classe: 'danger' },
-            PENDENTE_DOCUMENTACAO: { rotulo: 'Pendente de documentação',  classe: 'purple' }
+            ENVIADA: {rotulo: 'Enviada', classe: 'info'},
+            EM_ANALISE: {rotulo: 'Em análise', classe: 'warning'},
+            DEFERIDA: {rotulo: 'Deferida', classe: 'success'},
+            INDEFERIDA: {rotulo: 'Indeferida', classe: 'danger'},
+            PENDENTE_DOCUMENTACAO: {rotulo: 'Pendente de documentação', classe: 'purple'}
         };
 
         const TIPO_INFO = {
-            PROVA:       'Prova / avaliação',
-            PRAZO:       'Prazo / entrega',
-            MATERIAL:    'Material didático',
-            DISPENSA:    'Dispensa de atividade',
+            PROVA: 'Prova / avaliação',
+            PRAZO: 'Prazo / entrega',
+            MATERIAL: 'Material didático',
+            DISPENSA: 'Dispensa de atividade',
             LOCAL_PROVA: 'Local de prova',
-            OUTRO:       'Outro'
+            OUTRO: 'Outro'
         };
 
-        // ---------- Helpers ----------
-        function set(id, valor) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = valor;
-        }
+        const state = {
+            usuario: null,
+            solicitacoes: [],
+            anexosPorSolicitacao: {},
+            arquivosSelecionados: []
+        };
 
         function iniciais(nome) {
             if (!nome) return 'US';
@@ -342,290 +341,348 @@
             })[s]);
         }
 
-        function formatarData(iso) {
+        function fmtData(iso) {
             if (!iso) return '—';
-            return new Date(iso).toLocaleDateString('pt-BR', {
-                day: '2-digit', month: 'short', year: 'numeric'
+            const valor = iso.length === 10 ? iso + 'T00:00:00' : iso;
+            return new Date(valor).toLocaleDateString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
             });
         }
 
-        function formatarDataCompleta(iso) {
-            if (!iso) return '—';
-            return new Date(iso).toLocaleDateString('pt-BR', {
-                day: '2-digit', month: 'long', year: 'numeric'
-            });
+        function fmtTamanho(bytes) {
+            if (!bytes && bytes !== 0) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
         }
 
-        function gerarProtocolo() {
-            const ano = new Date().getFullYear();
-            const seq = String(Math.floor(1000 + Math.random() * 9000));
-            return `PAP-${ano}-${seq}`;
-        }
-
-        function mostrarAlerta(id, tipo, mensagem) {
-            const el = document.getElementById(id);
+        function mostrarFeedback(texto, erro = false) {
+            const el = document.getElementById('feedbackSolicitacao');
             if (!el) return;
-            el.textContent = mensagem;
-            el.style.display = 'block';
-            el.style.background = tipo === 'erro' ? '#fdecea' : '#e7f6f0';
-            el.style.color = tipo === 'erro' ? '#b42318' : '#067647';
-            el.style.border = tipo === 'erro' ? '1px solid #f7c9c4' : '1px solid #b8e4d3';
+            el.textContent = texto;
+            el.className = erro ? 'portal-form-feedback pap-feedback-erro' : 'portal-form-feedback';
         }
 
-        function esconderAlerta(id) {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'none';
+        function validarArquivo(file) {
+            const nome = (file.name || '').toLowerCase();
+            const extValida = EXT_PERMITIDAS.some(ext => nome.endsWith(ext));
+            const mimeValido = TIPOS_PERMITIDOS.includes(file.type);
+            if (!extValida || !mimeValido) {
+                return `O arquivo "${file.name}" não é suportado. Envie apenas PDF, JPG ou PNG.`;
+            }
+            if (file.size > MAX_BYTES) {
+                return `O arquivo "${file.name}" excede o limite de 10 MB.`;
+            }
+            return null;
         }
 
-        // ---------- 1. Usuário logado ----------
+        function renderizarArquivosSelecionados() {
+            const container = document.getElementById('listaArquivosSelecionados');
+            if (!state.arquivosSelecionados.length) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = state.arquivosSelecionados.map((file, idx) => `
+                <div class="pap-upload-item">
+                    <span>📄 ${escapeHtml(file.name)} (${fmtTamanho(file.size)})</span>
+                    <button type="button" class="pap-upload-remover" data-remover-idx="${idx}" title="Remover">×</button>
+                </div>
+            `).join('');
+
+            container.querySelectorAll('[data-remover-idx]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = Number(btn.dataset.removerIdx);
+                    state.arquivosSelecionados.splice(idx, 1);
+                    renderizarArquivosSelecionados();
+                });
+            });
+        }
+
+        function adicionarArquivos(files) {
+            mostrarFeedback('');
+            for (const file of files) {
+                const erro = validarArquivo(file);
+                if (erro) {
+                    mostrarFeedback(erro, true);
+                    continue;
+                }
+                const duplicado = state.arquivosSelecionados.some(
+                    f => f.name === file.name && f.size === file.size
+                );
+                if (!duplicado) {
+                    state.arquivosSelecionados.push(file);
+                }
+            }
+            renderizarArquivosSelecionados();
+        }
+
         async function carregarUsuario() {
             try {
                 const r = await fetch('/auth/session', { credentials: 'include' });
                 if (!r.ok) return null;
-                usuario = await r.json();
-                set('userName', usuario.nome || 'Aluno');
-                set('userDetail', usuario.email || 'Dados não carregados');
-                const avatar = document.getElementById('userAvatar');
-                if (avatar) avatar.textContent = iniciais(usuario.nome);
-                return usuario;
+                state.usuario = await r.json();
+
+                document.getElementById('userName').textContent = state.usuario.nome || 'Aluno';
+                document.getElementById('userAvatar').textContent = iniciais(state.usuario.nome);
+                document.getElementById('userDetail').textContent = state.usuario.email || 'Dados não carregados';
+
+                return state.usuario;
             } catch (e) {
                 console.error('Erro ao carregar usuário', e);
                 return null;
             }
         }
 
-        // ---------- 2. Notificações ----------
         async function carregarNotificacoes() {
-            if (!usuario?.id) return;
+            if (!state.usuario?.id) return;
             try {
-                const r = await fetch(`/notificacoes/usuario/${usuario.id}/count`, { credentials: 'include' });
+                const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, {credentials: 'include'});
                 if (!r.ok) return;
                 const count = await r.json();
                 const badge = document.getElementById('badgeNotificacoes');
-                if (badge) {
-                    if (count > 0) {
-                        badge.textContent = count > 9 ? '9+' : String(count);
-                        badge.style.display = '';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+                if (badge && count > 0) {
+                    badge.textContent = count > 9 ? '9+' : String(count);
+                    badge.style.display = '';
                 }
-            } catch (_) { /* silencioso */ }
+            } catch (_) {
+            }
         }
 
-        // ---------- 3. Carregar solicitações ----------
+        async function enviarAnexoParaSolicitacao(solicitacaoId, file) {
+            const formData = new FormData();
+            formData.append('arquivo', file);
+
+            const r = await fetch(`/solicitacoes/${solicitacaoId}/anexos`, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+
+            if (!r.ok) {
+                const erro = await r.json().catch(() => ({}));
+                throw new Error(erro.message || `Erro ao enviar o anexo "${file.name}".`);
+            }
+            return r.json();
+        }
+
+        async function carregarAnexosSolicitacao(solicitacaoId) {
+            try {
+                const r = await fetch(`/solicitacoes/${solicitacaoId}/anexos`, {credentials: 'include'});
+                if (!r.ok) return [];
+                const lista = await r.json();
+                state.anexosPorSolicitacao[solicitacaoId] = lista;
+                return lista;
+            } catch (_) {
+                return [];
+            }
+        }
+
         async function carregarSolicitacoes() {
-            if (!usuario?.id) return;
+            const container = document.getElementById('listaMinhasSolicitacoes');
             try {
-                const r = await fetch(`/solicitacoes/aluno/${usuario.id}`, { credentials: 'include' });
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                solicitacoes = (await r.json())
-                    .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio));
+                const r = await fetch('/solicitacoes', {credentials: 'include'});
+                if (!r.ok) throw new Error('Falha ao carregar solicitações.');
+                state.solicitacoes = await r.json();
 
-                // Stats
-                const total = solicitacoes.length;
-                const emAnalise = solicitacoes.filter(s => s.status === 'EM_ANALISE').length;
-                const concluidas = solicitacoes.filter(s =>
-                    s.status === 'DEFERIDA' || s.status === 'INDEFERIDA'
-                ).length;
+                await Promise.allSettled(
+                    state.solicitacoes.map(s => carregarAnexosSolicitacao(s.id))
+                );
 
-                set('statTotal', String(total));
-                set('statTotalDetalhe', total === 0 ? 'Nenhum pedido' : 'no histórico');
-
-                set('statAnalise', String(emAnalise));
-                set('statAnaliseDetalhe', emAnalise > 0 ? 'aguardando parecer' : 'nada pendente');
-
-                set('statConcluidas', String(concluidas));
-                set('statConcluidasDetalhe', concluidas > 0 ? 'com resultado' : 'nenhum resultado');
-
-                renderizarLista();
-            } catch (e) {
-                console.error('Erro ao carregar solicitações', e);
-                document.getElementById('listaAdaptacoes').innerHTML = `
-        <div class="portal-empty">
-          <b>Não foi possível carregar suas solicitações</b>
-          <p>Tente novamente em instantes.</p>
-        </div>`;
-                set('statTotal', '—');
-                set('statAnalise', '—');
-                set('statConcluidas', '—');
-            }
-        }
-
-        // ---------- 4. Renderizar lista ----------
-        function renderizarLista() {
-            const container = document.getElementById('listaAdaptacoes');
-            const filtro = document.getElementById('filtroStatus')?.value || 'all';
-
-            const filtradas = filtro === 'all'
-                ? solicitacoes
-                : solicitacoes.filter(s => s.status === filtro);
-
-            if (solicitacoes.length === 0) {
+                renderizarSolicitacoes();
+            } catch (err) {
                 container.innerHTML = `
-        <div class="portal-empty">
-          <b>Nenhuma solicitação encontrada</b>
-          <p>Você ainda não enviou pedidos de adaptação. Use o formulário abaixo para criar o primeiro.</p>
-        </div>`;
-                return;
+                    <div class="portal-empty">
+                        <b>Não foi possível carregar</b>
+                        <p>${escapeHtml(err.message || 'Tente novamente em instantes.')}</p>
+                    </div>`;
             }
+        }
 
-            if (filtradas.length === 0) {
+        function renderizarSolicitacoes() {
+            const container = document.getElementById('listaMinhasSolicitacoes');
+            if (!state.solicitacoes.length) {
                 container.innerHTML = `
-        <div class="portal-empty">
-          <b>Nenhum resultado para o filtro</b>
-          <p>Ajuste o filtro de status para ver outras solicitações.</p>
-        </div>`;
+                    <div class="portal-empty">
+                        <b>Nenhuma solicitação enviada</b>
+                        <p>Use o formulário acima para registrar seu primeiro pedido de adaptação acadêmica.</p>
+                    </div>`;
                 return;
             }
 
-            container.innerHTML = filtradas.map(renderizarCard).join('');
-        }
+            container.innerHTML = state.solicitacoes.map(s => {
+                const info = STATUS_INFO[s.status] || {rotulo: s.status, classe: 'info'};
+                const anexos = state.anexosPorSolicitacao[s.id] || [];
 
-        function renderizarCard(s) {
-            const info = STATUS_INFO[s.status] || { rotulo: s.status, classe: 'info' };
-            const tipo = TIPO_INFO[s.tipo] || s.tipo || '—';
-            const dataEnvio = formatarData(s.dataEnvio);
-            const justPreview = s.justificativa && s.justificativa.length > 180
-                ? s.justificativa.substring(0, 180) + '…'
-                : s.justificativa || '';
+                const htmlAnexos = anexos.map(a => `
+                    <a class="pap-anexo-chip"
+                       href="/solicitacoes/${s.id}/anexos/${a.id}"
+                       target="_blank"
+                       download="${escapeHtml(a.nomeArquivo)}">
+                        📎 ${escapeHtml(a.nomeArquivo)} (${fmtTamanho(a.tamanho)})
+                    </a>
+                `).join('');
 
-            let blocoParecer = '';
+                const botaoAnexar = (s.status === 'ENVIADA' || s.status === 'PENDENTE_DOCUMENTACAO')
+                    ? `<label class="pap-anexar-mais">
+                           + Anexar arquivo
+                           <input type="file" data-anexar-sol-id="${s.id}"
+                                  accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                  style="display:none">
+                       </label>`
+                    : '';
 
-            if (s.status === 'EM_ANALISE') {
-                const prazo = s.prazoParecer
-                    ? formatarDataCompleta(s.prazoParecer)
-                    : 'em até 5 dias úteis';
-                blocoParecer = `
-        <div class="adaptacao-parecer analise">
-          <span class="adaptacao-parecer titulo">Em análise</span>
-          O parecer será emitido ${prazo}. A equipe do PAP está avaliando sua documentação.
-        </div>`;
-            } else if (s.status === 'DEFERIDA' && s.parecer) {
-                blocoParecer = `
-        <div class="adaptacao-parecer deferida">
-          <span class="adaptacao-parecer titulo">Parecer — deferido</span>
-          ${escapeHtml(s.parecer)}
-          <div class="adaptacao-assinatura">
-            Analisado em ${formatarData(s.dataParecer)}${s.profissionalId ? '' : ''}
-          </div>
-        </div>`;
-            } else if (s.status === 'INDEFERIDA' && s.parecer) {
-                blocoParecer = `
-        <div class="adaptacao-parecer indeferida">
-          <span class="adaptacao-parecer titulo">Parecer — indeferido</span>
-          ${escapeHtml(s.parecer)}
-          <div class="adaptacao-assinatura">
-            Analisado em ${formatarData(s.dataParecer)}. Para recorrer, entre em contato com a coordenação do PAP.
-          </div>
-        </div>`;
-            } else if (s.status === 'PENDENTE_DOCUMENTACAO') {
-                blocoParecer = `
-        <div class="adaptacao-parecer documentacao">
-          <span class="adaptacao-parecer titulo">Pendente de documentação</span>
-          É necessário enviar documentação complementar para que a análise prossiga.
-          ${s.parecer ? '<br><br>' + escapeHtml(s.parecer) : ''}
-        </div>`;
-            }
+                const blocoParecer = s.parecer
+                    ? `<div class="pap-parecer-card">
+                           <b>Parecer da equipe PAP:</b> ${escapeHtml(s.parecer)}
+                       </div>`
+                    : '';
 
-            return `
-      <article class="adaptacao-card">
-        <div class="adaptacao-card-topo">
-          <div>
-            <h3 class="adaptacao-card-titulo">${escapeHtml(s.titulo)}</h3>
-            <div class="adaptacao-card-meta">
-              <span><b>${escapeHtml(s.protocolo || '—')}</b></span>
-              <span>${escapeHtml(tipo)}</span>
-            </div>
-          </div>
-          <div>
-            <span class="portal-pill ${info.classe}">${info.rotulo}</span>
-            <div class="adaptacao-card-data">Enviada em ${dataEnvio}</div>
-          </div>
-        </div>
-        ${justPreview ? `<p class="adaptacao-card-body">${escapeHtml(justPreview)}</p>` : ''}
-        ${blocoParecer}
-      </article>
-    `;
-        }
+                return `
+                    <article class="portal-request-row" style="align-items:flex-start">
+                        <span class="portal-request-symbol">♧</span>
+                        <div class="portal-request-main">
+                            <div class="portal-request-title">
+                                <b>${escapeHtml(s.titulo)}</b>
+                                <span class="portal-pill ${info.classe}">${info.rotulo}</span>
+                                <span class="portal-muted">${escapeHtml(s.protocolo || '')}</span>
+                            </div>
+                            <p>${escapeHtml(s.justificativa)}</p>
+                            <small>
+                                Tipo: ${escapeHtml(TIPO_INFO[s.tipo] || s.tipo)} ·
+                                Enviada em ${fmtData(s.dataEnvio)} ·
+                                Prazo para parecer: ${fmtData(s.prazoParecer)}
+                            </small>
+                            ${blocoParecer}
+                            <div class="pap-anexos-box">
+                                ${htmlAnexos}
+                                ${botaoAnexar}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
 
-        // ---------- 5. Enviar nova solicitação ----------
-        async function enviarSolicitacao(event) {
-            event.preventDefault();
-            if (!usuario?.id) return;
-
-            esconderAlerta('alertaNova');
-
-            const tipo = document.getElementById('tipoSolicitacao').value;
-            const titulo = document.getElementById('tituloSolicitacao').value.trim();
-            const justificativa = document.getElementById('justificativaSolicitacao').value.trim();
-
-            if (!tipo) {
-                mostrarAlerta('alertaNova', 'erro', 'Selecione o tipo de solicitação.');
-                return;
-            }
-            if (titulo.length < 5) {
-                mostrarAlerta('alertaNova', 'erro', 'O título deve ter pelo menos 5 caracteres.');
-                return;
-            }
-            if (justificativa.length < 20) {
-                mostrarAlerta('alertaNova', 'erro', 'Descreva sua necessidade com pelo menos 20 caracteres.');
-                return;
-            }
-
-            const btn = document.getElementById('btnEnviarSolicitacao');
-            btn.disabled = true;
-            btn.textContent = 'Enviando…';
-
-            try {
-                const payload = {
-                    protocolo: gerarProtocolo(),
-                    alunoId: usuario.id,
-                    tipo,
-                    titulo,
-                    justificativa
-                };
-
-                const r = await fetch('/solicitacoes', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+            container.querySelectorAll('[data-anexar-sol-id]').forEach(input => {
+                input.addEventListener('change', async () => {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+                    const erroValidacao = validarArquivo(file);
+                    if (erroValidacao) {
+                        alert(erroValidacao);
+                        input.value = '';
+                        return;
+                    }
+                    try {
+                        const solId = Number(input.dataset.anexarSolId);
+                        await enviarAnexoParaSolicitacao(solId, file);
+                        await carregarSolicitacoes();
+                    } catch (err) {
+                        alert(err.message || 'Erro ao anexar arquivo.');
+                    } finally {
+                        input.value = '';
+                    }
                 });
+            });
+        }
 
-                if (!r.ok) {
-                    const erro = await r.json().catch(() => ({}));
-                    throw new Error(erro.message || 'Erro ao enviar solicitação');
+        function ligarEventos() {
+            const inputAnexos = document.getElementById('anexosInput');
+            const dropZone = document.getElementById('dropZone');
+
+            inputAnexos.addEventListener('change', () => {
+                adicionarArquivos(Array.from(inputAnexos.files || []));
+                inputAnexos.value = '';
+            });
+
+            ['dragenter', 'dragover'].forEach(evt =>
+                dropZone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                })
+            );
+            ['dragleave', 'drop'].forEach(evt =>
+                dropZone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                })
+            );
+            dropZone.addEventListener('drop', e => {
+                adicionarArquivos(Array.from(e.dataTransfer.files || []));
+            });
+
+            document.getElementById('btnLimparForm').addEventListener('click', () => {
+                state.arquivosSelecionados = [];
+                renderizarArquivosSelecionados();
+                mostrarFeedback('');
+            });
+
+            document.getElementById('formSolicitacao').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                mostrarFeedback('');
+
+                const titulo = document.getElementById('tituloSolicitacao').value.trim();
+                const tipo = document.getElementById('tipoSolicitacao').value;
+                const justificativa = document.getElementById('justificativaSolicitacao').value.trim();
+
+                if (!titulo || !tipo || !justificativa) {
+                    mostrarFeedback('Preencha título, tipo e justificativa antes de enviar.', true);
+                    return;
                 }
 
-                const criada = await r.json();
+                const btn = document.getElementById('btnEnviarSolicitacao');
+                btn.disabled = true;
+                btn.textContent = 'Enviando…';
 
-                document.getElementById('formNovaSolicitacao').reset();
-                mostrarAlerta('alertaNova', 'sucesso',
-                    `Solicitação enviada com sucesso! Protocolo: ${criada.protocolo}. Você receberá o parecer em até 5 dias úteis.`);
+                try {
+                    const r = await fetch('/solicitacoes', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({titulo, tipo, justificativa})
+                    });
 
-                await carregarSolicitacoes();
+                    if (!r.ok) {
+                        const erro = await r.json().catch(() => ({}));
+                        throw new Error(erro.message || 'Não foi possível enviar a solicitação.');
+                    }
 
-                document.getElementById('listaAdaptacoes').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } catch (e) {
-                console.error('Erro ao criar solicitação', e);
-                mostrarAlerta('alertaNova', 'erro', e.message || 'Não foi possível enviar sua solicitação.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Enviar solicitação';
-            }
+                    const criada = await r.json();
+
+                    if (state.arquivosSelecionados.length > 0) {
+                        btn.textContent = 'Enviando anexos…';
+                        let algumFalhou = false;
+                        for (const file of state.arquivosSelecionados) {
+                            try {
+                                await enviarAnexoParaSolicitacao(criada.id, file);
+                            } catch (errAnexo) {
+                                algumFalhou = true;
+                                console.error('Falha ao anexar', file.name, errAnexo);
+                            }
+                        }
+                        if (algumFalhou) {
+                            mostrarFeedback('Solicitação criada, mas alguns anexos falharam. Use "+ Anexar arquivo" para tentar novamente.', true);
+                        } else {
+                            mostrarFeedback('Solicitação enviada com sucesso! Protocolo: ' + (criada.protocolo || criada.id));
+                        }
+                    } else {
+                        mostrarFeedback('Solicitação enviada com sucesso! Protocolo: ' + (criada.protocolo || criada.id));
+                    }
+
+                    document.getElementById('formSolicitacao').reset();
+                    state.arquivosSelecionados = [];
+                    renderizarArquivosSelecionados();
+                    await carregarSolicitacoes();
+                } catch (err) {
+                    mostrarFeedback(err.message || 'Erro ao enviar solicitação.', true);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar solicitação';
+                }
+            });
         }
 
-        // ---------- 6. Eventos ----------
-        function ligarEventos() {
-            document.getElementById('filtroStatus').addEventListener('change', renderizarLista);
-            document.getElementById('formNovaSolicitacao').addEventListener('submit', enviarSolicitacao);
-        }
-
-        // ---------- Inicialização ----------
         document.addEventListener('DOMContentLoaded', async () => {
             ligarEventos();
-
             const u = await carregarUsuario();
             if (!u) return;
 
@@ -636,6 +693,5 @@
         });
     })();
 </script>
-
 </body>
 </html>

@@ -4,12 +4,16 @@ import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.entidades.Aluno;
 import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.entidades.Usuario;
-import com.br.unifor.paponline.repository.UsuarioRepository;
+import com.br.unifor.paponline.service.RecuperacaoSenhaService;
+import com.br.unifor.paponline.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +24,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UsuarioRepository repository;
+    private final UsuarioService usuarioService;
+    private final RecuperacaoSenhaService recuperacaoService;
+
+    @Value("${pap.demo.mostrar-codigo:false}")
+    private boolean mostrarCodigoDemo;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpServletRequest request) {
         String identifier = body.get("identifier");
         String password = body.get("password");
         String requestedRole = body.get("requestedRole");
@@ -33,20 +41,20 @@ public class AuthController {
                     .body(Map.of("message", "Informe e-mail/telefone e senha."));
         }
 
-        Optional<Usuario> opt = repository.findByEmailOrTelefone(identifier, identifier);
+        Optional<Usuario> opt;
+        try {
+            opt = usuarioService.autenticar(identifier, password);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode())
+                    .body(Map.of("message", ex.getReason() == null ? "Erro" : ex.getReason()));
+        }
+
         if (opt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Credenciais inválidas."));
         }
 
         Usuario u = opt.get();
-
-        // Senha em texto puro — para a demo. Em produção usar BCrypt.
-        if (!u.getSenha().equals(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Credenciais inválidas."));
-        }
-
         String tipo = detectarTipo(u);
 
         if (requestedRole != null && !roleBateComTipo(requestedRole, tipo)) {
@@ -54,7 +62,10 @@ public class AuthController {
                     .body(Map.of("message", "O perfil selecionado não corresponde à conta."));
         }
 
+        HttpSession session = request.getSession(true);
         session.setAttribute("usuarioId", u.getId());
+        session.setAttribute("perfil", tipo);       // <- NOVO
+        request.changeSessionId();
 
         return ResponseEntity.ok(montarResposta(u, tipo));
     }
@@ -66,13 +77,30 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Sessão não encontrada."));
         }
-        Optional<Usuario> opt = repository.findById((Long) id);
+        Optional<Usuario> opt;
+        try {
+            opt = Optional.of(usuarioService.buscar((Long) id));
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Sessão inválida."));
+        }
         if (opt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Sessão inválida."));
         }
         Usuario u = opt.get();
-        return ResponseEntity.ok(montarResposta(u, detectarTipo(u)));
+        if (Boolean.FALSE.equals(u.getAtivo())) {
+            session.invalidate();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Conta desativada."));
+        }
+
+        String tipo = detectarTipo(u);
+        if (session.getAttribute("perfil") == null) {   // <- NOVO (defensivo)
+            session.setAttribute("perfil", tipo);
+        }
+
+        return ResponseEntity.ok(montarResposta(u, tipo));
     }
 
     @PostMapping("/logout")
@@ -81,12 +109,50 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/recuperar")
+    public Map<String, String> recuperar(@RequestBody Map<String, String> body) {
+        String identificador = body.get("identifier");
+        if (identificador == null || identificador.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe e-mail ou telefone");
+        }
+        String codigo = recuperacaoService.solicitarCodigo(identificador);
+
+        Map<String, String> resp = new HashMap<>();
+        resp.put("mensagem", "Se o contato estiver cadastrado, enviaremos um código de recuperação.");
+        if (mostrarCodigoDemo && codigo != null) {
+            resp.put("codigoDemo", codigo);
+        }
+        return resp;
+    }
+
+    @PostMapping("/validar-codigo")
+    public Map<String, Object> validarCodigo(@RequestBody Map<String, String> body) {
+        recuperacaoService.validarCodigo(body.get("identifier"), body.get("codigo"));
+        return Map.of("valido", true);
+    }
+
+    @PostMapping("/redefinir-senha")
+    public Map<String, String> redefinirSenha(@RequestBody Map<String, String> body) {
+        String identificador = body.get("identifier");
+        String codigo = body.get("codigo");
+        String novaSenha = body.get("novaSenha");
+
+        try {
+            com.br.unifor.paponline.util.SenhaValidator.exigirValida(novaSenha);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+
+        recuperacaoService.redefinir(identificador, codigo, novaSenha);
+        return Map.of("mensagem", "Senha redefinida com sucesso");
+    }
+
     private Map<String, Object> montarResposta(Usuario u, String tipo) {
         Map<String, Object> resp = new HashMap<>();
         resp.put("id", u.getId());
         resp.put("nome", u.getNome());
         resp.put("email", u.getEmail());
-        resp.put("tipo", tipo);   // ALUNO | PROFISSIONAL | ADMIN
+        resp.put("tipo", tipo);
         return resp;
     }
 

@@ -1,0 +1,48 @@
+### Login (salva o cookie JSESSIONID automaticamente)
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "aluno@edu.unifor.br",
+  "password": "Senha@123",
+  "requestedRole": "student"
+}
+
+### Sessão atual
+GET http://localhost:8080/auth/session
+
+### Listar solicitações (precisa do login acima)
+GET http://localhost:8080/solicitacoes
+
+### Criar solicitação
+POST http://localhost:8080/solicitacoes
+Content-Type: application/json
+
+{
+  "titulo": "Teste",
+  "tipo": "PROVA",
+  "justificativa": "Teste da fase 4"
+}
+
+### Upload de anexo (troque o caminho)
+POST http://localhost:8080/solicitacoes/1/anexos
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="arquivo"; filename="02-documentacao-do-sistema.pdf"
+Content-Type: application/pdf
+
+< C:\Users\Arthur\Downloads\02-documentacao-do-sistema.pdf
+--Boundary--
+
+### 1) Listar (deve retornar array JSON)
+GET http://localhost:8080/notificacoes/usuario/2
+
+### 2) Marcar uma como lida (deve retornar 204)
+PATCH http://localhost:8080/notificacoes/2/lida
+
+### 3) Contar não lidas (já sabemos que funciona)
+GET http://localhost:8080/notificacoes/usuario/2/count
+
+### Deve retornar 400 com mensagem sobre atendimento obrigatório
+POST http://localhost:8080/conversas?alunoId=999&profissionalId=888

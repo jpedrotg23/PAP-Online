@@ -1,7 +1,10 @@
 package com.br.unifor.paponline.controller;
 
+import com.br.unifor.paponline.dto.BloqueioRequest;
+import com.br.unifor.paponline.dto.HorarioDisponivelRequest;
 import com.br.unifor.paponline.entidades.HorarioDisponivel;
 import com.br.unifor.paponline.service.HorarioDisponivelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +20,18 @@ public class HorarioDisponivelController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public HorarioDisponivel criar(@RequestBody HorarioDisponivel h) {
-        return service.criar(h);
+    public HorarioDisponivel criar(@Valid @RequestBody HorarioDisponivelRequest req) {
+        return service.criar(req);
     }
 
     @GetMapping
     public List<HorarioDisponivel> listar() {
         return service.listar();
+    }
+
+    @GetMapping("/{id}")
+    public HorarioDisponivel buscar(@PathVariable Long id) {
+        return service.buscar(id);
     }
 
     @GetMapping("/profissional/{profissionalId}")
@@ -36,9 +44,19 @@ public class HorarioDisponivelController {
         return service.listarDisponiveis(profissionalId);
     }
 
-    @GetMapping("/{id}")
-    public HorarioDisponivel buscar(@PathVariable Long id) {
-        return service.buscar(id);
+    @PutMapping("/{id}")
+    public HorarioDisponivel editar(@PathVariable Long id, @Valid @RequestBody HorarioDisponivelRequest req) {
+        return service.editar(id, req);
+    }
+
+    @PatchMapping("/{id}/bloquear")
+    public HorarioDisponivel bloquear(@PathVariable Long id, @Valid @RequestBody BloqueioRequest req) {
+        return service.bloquear(id, req);
+    }
+
+    @PatchMapping("/{id}/liberar")
+    public HorarioDisponivel liberar(@PathVariable Long id) {
+        return service.liberar(id);
     }
 
     @DeleteMapping("/{id}")

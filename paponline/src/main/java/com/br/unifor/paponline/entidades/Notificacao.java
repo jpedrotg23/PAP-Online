@@ -26,6 +26,10 @@ public class Notificacao {
 
     private String mensagem;
 
+    private String tipo;
+
+    private Long referenciaId;
+
     @Column(nullable = false)
     private Boolean lida = false;
 

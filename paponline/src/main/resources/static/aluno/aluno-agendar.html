@@ -616,6 +616,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
@@ -626,6 +627,7 @@
     //   GET  /profissionais
     //   GET  /horarios/profissional/{id}/disponiveis
     //   POST /atendimentos
+    // O backend devolve erros no formato {"message": "..."} via GlobalExceptionHandler.
 
     const state = {
       usuario: null,
@@ -675,6 +677,7 @@
               .replace('.', '').toUpperCase();
     }
 
+    // ---------- Alerta inline (mantido para avisos leves) ----------
     function mostrarAlerta(mensagem, tipo = 'info') {
       const el = document.getElementById('alertaGlobal');
       if (!el) return;
@@ -683,11 +686,57 @@
       el.style.background = tipo === 'erro' ? '#fdecea' : tipo === 'sucesso' ? '#e7f6f0' : '#f0f5ff';
       el.style.color = tipo === 'erro' ? '#b42318' : tipo === 'sucesso' ? '#067647' : '#3b5a9a';
       el.style.border = '1px solid ' + (tipo === 'erro' ? '#f7c9c4' : tipo === 'sucesso' ? '#b8e4d3' : '#c7d9f5');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function esconderAlerta() {
       const el = document.getElementById('alertaGlobal');
       if (el) el.style.display = 'none';
+    }
+
+    // ---------- Modal de erro de agendamento ----------
+    // Mostra o motivo exato retornado pela API (RGN03, RGN05, RGN09, RGN10 etc.)
+    // em vez de um alerta no topo que pode ficar fora da viewport.
+    function mostrarErroAgendamento(mensagem) {
+      const existente = document.getElementById('papErroAgendamentoModal');
+      if (existente) existente.remove();
+
+      const texto = (mensagem && String(mensagem).trim()) || 'Não foi possível concluir o agendamento. Tente novamente em instantes.';
+
+      const overlay = document.createElement('div');
+      overlay.id = 'papErroAgendamentoModal';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px;z-index:9999;';
+
+      overlay.innerHTML = `
+        <div role="alertdialog" aria-modal="true" aria-labelledby="papErroAgendamentoTitulo"
+             style="background:#fff;width:min(480px,100%);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.30);overflow:hidden;display:flex;flex-direction:column;">
+          <header style="display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid #e4eaf2;background:#fff5f5;">
+            <span aria-hidden="true" style="width:30px;height:30px;border-radius:50%;background:#fdecea;color:#b42318;display:grid;place-items:center;font-weight:800;font-size:16px;flex-shrink:0;">!</span>
+            <h3 id="papErroAgendamentoTitulo" style="margin:0;font-size:15px;color:#1f2937;font-weight:700;">Não foi possível agendar</h3>
+          </header>
+          <div style="padding:18px 20px;">
+            <p style="font-size:13px;color:#374151;line-height:1.6;margin:0;white-space:pre-line;">${escapeHtml(texto)}</p>
+          </div>
+          <footer style="display:flex;justify-content:flex-end;padding:14px 20px;border-top:1px solid #e4eaf2;background:#fafbfd;">
+            <button type="button" id="papErroAgendamentoOK"
+                    style="padding:9px 20px;border:0;border-radius:8px;background:#2059dc;color:#fff;font:600 12px Inter,Arial,sans-serif;cursor:pointer;">
+              Entendi
+            </button>
+          </footer>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      const fechar = () => overlay.remove();
+      const btnOk = overlay.querySelector('#papErroAgendamentoOK');
+      btnOk.addEventListener('click', fechar);
+      overlay.addEventListener('click', (ev) => { if (ev.target === overlay) fechar(); });
+      const esc = (ev) => {
+        if (ev.key === 'Escape') { fechar(); document.removeEventListener('keydown', esc); }
+      };
+      document.addEventListener('keydown', esc);
+      setTimeout(() => btnOk.focus(), 0);
     }
 
     function atualizarStepper(etapa) {
@@ -749,10 +798,7 @@
           return;
         }
 
-        const icones = {
-          'PSICOLOGIA': '🧠',
-          'PSICOPEDAGOGIA': '📚'
-        };
+        const icones = { 'PSICOLOGIA': '🧠', 'PSICOPEDAGOGIA': '📚' };
 
         container.innerHTML = state.areas.map(a => `
         <button type="button" class="area-card" data-area-id="${a.id}">
@@ -785,7 +831,6 @@
       document.getElementById('secaoProfissional').classList.add('reveal');
       atualizarStepper(2);
 
-      // Reset dos passos seguintes
       state.profissionalSelecionado = null;
       state.slotSelecionado = null;
       state.modalidade = null;
@@ -808,7 +853,6 @@
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const todos = await r.json();
 
-        // Filtro "best-effort" por cargo (o backend não tem relação direta área↔profissional)
         const areaNome = state.areaSelecionada.nome;
         const filtrados = todos.filter(p => {
           const cargo = (p.cargo || '').toLowerCase();
@@ -853,7 +897,6 @@
         el.classList.toggle('selecionado', Number(el.dataset.profId) === profId);
       });
 
-      // Reset
       state.slotSelecionado = null;
       state.modalidade = null;
       document.getElementById('secaoConfirmacao').style.display = 'none';
@@ -882,7 +925,6 @@
           return;
         }
 
-        // Agrupa por data
         const grupos = {};
         state.horarios.forEach(h => {
           if (!grupos[h.data]) grupos[h.data] = [];
@@ -938,7 +980,6 @@
         fim: btn.dataset.fim
       };
 
-      // Se modalidade já foi escolhida, atualiza confirmação
       if (state.modalidade) {
         mostrarConfirmacao();
       } else {
@@ -982,7 +1023,7 @@
     // ---------- 11. Confirmar agendamento ----------
     async function confirmarAgendamento() {
       if (!state.areaSelecionada || !state.profissionalSelecionado || !state.slotSelecionado || !state.modalidade) {
-        mostrarAlerta('Selecione área, profissional, horário e modalidade.', 'erro');
+        mostrarErroAgendamento('Selecione área, profissional, horário e modalidade antes de confirmar.');
         return;
       }
 
@@ -1015,7 +1056,8 @@
 
         if (!r.ok) {
           const erro = await r.json().catch(() => ({}));
-          throw new Error(erro.message || 'Erro ao agendar');
+          // repassa o texto exato do backend (RGN03, RGN05, RGN09, RGN10, 400 de validação, etc.)
+          throw new Error(erro.message || `Não foi possível agendar (HTTP ${r.status}).`);
         }
 
         const criado = await r.json();
@@ -1028,13 +1070,13 @@
         set('protocoloSucesso', 'Nº ' + criado.id);
         atualizarStepper(4);
 
-        // Atualiza horários (marca como indisponível na UI)
         state.slotSelecionado = null;
         state.modalidade = null;
         secaoSucesso.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (e) {
         console.error('Erro ao confirmar agendamento', e);
-        mostrarAlerta(e.message || 'Não foi possível concluir o agendamento.', 'erro');
+        const mensagem = (e && e.message) ? e.message : 'Não foi possível concluir o agendamento. Tente novamente em instantes.';
+        mostrarErroAgendamento(mensagem);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Confirmar agendamento';
@@ -1071,6 +1113,3 @@
     });
   })();
 </script>
-
-</body>
-</html>

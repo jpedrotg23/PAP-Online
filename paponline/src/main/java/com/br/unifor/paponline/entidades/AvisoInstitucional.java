@@ -36,4 +36,6 @@ public class AvisoInstitucional {
     private String status; // RASCUNHO, AGENDADO, PUBLICADO, EXPIRADO
 
     private LocalDateTime criadoEm;
+
+    private LocalDateTime publicadoEm;
 }

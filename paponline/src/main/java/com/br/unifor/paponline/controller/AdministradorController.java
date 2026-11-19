@@ -1,7 +1,9 @@
 package com.br.unifor.paponline.controller;
 
+import com.br.unifor.paponline.dto.AlterarSenhaRequest;
 import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.service.AdministradorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,12 @@ public class AdministradorController {
     @PutMapping("/{id}")
     public Administrador atualizar(@PathVariable Long id, @RequestBody Administrador dados) {
         return service.atualizar(id, dados);
+    }
+
+    @PatchMapping("/{id}/senha")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void alterarSenha(@PathVariable Long id, @Valid @RequestBody AlterarSenhaRequest req) {
+        service.alterarSenha(id, req.senhaAtual(), req.novaSenha());
     }
 
     @DeleteMapping("/{id}")

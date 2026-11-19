@@ -12,7 +12,6 @@
 
 <div class="portal-app">
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="portal-sidebar">
     <div class="portal-brand">
       <span class="portal-brand-mark">PAP</span>
@@ -43,7 +42,6 @@
     </button>
   </aside>
 
-  <!-- ============ MAIN ============ -->
   <main class="portal-main">
 
     <header class="portal-topbar">
@@ -67,7 +65,6 @@
 
     <section class="portal-content">
 
-      <!-- Welcome row -->
       <div class="portal-welcome-row">
         <div>
           <h2>Meu histórico</h2>
@@ -76,7 +73,6 @@
         <span class="portal-date">Área do estudante</span>
       </div>
 
-      <!-- Stats -->
       <div class="portal-stats portal-stats-3">
         <article class="portal-stat">
           <span class="portal-stat-icon blue">▤</span>
@@ -104,7 +100,11 @@
         </article>
       </div>
 
-      <!-- Tabela -->
+      <div id="faltasResumo" role="status"
+           style="margin:0 0 18px;padding:12px 16px;border:1px solid var(--portal-line);border-radius:10px;background:#fff;color:var(--portal-muted);font-size:12px;line-height:1.5;">
+        Carregando informações sobre faltas…
+      </div>
+
       <section class="portal-panel">
         <div class="portal-panel-head">
           <div>
@@ -117,7 +117,6 @@
             <select class="portal-filter-select" id="filtroStatus" aria-label="Filtrar atendimentos">
               <option value="all">Todos os atendimentos</option>
               <option value="AGENDADO">Agendados</option>
-              <option value="CONFIRMADO">Confirmados</option>
               <option value="REALIZADO">Realizados</option>
               <option value="CANCELADO">Cancelados</option>
               <option value="FALTA">Faltas</option>
@@ -133,11 +132,12 @@
               <th>Profissional</th>
               <th>Modalidade</th>
               <th>Status</th>
+              <th>Ações</th>
             </tr>
             </thead>
             <tbody id="historicoBody">
             <tr>
-              <td class="portal-empty-table" colspan="5">
+              <td class="portal-empty-table" colspan="6">
                 Carregando…
                 <small>Buscando seus atendimentos.</small>
               </td>
@@ -147,7 +147,6 @@
         </div>
       </section>
 
-      <!-- CTA -->
       <section class="portal-panel">
         <div class="portal-panel-head">
           <div>
@@ -167,6 +166,8 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/atendimento-acoes.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
@@ -176,7 +177,6 @@
     let atendimentos = [];
     const cacheProfissionais = {};
 
-    // ---------- Helpers ----------
     function set(id, valor) {
       const el = document.getElementById(id);
       if (el) el.textContent = valor;
@@ -211,19 +211,16 @@
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
-    // Mapeia status da API → rótulo e classe CSS do pill
     function statusInfo(status) {
       const map = {
-        AGENDADO:    { rotulo: 'Agendado',    classe: 'info' },
-        CONFIRMADO:  { rotulo: 'Confirmado',  classe: 'success' },
-        REALIZADO:   { rotulo: 'Realizado',   classe: 'success' },
-        CANCELADO:   { rotulo: 'Cancelado',   classe: 'danger' },
-        FALTA:       { rotulo: 'Falta',       classe: 'warning' }
+        AGENDADO:   { rotulo: 'Agendado',   classe: 'info' },
+        REALIZADO:  { rotulo: 'Realizado',  classe: 'success' },
+        CANCELADO:  { rotulo: 'Cancelado',  classe: 'danger' },
+        FALTA:      { rotulo: 'Falta',      classe: 'warning' }
       };
       return map[status] || { rotulo: capitalizar(status), classe: 'info' };
     }
 
-    // ---------- 1. Usuário logado ----------
     async function carregarUsuario() {
       try {
         const r = await fetch('/auth/session', { credentials: 'include' });
@@ -242,7 +239,6 @@
       }
     }
 
-    // ---------- 2. Notificações ----------
     async function carregarNotificacoes() {
       if (!usuario?.id) return;
       try {
@@ -263,7 +259,6 @@
       }
     }
 
-    // ---------- 3. Buscar nome do profissional (com cache) ----------
     async function buscarProfissional(profissionalId) {
       if (!profissionalId) return 'Profissional';
       if (cacheProfissionais[profissionalId]) return cacheProfissionais[profissionalId];
@@ -280,7 +275,6 @@
       }
     }
 
-    // ---------- 4. Carregar atendimentos ----------
     async function carregarAtendimentos() {
       if (!usuario?.id) return;
       const tbody = document.getElementById('historicoBody');
@@ -290,21 +284,32 @@
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const lista = await r.json();
 
-        // Ordena do mais recente para o mais antigo
         atendimentos = lista.sort((a, b) =>
                 new Date(b.dataHoraInicio) - new Date(a.dataHoraInicio)
         );
 
-        // Pré-carrega nomes dos profissionais (paralelo)
         const idsUnicos = [...new Set(atendimentos.map(a => a.profissionalId).filter(Boolean))];
         await Promise.all(idsUnicos.map(id => buscarProfissional(id)));
 
-        // Stats
+        const agora = new Date();
         const total = atendimentos.length;
         const realizados = atendimentos.filter(a => a.status === 'REALIZADO').length;
         const proximos = atendimentos.filter(a =>
-                a.status === 'AGENDADO' || a.status === 'CONFIRMADO'
+                a.status === 'AGENDADO' && new Date(a.dataHoraInicio) > agora
         ).length;
+        const faltas = atendimentos.filter(a => a.status === 'FALTA');
+        const semestreAtual = agora.getMonth() < 6 ? 1 : 2;
+        const faltasSemestreAtual = faltas.filter(a => {
+          const dataFalta = new Date(a.dataHoraInicio);
+          if (Number.isNaN(dataFalta.getTime())) return false;
+          const semestreDaFalta = dataFalta.getMonth() < 6 ? 1 : 2;
+          return dataFalta.getFullYear() === agora.getFullYear()
+                  && semestreDaFalta === semestreAtual;
+        }).length;
+        const resumoFaltas = document.getElementById('faltasResumo');
+        if (resumoFaltas) {
+          resumoFaltas.textContent = `Faltas registradas: ${faltas.length} no total · ${faltasSemestreAtual} no semestre atual. Para consultar cada ocorrência, selecione “Faltas” no filtro de status abaixo.`;
+        }
 
         set('statTotal', String(total));
         set('statTotalDetalhe', total === 0 ? 'Nenhum registro' : 'no histórico');
@@ -320,7 +325,7 @@
         console.error('Erro ao carregar atendimentos', e);
         tbody.innerHTML = `
         <tr>
-          <td class="portal-empty-table" colspan="5">
+          <td class="portal-empty-table" colspan="6">
             Não foi possível carregar seus atendimentos.
             <small>Tente novamente em instantes.</small>
           </td>
@@ -328,10 +333,11 @@
         set('statTotal', '—');
         set('statComparecimentos', '—');
         set('statProximos', '—');
+        const resumoFaltas = document.getElementById('faltasResumo');
+        if (resumoFaltas) resumoFaltas.textContent = 'Não foi possível carregar as faltas. Atualize a página e tente novamente.';
       }
     }
 
-    // ---------- 5. Renderizar tabela com filtros aplicados ----------
     function renderizarTabela() {
       const tbody = document.getElementById('historicoBody');
       const termo = (document.getElementById('buscaHistorico')?.value || '').toLowerCase().trim();
@@ -353,7 +359,7 @@
 
         tbody.innerHTML = `
         <tr>
-          <td class="portal-empty-table" colspan="5">
+          <td class="portal-empty-table" colspan="6">
             ${vazio.titulo}
             <small>${vazio.texto}</small>
           </td>
@@ -367,6 +373,19 @@
         const modalidade = a.modalidade ? capitalizar(a.modalidade) : '—';
         const inicio = formatarDataHora(a.dataHoraInicio);
         const fim = a.dataHoraFim ? formatarHora(a.dataHoraFim) : '';
+
+        const permiteAcao = a.status === 'AGENDADO';
+        const acoes = permiteAcao ? `
+          <div class="pap-atendimento-acoes">
+            <button type="button" class="pap-atendimento-acao"
+                    data-atendimento-acao="remarcar"
+                    data-atendimento-id="${escapeHtml(a.id)}"
+                    data-profissional-id="${escapeHtml(a.profissionalId)}">Remarcar</button>
+            <button type="button" class="pap-atendimento-acao pap-atendimento-acao--perigo"
+                    data-atendimento-acao="cancelar"
+                    data-atendimento-id="${escapeHtml(a.id)}"
+                    data-profissional-id="${escapeHtml(a.profissionalId)}">Cancelar</button>
+          </div>` : '—';
 
         return `
         <tr>
@@ -386,11 +405,11 @@
           </td>
           <td>${modalidade}</td>
           <td><span class="portal-pill ${info.classe}">${info.rotulo}</span></td>
+          <td>${acoes}</td>
         </tr>`;
       }).join('');
     }
 
-    // ---------- 6. Filtros reativos ----------
     function ligarFiltros() {
       const busca = document.getElementById('buscaHistorico');
       const select = document.getElementById('filtroStatus');
@@ -398,12 +417,11 @@
       if (select) select.addEventListener('change', renderizarTabela);
     }
 
-    // ---------- Inicialização ----------
     document.addEventListener('DOMContentLoaded', async () => {
       ligarFiltros();
 
       const u = await carregarUsuario();
-      if (!u) return;   // auth.js já redireciona se não estiver logado
+      if (!u) return;
 
       await Promise.allSettled([
         carregarAtendimentos(),

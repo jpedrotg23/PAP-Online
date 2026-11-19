@@ -2,8 +2,10 @@ package com.br.unifor.paponline.service;
 
 import com.br.unifor.paponline.entidades.Aluno;
 import com.br.unifor.paponline.repository.AlunoRepository;
+import com.br.unifor.paponline.util.SenhaValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,6 +16,8 @@ import java.util.List;
 public class AlunoService {
 
     private final AlunoRepository repository;
+    private final UsuarioService usuarioService;
+    private final PasswordEncoder passwordEncoder;
 
     public Aluno criar(Aluno aluno) {
         if (repository.existsByMatricula(aluno.getMatricula())) {
@@ -22,6 +26,8 @@ public class AlunoService {
         if (repository.existsByEmail(aluno.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um usuário com este e-mail");
         }
+        SenhaValidator.exigirValida(aluno.getSenha());
+        aluno.setSenha(passwordEncoder.encode(aluno.getSenha()));
         return repository.save(aluno);
     }
 
@@ -39,17 +45,19 @@ public class AlunoService {
         a.setNome(dados.getNome());
         a.setEmail(dados.getEmail());
         a.setTelefone(dados.getTelefone());
-        if (dados.getSenha() != null && !dados.getSenha().isBlank()) {
-            a.setSenha(dados.getSenha());
-        }
         a.setMatricula(dados.getMatricula());
         a.setCurso(dados.getCurso());
         a.setVinculo(dados.getVinculo());
+        // senha NÃO é alterada (regra 3 da Fase 2)
         return repository.save(a);
     }
 
     public void excluir(Long id) {
         Aluno a = buscar(id);
         repository.delete(a);
+    }
+
+    public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
+        usuarioService.alterarSenha(id, senhaAtual, novaSenha);
     }
 }

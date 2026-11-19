@@ -3,64 +3,156 @@ package com.br.unifor.paponline.config;
 import com.br.unifor.paponline.entidades.*;
 import com.br.unifor.paponline.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
-    private final AreaServicoRepository areaRepository;
-    private final AdministradorRepository administradorRepository;
+    private static final ZoneId FUSO_PAP = ZoneId.of("America/Fortaleza");
+
+    private final UsuarioRepository usuarioRepository;
     private final AlunoRepository alunoRepository;
     private final ProfissionalRepository profissionalRepository;
+    private final AdministradorRepository administradorRepository;
+    private final AreaServicoRepository areaServicoRepository;
     private final HorarioDisponivelRepository horarioRepository;
     private final AtendimentoRepository atendimentoRepository;
     private final AvisoInstitucionalRepository avisoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
-        // Só popula se o banco estiver vazio
-        if (areaRepository.count() > 0) return;
+        if (areaServicoRepository.count() > 0) return;
 
-        // 1. Áreas
-        AreaServico psicologia = new AreaServico();
-        psicologia.setNome("PSICOLOGIA");
-        psicologia.setDescricao("Apoio emocional e saúde mental");
-        areaRepository.save(psicologia);
+        String senhaCriptografada = passwordEncoder.encode("Senha@123");
 
-        AreaServico psicopedagogia = new AreaServico();
-        psicopedagogia.setNome("PSICOPEDAGOGIA");
-        psicopedagogia.setDescricao("Apoio à aprendizagem acadêmica");
-        areaRepository.save(psicopedagogia);
+        AreaServico psicologia = criarArea("PSICOLOGIA", "Apoio emocional e saúde mental");
+        AreaServico psicopedagogia = criarArea("PSICOPEDAGOGIA", "Apoio à aprendizagem acadêmica");
 
-        // 2. Aluno
-        Aluno aluno = new Aluno();
-        aluno.setNome("Aluno");
-        aluno.setEmail("aluno@edu.unifor.br");
-        aluno.setTelefone("(85) 99999-9999");
-        aluno.setSenha("Senha@123");
-        aluno.setMatricula("2412345");
-        aluno.setCurso("Ciência da Computação");
-        aluno.setVinculo("GRADUACAO");
-        alunoRepository.save(aluno);
+        Administrador admin = new Administrador();
+        admin.setNome("Coordenação PAP");
+        admin.setEmail("admin@unifor.br");
+        admin.setTelefone("(85) 3477-3000");
+        admin.setSenha(senhaCriptografada);
+        admin.setCargo("Coordenador(a) do PAP");
+        admin.setAtivo(true);
+        admin.setDataCadastro(LocalDateTime.now());
+        administradorRepository.save(admin);
 
-        // 3. Profissional
-        Profissional prof = new Profissional();
-        prof.setNome("Dra. profissional");
-        prof.setEmail("profissional@unifor.br");
-        prof.setTelefone("(85) 99876-5432");
-        prof.setSenha("Senha@123");
-        prof.setCrp("CRP 11/54321");
-        prof.setCargo("Psicólogo e Psicopedagogo");
-        profissionalRepository.save(prof);
+        Aluno aluno1 = criarAluno("Aluno", "aluno@edu.unifor.br", "(85) 99999-9999",
+                "2412345", "Ciência da Computação", senhaCriptografada);
+        Aluno aluno2 = criarAluno("Aluno2", "aluno2@edu.unifor.br", "(85) 98888-8888",
+                "2412346", "Engenharia de Software", senhaCriptografada);
+        Aluno aluno3 = criarAluno("Aluna3", "aluno3@edu.unifor.br", "(85) 97777-1111",
+                "2412347", "Design", senhaCriptografada);
 
-        // 4. Horários disponíveis (próximos 5 dias úteis)
-        LocalDate hoje = LocalDate.now();
+        Profissional camila = criarProfissional("Dra. Profissional", "profissional@unifor.br",
+                "(85) 99876-5432", "CRP 11/54321", "Psicóloga e Psicopedagoga",
+                psicologia.getId(), senhaCriptografada);
+        Profissional prof2 = criarProfissional("Dr. Profissional", "prof2@unifor.br",
+                "(85) 97777-7777", "CRP 11/12345", "Psicopedagoga",
+                psicopedagogia.getId(), senhaCriptografada);
+
+        LocalDate hoje = LocalDate.now(FUSO_PAP);
+        criarHorariosFuturos(camila, hoje);
+        criarHorariosFuturos(prof2, hoje);
+
+        criarAviso("Semana de Saúde Mental Unifor",
+                "De 12 a 16 de outubro, o PAP oferece rodas de conversa e oficinas abertas a todos os estudantes.",
+                "EVENTO", true, "TODOS");
+        criarAviso("Novos horários em psicopedagogia",
+                "Horários de outubro abertos para agendamento. Confira a disponibilidade na área de agendamento.",
+                "AVISO", false, "ALUNOS");
+
+        seedAtendimentosAluno(aluno1, aluno2, camila, prof2, psicologia, psicopedagogia);
+        seedAtendimentosProfissional(aluno3, camila, psicologia);
+
+        log.info("""
+
+                ============================================================
+                DataLoader PAP Online — dados de teste carregados
+                ============================================================
+                CONTAS (senha padrão: Senha@123):
+                  admin@unifor.br          -> ADMIN
+                  aluno@edu.unifor.br      -> ALUNO 1 (Aluno)
+                  aluno2@edu.unifor.br     -> ALUNO 2 (João Pedro Aluno)
+                  aluno3@edu.unifor.br     -> ALUNO 3 (Maria Teste Aluna)
+                  profissional@unifor.br   -> PROFISSIONAL 1 (camila, PSICOLOGIA)
+                  prof2@unifor.br          -> PROFISSIONAL 2 (PSICOPEDAGOGIA)
+
+                ATENDIMENTOS - TESTES DO ALUNO (aluno1 e aluno2):
+                  Aluno 1  REALIZADO   -5d   -> histórico
+                  Aluno 1  FALTA       -7d   -> histórico
+                  Aluno 1  CANCELADO   -9d   -> histórico
+                  Aluno 2  AGENDADO    -1h   -> ownership / finalizar (camila)
+                  Aluno 2  AGENDADO    -2h   -> registrar falta (prof2)
+                  Aluno 2  AGENDADO    -25h  -> RF32 (job @Scheduled)
+                  Aluno 2  FALTA       -10d, -12d, -14d -> RGN05
+
+                ATENDIMENTOS - TESTES DO PROFISSIONAL (logado como camila):
+                  Aluno 3  AGENDADO    -1h         -> finalizar (RF19)
+                  Aluno 3  AGENDADO    -3h         -> registrar falta
+                  Aluno 3  AGENDADO    -5h         -> profissional cancelar => CANCELADO (NOVO)
+                  Aluno 3  AGENDADO    hoje+1d 14h -> cancelamento normal
+                  Aluno 3  AGENDADO    hoje+2d 10h -> outro futuro
+                  Aluno 3  AGENDADO    -25h        -> RF32 (vira FALTA na próxima hora)
+                  Aluno 3  REALIZADO   -2d         -> finalizar de novo => 409
+                ============================================================
+                """);
+    }
+
+    // ---------------------------------------------------------------
+    // Helpers de criação
+    // ---------------------------------------------------------------
+
+    private AreaServico criarArea(String nome, String descricao) {
+        AreaServico a = new AreaServico();
+        a.setNome(nome);
+        a.setDescricao(descricao);
+        return areaServicoRepository.save(a);
+    }
+
+    private Aluno criarAluno(String nome, String email, String telefone,
+                             String matricula, String curso, String senha) {
+        Aluno a = new Aluno();
+        a.setNome(nome);
+        a.setEmail(email);
+        a.setTelefone(telefone);
+        a.setSenha(senha);
+        a.setMatricula(matricula);
+        a.setCurso(curso);
+        a.setVinculo("GRADUACAO");
+        a.setAtivo(true);
+        a.setDataCadastro(LocalDateTime.now());
+        return alunoRepository.save(a);
+    }
+
+    private Profissional criarProfissional(String nome, String email, String telefone,
+                                           String crp, String cargo, Long areaId, String senha) {
+        Profissional p = new Profissional();
+        p.setNome(nome);
+        p.setEmail(email);
+        p.setTelefone(telefone);
+        p.setSenha(senha);
+        p.setCrp(crp);
+        p.setCargo(cargo);
+        p.setAreaId(areaId);
+        p.setAtivo(true);
+        p.setDataCadastro(LocalDateTime.now());
+        return profissionalRepository.save(p);
+    }
+
+    private void criarHorariosFuturos(Profissional prof, LocalDate hoje) {
         for (int i = 1; i <= 5; i++) {
             LocalDate dia = hoje.plusDays(i);
             for (int h = 8; h <= 16; h += 2) {
@@ -70,49 +162,123 @@ public class DataLoader implements CommandLineRunner {
                 horario.setHoraInicio(LocalTime.of(h, 0));
                 horario.setHoraFim(LocalTime.of(h + 1, 0));
                 horario.setDisponivel(true);
+                horario.setBloqueado(false);
                 horarioRepository.save(horario);
             }
         }
+    }
 
-        // 5. Atendimento de exemplo
-        Atendimento atendimento = new Atendimento();
-        atendimento.setAlunoId(aluno.getId());
-        atendimento.setProfissionalId(prof.getId());
-        atendimento.setDataHoraInicio(LocalDateTime.now().plusDays(2).withHour(14).withMinute(0));
-        atendimento.setDataHoraFim(LocalDateTime.now().plusDays(2).withHour(15).withMinute(0));
-        atendimento.setModalidade("PRESENCIAL");
-        atendimento.setLocal("Bloco D, sala 204");
-        atendimento.setStatus("AGENDADO");
-        atendimentoRepository.save(atendimento);
+    private void criarAviso(String titulo, String conteudo, String categoria,
+                            boolean destaque, String publicoAlvo) {
+        AvisoInstitucional a = new AvisoInstitucional();
+        a.setTitulo(titulo);
+        a.setConteudo(conteudo);
+        a.setCategoria(categoria);
+        a.setDestaque(destaque);
+        a.setPublicoAlvo(publicoAlvo);
+        a.setStatus("PUBLICADO");
+        a.setPublicadoEm(LocalDateTime.now());
+        a.setCriadoEm(LocalDateTime.now());
+        avisoRepository.save(a);
+    }
 
-        // 6. Avisos
-        AvisoInstitucional aviso1 = new AvisoInstitucional();
-        aviso1.setTitulo("Semana de Saúde Mental Unifor");
-        aviso1.setConteudo("De 12 a 16 de outubro, o PAP oferece rodas de conversa e oficinas abertas a todos os estudantes.");
-        aviso1.setCategoria("EVENTO");
-        aviso1.setDestaque(true);
-        aviso1.setPublicoAlvo("TODOS");
-        aviso1.setStatus("PUBLICADO");
-        aviso1.setCriadoEm(LocalDateTime.now());
-        avisoRepository.save(aviso1);
+    // ---------------------------------------------------------------
+    // Seeds
+    // ---------------------------------------------------------------
 
-        AvisoInstitucional aviso2 = new AvisoInstitucional();
-        aviso2.setTitulo("Novos horários em psicopedagogia");
-        aviso2.setConteudo("Horários de outubro abertos para agendamento. Confira a disponibilidade.");
-        aviso2.setCategoria("AVISO");
-        aviso2.setDestaque(false);
-        aviso2.setPublicoAlvo("ALUNOS");
-        aviso2.setStatus("PUBLICADO");
-        aviso2.setCriadoEm(LocalDateTime.now());
-        avisoRepository.save(aviso2);
+    private void seedAtendimentosAluno(Aluno aluno1, Aluno aluno2, Profissional camila,
+                                       Profissional prof2, AreaServico psicologia,
+                                       AreaServico psicopedagogia) {
+        LocalDateTime agora = LocalDateTime.now(FUSO_PAP).withMinute(0).withSecond(0).withNano(0);
 
-        //Admin
-        Administrador admin = new Administrador();
-        admin.setNome("Coordenação PAP");
-        admin.setEmail("admin@unifor.br");
-        admin.setTelefone("(85) 3477-3000");
-        admin.setSenha("Senha@123");
-        admin.setCargo("Coordenador(a) do PAP");
-        administradorRepository.save(admin);
+        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+                agora.minusDays(5), agora.minusDays(5).plusHours(1), "REALIZADO");
+        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+                agora.minusDays(7), agora.minusDays(7).plusHours(1), "FALTA");
+        criarAtendimentoSemHorario(aluno1, camila, psicologia,
+                agora.minusDays(9), agora.minusDays(9).plusHours(1), "CANCELADO");
+
+        criarAtendimentoComHorario(aluno2, camila, psicologia,
+                agora.minusHours(1), agora.minusHours(1).plusHours(1), "AGENDADO");
+        criarAtendimentoComHorario(aluno2, prof2, psicopedagogia,
+                agora.minusHours(2), agora.minusHours(2).plusHours(1), "AGENDADO");
+        criarAtendimentoComHorario(aluno2, camila, psicologia,
+                agora.minusHours(25), agora.minusHours(25).plusHours(1), "AGENDADO");
+
+        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+                agora.minusDays(10), agora.minusDays(10).plusHours(1), "FALTA");
+        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+                agora.minusDays(12), agora.minusDays(12).plusHours(1), "FALTA");
+        criarAtendimentoSemHorario(aluno2, camila, psicologia,
+                agora.minusDays(14), agora.minusDays(14).plusHours(1), "FALTA");
+    }
+
+    private void seedAtendimentosProfissional(Aluno aluno3, Profissional camila,
+                                              AreaServico psicologia) {
+        LocalDate hoje = LocalDate.now(FUSO_PAP);
+        int horaReferencia = Math.max(8, Math.min(20, LocalDateTime.now(FUSO_PAP).getHour()));
+        LocalDateTime referencia = hoje.atTime(horaReferencia, 0);
+
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                referencia.minusHours(1), referencia, "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                referencia.minusHours(3), referencia.minusHours(2), "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                referencia.minusHours(5), referencia.minusHours(4), "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                hoje.plusDays(1).atTime(14, 0), hoje.plusDays(1).atTime(15, 0), "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                hoje.plusDays(2).atTime(10, 0), hoje.plusDays(2).atTime(11, 0), "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                referencia.minusHours(25), referencia.minusHours(24), "AGENDADO");
+        criarAtendimentoComHorario(aluno3, camila, psicologia,
+                referencia.minusDays(2), referencia.minusDays(2).plusHours(1), "REALIZADO");
+    }
+
+    // ---------------------------------------------------------------
+    // Criação de atendimentos
+    // ---------------------------------------------------------------
+
+    private Atendimento criarAtendimentoComHorario(Aluno aluno, Profissional prof,
+                                                   AreaServico area, LocalDateTime inicio,
+                                                   LocalDateTime fim, String status) {
+        HorarioDisponivel horario = new HorarioDisponivel();
+        horario.setProfissionalId(prof.getId());
+        horario.setData(inicio.toLocalDate());
+        horario.setHoraInicio(inicio.toLocalTime());
+        horario.setHoraFim(fim.toLocalTime());
+        horario.setDisponivel(false);
+        horario.setBloqueado(false);
+        horarioRepository.save(horario);
+
+        Atendimento a = new Atendimento();
+        a.setAlunoId(aluno.getId());
+        a.setProfissionalId(prof.getId());
+        a.setAreaId(area.getId());
+        a.setHorarioId(horario.getId());
+        a.setDataHoraInicio(inicio);
+        a.setDataHoraFim(fim);
+        a.setModalidade("PRESENCIAL");
+        a.setLocal("Bloco D · Sala 204");
+        a.setStatus(status);
+        a.setDataCriacao(LocalDateTime.now());
+        return atendimentoRepository.save(a);
+    }
+
+    private Atendimento criarAtendimentoSemHorario(Aluno aluno, Profissional prof,
+                                                   AreaServico area, LocalDateTime inicio,
+                                                   LocalDateTime fim, String status) {
+        Atendimento a = new Atendimento();
+        a.setAlunoId(aluno.getId());
+        a.setProfissionalId(prof.getId());
+        a.setAreaId(area.getId());
+        a.setHorarioId(null);
+        a.setDataHoraInicio(inicio);
+        a.setDataHoraFim(fim);
+        a.setModalidade("PRESENCIAL");
+        a.setLocal("Bloco D · Sala 204");
+        a.setStatus(status);
+        a.setDataCriacao(LocalDateTime.now());
+        return atendimentoRepository.save(a);
     }
 }

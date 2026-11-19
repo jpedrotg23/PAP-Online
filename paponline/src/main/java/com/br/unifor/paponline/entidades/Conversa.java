@@ -1,8 +1,13 @@
 package com.br.unifor.paponline.entidades;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -11,20 +16,27 @@ import java.time.LocalDateTime;
 @Table(name = "conversas")
 @Getter
 @Setter
-@NoArgsConstructor
 public class Conversa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private Long alunoId;
 
-    @Column(nullable = false)
     private Long profissionalId;
 
-    private LocalDateTime criadoEm = LocalDateTime.now();
+    private Long adminId;
 
-    private LocalDateTime atualizadoEm = LocalDateTime.now();
+    private LocalDateTime criadoEm;
+
+    private LocalDateTime atualizadoEm;
+
+    @PrePersist
+    public void prePersist() {
+        if (criadoEm == null) {
+            criadoEm = LocalDateTime.now();
+        }
+        atualizadoEm = LocalDateTime.now();
+    }
 }

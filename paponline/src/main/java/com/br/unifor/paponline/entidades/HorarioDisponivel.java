@@ -33,4 +33,9 @@ public class HorarioDisponivel {
 
     @Column(nullable = false)
     private Boolean disponivel = true;
+
+    @Column(nullable = false)
+    private Boolean bloqueado = false;
+
+    private String motivoBloqueio;
 }

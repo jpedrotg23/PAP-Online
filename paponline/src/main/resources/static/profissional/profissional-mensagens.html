@@ -504,6 +504,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/pro.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
     (function () {
@@ -716,8 +717,9 @@
             }
 
             container.innerHTML = filtradas.map(c => {
+                const ehCoordenacao = !c.alunoId && !!c.adminId;
                 const aluno = state.alunosCache[c.alunoId];
-                const nome = aluno?.nome || 'Aluno #' + c.alunoId;
+                const nome = ehCoordenacao ? 'Coordenação PAP' : (aluno?.nome || 'Aluno #' + c.alunoId);
                 const mensagens = state.mensagensCache[c.id] || [];
                 const ultima = mensagens[mensagens.length - 1];
                 const preview = ultima
@@ -754,11 +756,14 @@
             const conversa = state.conversas.find(c => c.id === conversaId);
             if (!conversa) return;
 
+            const ehCoordenacao = !conversa.alunoId && !!conversa.adminId;
             const aluno = state.alunosCache[conversa.alunoId];
-            const nome = aluno?.nome || 'Aluno #' + conversa.alunoId;
+            const nome = ehCoordenacao ? 'Coordenação PAP' : (aluno?.nome || 'Aluno #' + conversa.alunoId);
 
             set('chatName', nome);
-            set('chatStatus', aluno?.matricula ? 'Matrícula ' + aluno.matricula + (aluno.curso ? ' · ' + aluno.curso : '') : 'Estudante do PAP');
+            set('chatStatus', ehCoordenacao
+                ? 'Coordenação do PAP'
+                : (aluno?.matricula ? 'Matrícula ' + aluno.matricula + (aluno.curso ? ' · ' + aluno.curso : '') : 'Estudante do PAP'));
             const avatar = document.getElementById('chatAvatar');
             if (avatar) avatar.textContent = iniciais(nome);
 

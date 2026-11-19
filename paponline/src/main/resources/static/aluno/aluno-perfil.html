@@ -6,6 +6,80 @@
   <title>PAP Online | Meu perfil</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/portais.css">
+  <style>
+    /* ============ Alertas (mesmo padrão do admin-perfil) ============ */
+    .perfil-alerta{
+      padding:11px 14px;
+      border-radius:9px;
+      font-size:12px;
+      margin-bottom:16px;
+      display:none;
+      line-height:1.5;
+    }
+    .perfil-alerta.sucesso{
+      background:#e5f6ef;
+      border:1px solid #b8e4d3;
+      color:#0b6b4a;
+    }
+    .perfil-alerta.erro{
+      background:#fff0ee;
+      border:1px solid #ffc7c1;
+      color:#8a221a;
+    }
+    .perfil-alerta.visivel{ display:block; }
+
+    /* ============ Campos bloqueados (visual de readonly) ============ */
+    .portal-form input[readonly]{
+      background:#f2f5fa;
+      color:#61708b;
+      cursor:not-allowed;
+    }
+    .portal-form input:focus:not([readonly]){
+      border-color:#7da3f7;
+      background:#fff;
+    }
+
+    /* ============ Zona de perigo (igual ao admin-perfil) ============ */
+    .perfil-perigo{
+      display:flex;
+      align-items:center;
+      gap:20px;
+      padding:22px 26px;
+      background:#fff;
+      border:1px solid #ffcfc9;
+      border-radius:14px;
+    }
+    .perfil-perigo > div{ flex:1; }
+    .perfil-perigo b{
+      font-size:13px;
+      color:#d42f26;
+      display:block;
+      margin-bottom:5px;
+    }
+    .perfil-perigo p{
+      font-size:11px;
+      color:#7e8ba2;
+      margin:0;
+      line-height:1.55;
+    }
+    .perfil-perigo button{
+      padding:10px 18px;
+      border-radius:9px;
+      background:#fff0ee;
+      border:1px solid #ffc7c1;
+      color:#d42f26;
+      font:700 12px Inter,Arial,sans-serif;
+      cursor:pointer;
+      flex-shrink:0;
+      transition:background .15s;
+    }
+    .perfil-perigo button:hover{ background:#ffe0db; }
+
+    @media (max-width:760px){
+      .perfil-perigo{ flex-direction:column; align-items:stretch; }
+      .perfil-perigo button{ width:100%; }
+    }
+  </style>
 </head>
 <body class="portal-body">
 <div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
@@ -90,7 +164,7 @@
           </div>
         </div>
 
-        <div id="alertaPerfil" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
+        <div id="alertaPerfil" class="perfil-alerta"></div>
 
         <form class="portal-form" id="formPerfil" novalidate>
           <div class="portal-form-grid">
@@ -138,7 +212,7 @@
           </div>
         </div>
 
-        <div id="alertaSenha" class="portal-info-box" style="display:none;margin-bottom:16px;"></div>
+        <div id="alertaSenha" class="perfil-alerta"></div>
 
         <form class="portal-form" id="formSenha" novalidate>
           <div class="portal-form-grid">
@@ -163,6 +237,15 @@
         </form>
       </section>
 
+      <!-- ============ ZONA DE PERIGO ============ -->
+      <section class="perfil-perigo">
+        <div>
+          <b>Desativar minha conta</b>
+          <p>Ao desativar sua conta, você perderá acesso ao PAP Online e não poderá mais agendar atendimentos ou enviar solicitações. Esta ação pode ser revertida entrando em contato com a coordenação do PAP.</p>
+        </div>
+        <button type="button" id="btnDesativarConta" aria-label="Desativar minha conta">Desativar conta</button>
+      </section>
+
     </section>
 
   </main>
@@ -172,6 +255,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
@@ -207,18 +291,20 @@
       return map[v] || v || 'Vínculo';
     }
 
+    // Mesmo padrão do admin-perfil: alertas via classe
     function mostrarAlerta(id, tipo, mensagem) {
       const el = document.getElementById(id);
       if (!el) return;
       el.textContent = mensagem;
-      el.style.display = 'block';
-      el.style.background = tipo === 'erro' ? '#fdecea' : '#e7f6f0';
-      el.style.color = tipo === 'erro' ? '#b42318' : '#067647';
+      el.className = 'perfil-alerta ' + tipo + ' visivel';
     }
 
     function esconderAlerta(id) {
       const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
+      if (el) {
+        el.className = 'perfil-alerta';
+        el.textContent = '';
+      }
     }
 
     // ---------- 1. Usuário logado ----------
@@ -248,13 +334,11 @@
         if (!r.ok) throw new Error('HTTP ' + r.status);
         aluno = await r.json();
 
-        // Resumo
         set('profileAvatar', iniciais(aluno.nome));
         set('profileNome', aluno.nome || 'Aluno');
         set('profileEmail', aluno.email || 'Contato não informado');
         set('profileVinculo', vinculoLabel(aluno.vinculo));
 
-        // Formulário
         document.getElementById('campoNome').value = aluno.nome || '';
         document.getElementById('campoMatricula').value = aluno.matricula || '';
         document.getElementById('campoEmail').value = aluno.email || '';
@@ -355,7 +439,6 @@
 
         aluno = await r.json();
 
-        // Atualiza resumo
         set('profileAvatar', iniciais(aluno.nome));
         set('profileNome', aluno.nome);
         set('profileEmail', aluno.email);
@@ -386,10 +469,7 @@
 
       esconderAlerta('alertaSenha');
 
-      if (!atual) {
-        mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.');
-        return;
-      }
+      if (!atual) { mostrarAlerta('alertaSenha', 'erro', 'Informe a senha atual.'); return; }
       if (nova.length < 8) {
         mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter pelo menos 8 caracteres.');
         return;
@@ -398,53 +478,19 @@
         mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ter maiúsculas, minúsculas e números.');
         return;
       }
-      if (nova !== confirmar) {
-        mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.');
-        return;
-      }
-      if (nova === atual) {
-        mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.');
-        return;
-      }
+      if (nova !== confirmar) { mostrarAlerta('alertaSenha', 'erro', 'As senhas não coincidem.'); return; }
+      if (nova === atual) { mostrarAlerta('alertaSenha', 'erro', 'A nova senha deve ser diferente da atual.'); return; }
 
       const btn = document.getElementById('btnAlterarSenha');
       btn.disabled = true;
       btn.textContent = 'Alterando…';
 
       try {
-        // Valida a senha atual fazendo login (best-effort)
-        const check = await fetch('/auth/login', {
-          method: 'POST',
+        const r = await fetch(`/alunos/${aluno.id}/senha`, {
+          method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            identifier: aluno.email,
-            password: atual,
-            requestedRole: 'student'
-          })
-        });
-
-        if (!check.ok) {
-          mostrarAlerta('alertaSenha', 'erro', 'Senha atual incorreta.');
-          return;
-        }
-
-        // Atualiza com PUT (mantém os outros campos)
-        const payload = {
-          nome: aluno.nome,
-          email: aluno.email,
-          telefone: aluno.telefone,
-          matricula: aluno.matricula,
-          curso: aluno.curso,
-          vinculo: aluno.vinculo,
-          senha: nova
-        };
-
-        const r = await fetch(`/alunos/${aluno.id}`, {
-          method: 'PUT',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ senhaAtual: atual, novaSenha: nova })
         });
 
         if (!r.ok) {
@@ -463,7 +509,21 @@
       }
     }
 
-    // ---------- 7. Eventos ----------
+    // ---------- 7. Desativar conta (placeholder) ----------
+    function desativarConta() {
+      const confirmado = confirm(
+              'Tem certeza que deseja desativar sua conta?\n\n' +
+              'Você perderá acesso ao PAP Online e não poderá mais agendar atendimentos ou enviar solicitações.'
+      );
+      if (!confirmado) return;
+
+      alert(
+              'A desativação de conta é realizada pela coordenação do PAP.\n\n' +
+              'Entre em contato com o setor responsável para concluir esta ação.'
+      );
+    }
+
+    // ---------- 8. Eventos ----------
     function ligarEventos() {
       document.getElementById('btnEditarPerfil').addEventListener('click', () => {
         if (modoEdicao) {
@@ -480,11 +540,12 @@
 
       document.getElementById('formSenha').addEventListener('submit', alterarSenha);
 
-      // Enter no form de perfil aciona "Salvar"
       document.getElementById('formPerfil').addEventListener('submit', (e) => {
         e.preventDefault();
         if (modoEdicao) salvarPerfil();
       });
+
+      document.getElementById('btnDesativarConta').addEventListener('click', desativarConta);
     }
 
     // ---------- Inicialização ----------

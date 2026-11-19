@@ -9,4 +9,5 @@ public interface SolicitacaoAdaptacaoRepository extends JpaRepository<Solicitaca
     List<SolicitacaoAdaptacao> findByAlunoId(Long alunoId);
     List<SolicitacaoAdaptacao> findByStatus(String status);
     boolean existsByProtocolo(String protocolo);
+    List<SolicitacaoAdaptacao> findByProtocoloStartingWith(String prefixo);
 }

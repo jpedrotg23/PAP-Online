@@ -7,334 +7,609 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/portais.css">
     <style>
-        .pap-loading-overlay{
-            position:fixed;inset:0;background:#f7f9fc;z-index:99999;
-            display:grid;place-items:center;color:#667085;
-            font:500 13px Inter,Arial,sans-serif;letter-spacing:.2px;
+        .pap-loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #f7f9fc;
+            z-index: 99999;
+            display: grid;
+            place-items: center;
+            color: #667085;
+            font: 500 13px Inter, Arial, sans-serif;
+            letter-spacing: .2px;
         }
 
-        /* ========== Semana ========== */
-        .agenda-semana{
-            display:grid;
-            grid-template-columns:repeat(7,minmax(0,1fr));
-            gap:8px;
-            padding:14px 18px;
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-radius:12px;
-            margin-bottom:20px;
-            overflow-x:auto;
-        }
-        .agenda-dia{
-            min-width:64px;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            gap:4px;
-            padding:10px 6px;
-            border:1px solid #e0e7f1;
-            border-radius:10px;
-            background:#f6f8fc;
-            cursor:pointer;
-            font-family:inherit;
-            color:#34415a;
-            transition:all .15s;
-        }
-        .agenda-dia:hover{ border-color:#7ba1f5; background:#f7faff; }
-        .agenda-dia.selecionado{
-            background:#2059dc;
-            border-color:#2059dc;
-            color:#fff;
-        }
-        .agenda-dia.hoje:not(.selecionado){ border-color:#2059dc; }
-        .agenda-dia-nome{
-            font-size:10px;
-            font-weight:700;
-            text-transform:uppercase;
-            letter-spacing:.4px;
-            color:#98a3b5;
-        }
-        .agenda-dia.selecionado .agenda-dia-nome{ color:rgba(255,255,255,.85); }
-        .agenda-dia-num{
-            font-size:17px;
-            font-weight:700;
-            line-height:1;
-        }
-        .agenda-dia-badge{
-            font-size:9px;
-            font-weight:700;
-            background:#2059dc;
-            color:#fff;
-            border-radius:99px;
-            padding:1px 6px;
-            min-width:18px;
-            text-align:center;
-        }
-        .agenda-dia.selecionado .agenda-dia-badge{
-            background:rgba(255,255,255,.25);
-        }
-        .agenda-dia-badge.vazio{ visibility:hidden; }
-
-        /* ========== Toolbar ========== */
-        .agenda-toolbar{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:12px;
-            margin-bottom:20px;
-            flex-wrap:wrap;
-        }
-        .agenda-nav{
-            display:flex;
-            align-items:center;
-            gap:8px;
-        }
-        .agenda-nav-btn{
-            width:34px;
-            height:34px;
-            border-radius:8px;
-            background:#fff;
-            border:1px solid #dfe6f1;
-            color:#64738d;
-            cursor:pointer;
-            font-size:14px;
-            transition:border-color .15s;
-        }
-        .agenda-nav-btn:hover{ border-color:#7ba1f5; color:#2059dc; }
-        .agenda-mes{
-            font-size:14px;
-            font-weight:700;
-            color:var(--portal-text);
-            text-transform:capitalize;
-            min-width:160px;
-            text-align:center;
-        }
-        .agenda-filtros{
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-        }
-        .agenda-filtros select{
-            height:34px;
-            padding:0 11px;
-            border:1px solid #dfe6f1;
-            border-radius:8px;
-            background:#fff;
-            font:600 11px Inter,Arial,sans-serif;
-            color:#34415a;
-            cursor:pointer;
+        .agenda-semana {
+            display: grid;
+            grid-template-columns:repeat(7, minmax(0, 1fr));
+            gap: 8px;
+            padding: 14px 18px;
+            background: #fff;
+            border: 1px solid var(--portal-line);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
         }
 
-        /* ========== Stats ========== */
-        .agenda-stats{
-            display:grid;
-            grid-template-columns:repeat(3,minmax(0,1fr));
-            gap:12px;
-            margin-bottom:20px;
-        }
-        .agenda-stat{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:16px;
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-radius:12px;
-        }
-        .agenda-stat-ico{
-            width:40px;
-            height:40px;
-            border-radius:10px;
-            display:grid;
-            place-items:center;
-            font-size:17px;
-            flex-shrink:0;
-        }
-        .agenda-stat-ico.blue{ background:#e8f0ff; color:#2059dc; }
-        .agenda-stat-ico.green{ background:#e5f6ef; color:#0b8b61; }
-        .agenda-stat-ico.orange{ background:#fff1df; color:#c35b0b; }
-        .agenda-stat small{
-            display:block;
-            font-size:10px;
-            color:#7e8ba2;
-            margin-bottom:3px;
-        }
-        .agenda-stat strong{
-            font-size:20px;
-            color:var(--portal-text);
-            line-height:1;
+        .agenda-dia {
+            min-width: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 10px 6px;
+            border: 1px solid #e0e7f1;
+            border-radius: 10px;
+            background: #f6f8fc;
+            cursor: pointer;
+            font-family: inherit;
+            color: #34415a;
+            transition: all .15s;
         }
 
-        /* ========== Lista de atendimentos ========== */
-        .agenda-lista{
-            display:grid;
-            gap:10px;
-        }
-        .agenda-card{
-            display:flex;
-            align-items:center;
-            gap:16px;
-            padding:16px 18px;
-            background:#fff;
-            border:1px solid var(--portal-line);
-            border-left:4px solid #dfe5f0;
-            border-radius:12px;
-            transition:border-color .15s;
-        }
-        .agenda-card.agendado{ border-left-color:#2059dc; }
-        .agenda-card.confirmado{ border-left-color:#2059dc; }
-        .agenda-card.realizado{ border-left-color:#0b8b61; opacity:.85; }
-        .agenda-card.cancelado{ border-left-color:#d92d20; opacity:.7; }
-        .agenda-card.falta{ border-left-color:#c35b0b; opacity:.85; }
-
-        .agenda-hora{
-            text-align:center;
-            flex-shrink:0;
-            min-width:64px;
-            padding-right:16px;
-            border-right:1px solid #e6ebf3;
-        }
-        .agenda-hora b{
-            display:block;
-            font-size:15px;
-            color:#1749a9;
-            line-height:1;
-        }
-        .agenda-hora small{
-            display:block;
-            font-size:10px;
-            color:#98a3b5;
-            margin-top:5px;
+        .agenda-dia:hover {
+            border-color: #7ba1f5;
+            background: #f7faff;
         }
 
-        .agenda-info{ flex:1; min-width:0; }
-        .agenda-info-titulo{
-            font-size:13px;
-            font-weight:700;
-            color:var(--portal-text);
-            margin:0 0 4px;
-            line-height:1.35;
-        }
-        .agenda-info-meta{
-            display:flex;
-            gap:12px;
-            flex-wrap:wrap;
-            font-size:11px;
-            color:#8290a6;
-        }
-        .agenda-info-meta span{ display:flex; align-items:center; gap:4px; }
-
-        .agenda-status{
-            padding:4px 10px;
-            border-radius:99px;
-            font-size:10px;
-            font-weight:700;
-            white-space:nowrap;
-            flex-shrink:0;
-            align-self:flex-start;
-        }
-        .agenda-status.agendado{ background:#eaf1ff; color:#2059dc; }
-        .agenda-status.confirmado{ background:#eaf1ff; color:#2059dc; }
-        .agenda-status.realizado{ background:#e5f6ef; color:#0b8b61; }
-        .agenda-status.cancelado{ background:#ffeae8; color:#d42f26; }
-        .agenda-status.falta{ background:#fff1df; color:#c35b0b; }
-
-        .agenda-acoes{
-            display:flex;
-            gap:6px;
-            flex-shrink:0;
-        }
-        .agenda-btn{
-            padding:8px 12px;
-            border-radius:7px;
-            border:1px solid #dfe6f1;
-            background:#fff;
-            color:#64738d;
-            font:600 11px Inter,Arial,sans-serif;
-            cursor:pointer;
-            transition:all .15s;
-            white-space:nowrap;
-        }
-        .agenda-btn:hover{ border-color:#7ba1f5; color:#2059dc; }
-        .agenda-btn.primary{
-            background:#2059dc;
-            border-color:#2059dc;
-            color:#fff;
-        }
-        .agenda-btn.primary:hover{ filter:brightness(1.08); }
-        .agenda-btn:disabled{ opacity:.55; cursor:not-allowed; }
-
-        /* ========== Slots disponíveis ========== */
-        .slots-grid{
-            display:flex;
-            flex-wrap:wrap;
-            gap:7px;
-            margin-top:14px;
-        }
-        .slot-chip{
-            padding:7px 13px;
-            border-radius:8px;
-            background:#f0f5ff;
-            border:1px solid #c7d9f5;
-            color:#1749a9;
-            font:600 11px Inter,Arial,sans-serif;
-            display:flex;
-            align-items:center;
-            gap:5px;
-        }
-        .slot-chip .btn-remover{
-            background:none;
-            border:0;
-            color:#8a99b2;
-            cursor:pointer;
-            font-size:13px;
-            padding:0;
-            line-height:1;
-        }
-        .slot-chip .btn-remover:hover{ color:#d92d20; }
-
-        /* ========== Empty state ========== */
-        .agenda-empty{
-            padding:28px;
-            text-align:center;
-            border:1px dashed #dfe6f1;
-            border-radius:12px;
-            background:#fbfcfe;
-            color:#75829c;
-        }
-        .agenda-empty b{
-            display:block;
-            font-size:13px;
-            color:#34415a;
-            margin-bottom:6px;
-        }
-        .agenda-empty p{
-            font-size:11px;
-            line-height:1.55;
-            margin:0;
+        .agenda-dia.selecionado {
+            background: #2059dc;
+            border-color: #2059dc;
+            color: #fff;
         }
 
-        @media (max-width:760px){
-            .agenda-semana{ grid-template-columns:repeat(7,68px); }
-            .agenda-stats{ grid-template-columns:1fr; }
-            .agenda-card{ flex-direction:column; align-items:flex-start; gap:10px; }
-            .agenda-hora{
-                padding-right:0; padding-bottom:8px;
-                border-right:0; border-bottom:1px solid #e6ebf3;
-                width:100%; text-align:left;
-                display:flex; gap:8px; align-items:baseline;
+        .agenda-dia.hoje:not(.selecionado) {
+            border-color: #2059dc;
+        }
+
+        .agenda-dia-nome {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: #98a3b5;
+        }
+
+        .agenda-dia.selecionado .agenda-dia-nome {
+            color: rgba(255, 255, 255, .85);
+        }
+
+        .agenda-dia-num {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .agenda-dia-badge {
+            font-size: 9px;
+            font-weight: 700;
+            background: #2059dc;
+            color: #fff;
+            border-radius: 99px;
+            padding: 1px 6px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .agenda-dia.selecionado .agenda-dia-badge {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .agenda-dia-badge.vazio {
+            visibility: hidden;
+        }
+
+        .agenda-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .agenda-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .agenda-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #dfe6f1;
+            color: #64738d;
+            cursor: pointer;
+            font-size: 14px;
+            transition: border-color .15s;
+        }
+
+        .agenda-nav-btn:hover {
+            border-color: #7ba1f5;
+            color: #2059dc;
+        }
+
+        .agenda-mes {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--portal-text);
+            text-transform: capitalize;
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .agenda-filtros select {
+            height: 34px;
+            padding: 0 11px;
+            border: 1px solid #dfe6f1;
+            border-radius: 8px;
+            background: #fff;
+            font: 600 11px Inter, Arial, sans-serif;
+            color: #34415a;
+            cursor: pointer;
+        }
+
+        .agenda-stats {
+            display: grid;
+            grid-template-columns:repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .agenda-stat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid var(--portal-line);
+            border-radius: 12px;
+        }
+
+        .agenda-stat-ico {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .agenda-stat-ico.blue {
+            background: #e8f0ff;
+            color: #2059dc;
+        }
+
+        .agenda-stat-ico.green {
+            background: #e5f6ef;
+            color: #0b8b61;
+        }
+
+        .agenda-stat-ico.orange {
+            background: #fff1df;
+            color: #c35b0b;
+        }
+
+        .agenda-stat small {
+            display: block;
+            font-size: 10px;
+            color: #7e8ba2;
+            margin-bottom: 3px;
+        }
+
+        .agenda-stat strong {
+            font-size: 20px;
+            color: var(--portal-text);
+            line-height: 1;
+        }
+
+        /* Card de atendimento */
+        .agenda-atendimento {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px 18px;
+            border: 1px solid var(--portal-line);
+            border-radius: 11px;
+            background: #fff;
+            margin-bottom: 10px;
+        }
+
+        .agenda-atendimento:last-child {
+            margin-bottom: 0;
+        }
+
+        .agenda-atendimento-main {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .agenda-atendimento-hora {
+            min-width: 74px;
+            text-align: center;
+            border-right: 1px solid #e4eaf2;
+            padding-right: 16px;
+        }
+
+        .agenda-atendimento-hora b {
+            display: block;
+            font-size: 16px;
+            color: #1749a9;
+            line-height: 1.1;
+        }
+
+        .agenda-atendimento-hora small {
+            display: block;
+            font-size: 10px;
+            color: #7e8ba2;
+            margin-top: 3px;
+        }
+
+        .agenda-atendimento-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .agenda-atendimento-info strong {
+            display: block;
+            font-size: 13px;
+            color: var(--portal-text);
+            margin-bottom: 3px;
+        }
+
+        .agenda-atendimento-info small {
+            display: block;
+            font-size: 11px;
+            color: #7e8ba2;
+            line-height: 1.4;
+        }
+
+        /* Footer de ações */
+        .agenda-atendimento-acoes {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px dashed #e4eaf2;
+        }
+
+        /* Botões de ação — claros, coloridos, alinhados ao portal-button */
+        .pap-acao {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 18px;
+            box-sizing: border-box;
+            border-radius: 9px;
+            border: 1.5px solid transparent;
+            font: 700 12px Inter, Arial, sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all .15s;
+        }
+
+        .pap-acao:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(32, 89, 220, .20);
+        }
+
+        .pap-acao--finalizar {
+            background: #2059dc;
+            color: #fff;
+            border-color: #2059dc;
+        }
+
+        .pap-acao--finalizar:hover {
+            background: #1a4dc4;
+            border-color: #1a4dc4;
+        }
+
+        .pap-acao--falta {
+            background: #fff8e6;
+            color: #8a5a00;
+            border-color: #f5d67a;
+        }
+
+        .pap-acao--falta:hover {
+            background: #fff0cc;
+            border-color: #e5c160;
+        }
+
+        .pap-acao--cancelar {
+            background: #fff;
+            color: #b42318;
+            border-color: #f7c9c4;
+        }
+
+        .pap-acao--cancelar:hover {
+            background: #fdecea;
+            border-color: #eab1a9;
+        }
+
+        /* Pills de status — auto-contidas para funcionar em pro-body sem depender de .portal-pill */
+        .pap-status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 11px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .pap-status-pill.info {
+            background: #eaf1ff;
+            color: #2059dc;
+        }
+
+        .pap-status-pill.success {
+            background: #e5f6ef;
+            color: #0b8b61;
+        }
+
+        .pap-status-pill.danger {
+            background: #ffeae8;
+            color: #d42f26;
+        }
+
+        .pap-status-pill.warning {
+            background: #fff1df;
+            color: #c35b0b;
+        }
+
+        .agenda-empty {
+            padding: 32px 20px;
+            text-align: center;
+            border: 1px dashed #dfe6f1;
+            border-radius: 10px;
+            background: #fbfcfe;
+            color: #75829c;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .agenda-empty b {
+            display: block;
+            color: #34415a;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        /* Modal */
+        .pap-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            backdrop-filter: blur(2px);
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            z-index: 99999;
+            animation: papFade .18s ease;
+        }
+
+        @keyframes papFade {
+            from {
+                opacity: 0
             }
-            .agenda-hora small{ margin:0; }
-            .agenda-acoes{ align-self:stretch; }
-            .agenda-acoes .agenda-btn{ flex:1; }
-            .agenda-status{ align-self:flex-start; }
+            to {
+                opacity: 1
+            }
+        }
+
+        .pap-modal {
+            background: #fff;
+            width: min(500px, 100%);
+            max-height: 90vh;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .30);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: papSlide .20s ease;
+        }
+
+        @keyframes papSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .pap-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e4eaf2;
+        }
+
+        .pap-modal-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .pap-modal-close {
+            background: none;
+            border: 0;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .pap-modal-close:hover {
+            background: #f1f4f9;
+        }
+
+        .pap-modal-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .pap-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 20px;
+            border-top: 1px solid #e4eaf2;
+            background: #fafbfd;
+        }
+
+        .pap-modal-btn {
+            min-height: 40px;
+            padding: 0 18px;
+            border-radius: 8px;
+            border: 0;
+            font: 700 12px Inter, Arial, sans-serif;
+            cursor: pointer;
+        }
+
+        .pap-modal-btn[disabled] {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .pap-modal-btn--ghost {
+            background: #eef1f6;
+            color: #374151;
+        }
+
+        .pap-modal-btn--ghost:hover:not([disabled]) {
+            background: #e2e7f0;
+        }
+
+        .pap-modal-btn--primary {
+            background: #2059dc;
+            color: #fff;
+        }
+
+        .pap-modal-btn--primary:hover:not([disabled]) {
+            background: #1a4dc4;
+        }
+
+        .pap-modal-btn--danger {
+            background: #c82333;
+            color: #fff;
+        }
+
+        .pap-modal-btn--danger:hover:not([disabled]) {
+            background: #a81c2a;
+        }
+
+        .pap-modal-text {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.55;
+            margin: 0 0 12px;
+        }
+
+        .pap-modal-info {
+            background: #f7faff;
+            border: 1px solid #d6e3fb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .pap-modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            padding: 5px 0;
+        }
+
+        .pap-modal-info-row + .pap-modal-info-row {
+            border-top: 1px dashed #d6e3fb;
+            margin-top: 5px;
+            padding-top: 10px;
+        }
+
+        .pap-modal-info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .pap-modal-info-value {
+            color: #1f2937;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .pap-modal-warning {
+            background: #fff8e6;
+            border: 1px solid #f5d67a;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+
+        .pap-modal-warning b {
+            display: block;
+            color: #8a5a00;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .pap-modal-warning p {
+            margin: 0;
+            font-size: 12px;
+            color: #6b4d00;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 760px) {
+            .agenda-semana {
+                grid-template-columns:repeat(7, 64px);
+            }
+
+            .agenda-stats {
+                grid-template-columns:1fr;
+            }
+
+            .agenda-atendimento-main {
+                flex-wrap: wrap;
+            }
+
+            .agenda-atendimento-hora {
+                border-right: 0;
+                border-bottom: 1px solid #e4eaf2;
+                padding-right: 0;
+                padding-bottom: 10px;
+                width: 100%;
+                text-align: left;
+            }
+
+            .agenda-atendimento-acoes {
+                justify-content: stretch;
+            }
+
+            .pap-acao {
+                flex: 1;
+            }
         }
     </style>
 </head>
 <body class="pro-body">
 <div class="pap-loading-overlay" id="papLoadingOverlay">Carregando…</div>
 
-<!-- ============ SIDEBAR ============ -->
+<!-- ============ SIDEBAR (template Pro) ============ -->
 <aside class="pro-sidebar">
     <div class="pro-brand">
         <span>PAP</span>
@@ -368,7 +643,7 @@
     <header class="pro-header">
         <div>
             <h1>Minha agenda</h1>
-            <p>Gerencie seus atendimentos e horários disponíveis.</p>
+            <p id="dataAtual">—</p>
         </div>
         <div class="pro-user">
             <span class="avatar" id="userAvatar">—</span>
@@ -384,16 +659,16 @@
 
     <div class="pro-content">
 
-        <!-- Toolbar: navegação de semana + filtros -->
+        <div class="agenda-semana" id="agendaSemana"></div>
+
         <div class="agenda-toolbar">
             <div class="agenda-nav">
-                <button class="agenda-nav-btn" id="btnSemanaAnterior" aria-label="Semana anterior">‹</button>
-                <span class="agenda-mes" id="semanaLabel">—</span>
-                <button class="agenda-nav-btn" id="btnSemanaProxima" aria-label="Próxima semana">›</button>
-                <button class="agenda-nav-btn" id="btnHoje" aria-label="Voltar para hoje" title="Hoje">⦿</button>
+                <button type="button" class="agenda-nav-btn" id="btnSemanaAnterior">‹</button>
+                <span class="agenda-mes" id="agendaMesAtual">—</span>
+                <button type="button" class="agenda-nav-btn" id="btnProximaSemana">›</button>
             </div>
             <div class="agenda-filtros">
-                <select id="filtroStatus" aria-label="Filtrar por status">
+                <select id="filtroStatus">
                     <option value="all">Todos os status</option>
                     <option value="AGENDADO">Agendados</option>
                     <option value="CONFIRMADO">Confirmados</option>
@@ -404,135 +679,61 @@
             </div>
         </div>
 
-        <!-- Semana -->
-        <div class="agenda-semana" id="semanaGrid"></div>
-
-        <!-- Stats -->
         <div class="agenda-stats">
             <article class="agenda-stat">
-                <span class="agenda-stat-ico blue">▣</span>
-                <div>
-                    <small>Total da semana</small>
-                    <strong id="statTotal">—</strong>
-                </div>
-            </article>
-            <article class="agenda-stat">
-                <span class="agenda-stat-ico green">✓</span>
-                <div>
-                    <small>Realizados</small>
-                    <strong id="statRealizados">—</strong>
-                </div>
+                <span class="agenda-stat-ico blue">▦</span>
+                <div><small>Atendimentos do dia</small><strong id="statDia">—</strong></div>
             </article>
             <article class="agenda-stat">
                 <span class="agenda-stat-ico orange">◷</span>
-                <div>
-                    <small>Agendados</small>
-                    <strong id="statAgendados">—</strong>
-                </div>
+                <div><small>Próximos</small><strong id="statProximos">—</strong></div>
+            </article>
+            <article class="agenda-stat">
+                <span class="agenda-stat-ico green">✓</span>
+                <div><small>Finalizados</small><strong id="statFinalizados">—</strong></div>
             </article>
         </div>
 
-        <!-- Lista de atendimentos -->
         <section class="pro-panel">
             <div class="pro-panel-head">
                 <div>
-                    <h2 id="tituloLista">Atendimentos do dia</h2>
-                    <p id="subtituloLista">—</p>
+                    <h2>Atendimentos de <span id="diaSelecionadoLabel">hoje</span></h2>
+                    <p>Finalize, registre falta ou cancele cada atendimento.</p>
                 </div>
             </div>
-            <div id="listaAtendimentos" class="agenda-lista">
-                <div class="agenda-empty">
-                    <b>Carregando…</b>
-                    <p>Buscando atendimentos.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Horários disponíveis -->
-        <section class="pro-panel" style="margin-top:20px">
-            <div class="pro-panel-head">
-                <div>
-                    <h2>Horários disponíveis</h2>
-                    <p>Horários publicados para agendamento pelos alunos.</p>
-                </div>
-                <button class="agenda-btn primary" id="btnNovoHorario" type="button">
-                    + Publicar horário
-                </button>
-            </div>
-            <div id="slotsDisponiveis">
-                <div class="agenda-empty">
-                    <b>Carregando…</b>
-                    <p>Buscando horários publicados.</p>
-                </div>
+            <div id="listaAtendimentos">
+                <div class="agenda-empty"><b>Carregando…</b>Buscando atendimentos.</div>
             </div>
         </section>
 
     </div>
 </main>
 
-<!-- ============ MODAL NOVO HORÁRIO ============ -->
-<div id="modalNovoHorario" style="display:none;position:fixed;inset:0;background:rgba(10,26,63,.55);z-index:9999;padding:20px;display:none;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:14px;padding:26px 28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(10,26,63,.25)">
-        <h2 style="font-size:16px;margin:0 0 6px;color:#102249">Publicar novo horário</h2>
-        <p style="font-size:12px;color:#75829c;margin:0 0 18px;line-height:1.55">Defina data, horário de início e fim do slot.</p>
-
-        <div style="display:grid;gap:12px;margin-bottom:16px">
-            <label style="font-size:11px;font-weight:600;color:#3b4860">
-                Data
-                <input type="date" id="novoData" style="display:block;width:100%;height:38px;margin-top:5px;padding:0 12px;border:1px solid #dfe6f1;border-radius:8px;background:#f8faff;font:400 12px Inter,Arial,sans-serif">
-            </label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <label style="font-size:11px;font-weight:600;color:#3b4860">
-                    Início
-                    <input type="time" id="novoInicio" style="display:block;width:100%;height:38px;margin-top:5px;padding:0 12px;border:1px solid #dfe6f1;border-radius:8px;background:#f8faff;font:400 12px Inter,Arial,sans-serif">
-                </label>
-                <label style="font-size:11px;font-weight:600;color:#3b4860">
-                    Fim
-                    <input type="time" id="novoFim" style="display:block;width:100%;height:38px;margin-top:5px;padding:0 12px;border:1px solid #dfe6f1;border-radius:8px;background:#f8faff;font:400 12px Inter,Arial,sans-serif">
-                </label>
-            </div>
-        </div>
-
-        <p id="erroNovoHorario" style="font-size:11px;color:#b42318;margin:0 0 10px;min-height:14px"></p>
-
-        <div style="display:flex;gap:9px;justify-content:flex-end">
-            <button class="agenda-btn" type="button" id="btnCancelarNovoHorario">Cancelar</button>
-            <button class="agenda-btn primary" type="button" id="btnSalvarNovoHorario">Publicar</button>
-        </div>
-    </div>
-</div>
-
 <script src="/js/api-config.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/pro.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
     (function () {
         'use strict';
 
-        // Pré-requisitos no backend:
-        //   GET   /auth/session
-        //   GET   /profissionais/{id}
-        //   GET   /atendimentos/profissional/{id}
-        //   PATCH /atendimentos/{id}/finalizar
-        //   GET   /horarios/profissional/{id}/disponiveis
-        //   POST  /horarios
-        //   DELETE /horarios/{id}
-        //   GET   /notificacoes/usuario/{id}/count
-        //   GET   /alunos/{id}
-
-        const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
         const state = {
             usuario: null,
-            profissional: null,
             atendimentos: [],
-            slots: [],
             alunosCache: {},
-            dataReferencia: new Date(),   // dia central da semana exibida
-            diaSelecionado: new Date(),   // dia clicado na semana
+            diaSelecionado: null,
+            inicioSemana: null,
             filtroStatus: 'all'
+        };
+
+        const STATUS_INFO = {
+            AGENDADO: {rotulo: 'Agendado', classe: 'info'},
+            CONFIRMADO: {rotulo: 'Confirmado', classe: 'success'},
+            REALIZADO: {rotulo: 'Realizado', classe: 'success'},
+            CANCELADO: {rotulo: 'Cancelado', classe: 'danger'},
+            FALTA: {rotulo: 'Falta', classe: 'warning'}
         };
 
         // ---------- Helpers ----------
@@ -554,84 +755,282 @@
             })[s]);
         }
 
-        function fmtHora(iso) {
-            return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function fmtDataCurta(d) {
-            return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
-        }
-
-        function fmtDataLonga(d) {
-            const r = d.toLocaleDateString('pt-BR', {
-                weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-            });
-            return r.charAt(0).toUpperCase() + r.slice(1);
-        }
-
-        function normalizarData(d) {
-            const x = new Date(d);
-            x.setHours(0, 0, 0, 0);
-            return x;
-        }
-
-        function mesmaData(a, b) {
-            return normalizarData(a).getTime() === normalizarData(b).getTime();
-        }
-
-        function isoDataLocal(d) {
-            // Retorna YYYY-MM-DD no fuso local
+        function isoDia(d) {
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${dd}`;
+            const dia = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dia}`;
         }
 
-        function statusInfo(s) {
-            const map = {
-                AGENDADO: { rotulo: 'Agendado', classe: 'agendado' },
-                CONFIRMADO: { rotulo: 'Confirmado', classe: 'confirmado' },
-                REALIZADO: { rotulo: 'Realizado', classe: 'realizado' },
-                CANCELADO: { rotulo: 'Cancelado', classe: 'cancelado' },
-                FALTA: { rotulo: 'Falta', classe: 'falta' }
+        function mesmoDia(a, b) {
+            return a.getFullYear() === b.getFullYear()
+                && a.getMonth() === b.getMonth()
+                && a.getDate() === b.getDate();
+        }
+
+        function segundaDaSemana(d) {
+            const copia = new Date(d);
+            copia.setHours(0, 0, 0, 0);
+            const diaSemana = copia.getDay();
+            const offset = diaSemana === 0 ? -6 : 1 - diaSemana;
+            copia.setDate(copia.getDate() + offset);
+            return copia;
+        }
+
+        function formatarHora(iso) {
+            return new Date(iso).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        function formatarDataHoraCompleta(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return iso;
+            return d.toLocaleDateString('pt-BR', {
+                weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+            }) + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        function formatarRestante(ms) {
+            if (ms <= 0) return 'já passou';
+            const dias = Math.floor(ms / 86400000);
+            const horas = Math.floor((ms % 86400000) / 3600000);
+            const mins = Math.floor((ms % 3600000) / 60000);
+            if (dias > 0) return `${dias}d ${horas}h ${mins}min`;
+            if (horas > 0) return `${horas}h ${mins}min`;
+            return `${mins}min`;
+        }
+
+        function nomeAluno(id) {
+            return state.alunosCache[id] || 'Aluno #' + id;
+        }
+
+        function statusInfo(status) {
+            return STATUS_INFO[status] || {rotulo: status || '—', classe: 'info'};
+        }
+
+        // ---------- Modal ----------
+        let modalKeyHandler = null;
+
+        function fecharModal() {
+            const el = document.getElementById('papProfModal');
+            if (el) el.remove();
+            if (modalKeyHandler) {
+                document.removeEventListener('keydown', modalKeyHandler);
+                modalKeyHandler = null;
+            }
+        }
+
+        function abrirModal(opts) {
+            fecharModal();
+            const overlay = document.createElement('div');
+            overlay.className = 'pap-modal-overlay';
+            overlay.id = 'papProfModal';
+            overlay.innerHTML = `
+            <div class="pap-modal" role="dialog" aria-modal="true">
+                <header class="pap-modal-header">
+                    <h3>${opts.titulo || ''}</h3>
+                    <button type="button" class="pap-modal-close" aria-label="Fechar">×</button>
+                </header>
+                <div class="pap-modal-body">${opts.corpo || ''}</div>
+                <footer class="pap-modal-footer">
+                    <button type="button" class="pap-modal-btn pap-modal-btn--ghost" data-fechar>
+                        ${opts.labelCancelar || 'Voltar'}
+                    </button>
+                    <button type="button" class="pap-modal-btn pap-modal-btn--${opts.perigo ? 'danger' : 'primary'}"
+                            data-confirmar>${opts.labelConfirmar || 'Confirmar'}</button>
+                </footer>
+            </div>`;
+            document.body.appendChild(overlay);
+
+            overlay.querySelector('.pap-modal-close').addEventListener('click', fecharModal);
+            overlay.querySelector('[data-fechar]').addEventListener('click', fecharModal);
+            overlay.addEventListener('click', (ev) => {
+                if (ev.target === overlay) fecharModal();
+            });
+
+            modalKeyHandler = (ev) => {
+                if (ev.key === 'Escape') fecharModal();
             };
-            return map[s] || { rotulo: s, classe: 'agendado' };
+            document.addEventListener('keydown', modalKeyHandler);
+
+            overlay.querySelector('[data-confirmar]').addEventListener('click', (ev) => {
+                opts.onConfirmar(ev.currentTarget, overlay);
+            });
+            return overlay;
         }
 
-        // ---------- 1. Usuário ----------
+        async function extrairMensagem(resposta, padrao) {
+            try {
+                const corpo = await resposta.json();
+                return corpo && corpo.message ? corpo.message : padrao;
+            } catch (_) {
+                return padrao;
+            }
+        }
+
+        // ---------- Ações ----------
+        async function acaoFinalizar(id) {
+            abrirModal({
+                titulo: 'Finalizar atendimento',
+                corpo: `
+                <p class="pap-modal-text">Confirma que este atendimento foi realizado?</p>
+                <div class="pap-modal-warning">
+                    <b>Atenção</b>
+                    <p>Após finalizar, o status fica <b>REALIZADO</b> e não pode ser alterado.</p>
+                </div>`,
+                labelCancelar: 'Cancelar',
+                labelConfirmar: 'Sim, finalizar',
+                onConfirmar: async (btn) => {
+                    btn.disabled = true;
+                    btn.textContent = 'Finalizando…';
+                    try {
+                        const r = await fetch(`/atendimentos/${id}/finalizar`, {
+                            method: 'PATCH', credentials: 'include'
+                        });
+                        if (!r.ok) throw new Error(await extrairMensagem(r, 'Não foi possível finalizar.'));
+                        fecharModal();
+                        window.alert('Atendimento finalizado com sucesso.');
+                        await carregarAtendimentos();
+                    } catch (e) {
+                        console.error('erro finalizar:', e);
+                        window.alert(e.message || 'Erro ao finalizar.');
+                        btn.disabled = false;
+                        btn.textContent = 'Sim, finalizar';
+                    }
+                }
+            });
+        }
+
+        async function acaoRegistrarFalta(id) {
+            abrirModal({
+                titulo: 'Registrar falta',
+                corpo: `
+                <p class="pap-modal-text">Confirma que o aluno faltou a este atendimento?</p>
+                <div class="pap-modal-warning">
+                    <b>Regra de faltas</b>
+                    <p>Três faltas no semestre suspendem novos agendamentos do aluno.</p>
+                </div>`,
+                labelCancelar: 'Cancelar',
+                labelConfirmar: 'Sim, registrar falta',
+                perigo: true,
+                onConfirmar: async (btn) => {
+                    btn.disabled = true;
+                    btn.textContent = 'Registrando…';
+                    try {
+                        const r = await fetch(`/atendimentos/${id}/falta`, {
+                            method: 'PATCH', credentials: 'include'
+                        });
+                        if (!r.ok) throw new Error(await extrairMensagem(r, 'Não foi possível registrar falta.'));
+                        fecharModal();
+                        window.alert('Falta registrada com sucesso.');
+                        await carregarAtendimentos();
+                    } catch (e) {
+                        console.error('erro falta:', e);
+                        window.alert(e.message || 'Erro ao registrar falta.');
+                        btn.disabled = false;
+                        btn.textContent = 'Sim, registrar falta';
+                    }
+                }
+            });
+        }
+
+        async function acaoCancelar(id) {
+            let atendimento = null;
+            try {
+                const r = await fetch(`/atendimentos/${id}`, {credentials: 'include'});
+                if (r.ok) atendimento = await r.json();
+            } catch (_) {
+            }
+
+            let blocoInfo = '';
+            if (atendimento && atendimento.dataHoraInicio) {
+                const restanteMs = new Date(atendimento.dataHoraInicio).getTime() - Date.now();
+                const viraFalta = restanteMs < 24 * 3600 * 1000 && restanteMs > 0;
+                blocoInfo = `
+                <div class="pap-modal-info">
+                    <div class="pap-modal-info-row">
+                        <span class="pap-modal-info-label">Agendado para</span>
+                        <span class="pap-modal-info-value">${formatarDataHoraCompleta(atendimento.dataHoraInicio)}</span>
+                    </div>
+                    <div class="pap-modal-info-row">
+                        <span class="pap-modal-info-label">Faltam</span>
+                        <span class="pap-modal-info-value">${formatarRestante(restanteMs)}</span>
+                    </div>
+                </div>
+                ${viraFalta ? `<div class="pap-modal-warning"><b>Atenção</b><p>Como faltam <b>menos de 24h</b>, o cancelamento será registrado como <b>FALTA</b>.</p></div>` : ''}`;
+            }
+
+            abrirModal({
+                titulo: 'Cancelar atendimento',
+                corpo: `${blocoInfo}<p class="pap-modal-text">Tem certeza de que deseja cancelar?</p>`,
+                labelCancelar: 'Não, manter',
+                labelConfirmar: 'Sim, cancelar',
+                perigo: true,
+                onConfirmar: async (btn) => {
+                    btn.disabled = true;
+                    btn.textContent = 'Cancelando…';
+                    try {
+                        const r = await fetch(`/atendimentos/${id}/cancelar`, {
+                            method: 'PATCH', credentials: 'include'
+                        });
+                        if (!r.ok) throw new Error(await extrairMensagem(r, 'Não foi possível cancelar.'));
+                        const atualizado = await r.json();
+                        fecharModal();
+                        window.alert(atualizado.status === 'FALTA'
+                            ? 'Cancelamento registrado como FALTA (menos de 24h).'
+                            : 'Atendimento cancelado com sucesso.');
+                        await carregarAtendimentos();
+                    } catch (e) {
+                        console.error('erro cancelar:', e);
+                        window.alert(e.message || 'Erro ao cancelar.');
+                        btn.disabled = false;
+                        btn.textContent = 'Sim, cancelar';
+                    }
+                }
+            });
+        }
+
+        // ---------- Delegação de clique ----------
+        document.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('[data-prof-acao]');
+            if (!btn) return;
+            ev.preventDefault();
+            const acao = btn.dataset.profAcao;
+            const id = btn.dataset.atendimentoId;
+            if (!id) return;
+            if (acao === 'finalizar') acaoFinalizar(id);
+            else if (acao === 'falta') acaoRegistrarFalta(id);
+            else if (acao === 'cancelar') acaoCancelar(id);
+        });
+
+        // Expõe para testar no console
+        window.papProf = {finalizar: acaoFinalizar, falta: acaoRegistrarFalta, cancelar: acaoCancelar};
+
+        // ---------- Dados ----------
         async function carregarUsuario() {
             try {
-                const r = await fetch('/auth/session', { credentials: 'include' });
+                const r = await fetch('/auth/session', {credentials: 'include'});
                 if (!r.ok) return null;
                 state.usuario = await r.json();
-
                 set('userName', state.usuario.nome || 'Profissional');
-                set('userDetail', state.usuario.email || 'Dados não carregados');
-                const avatar = document.getElementById('userAvatar');
-                if (avatar) avatar.textContent = iniciais(state.usuario.nome);
-
-                try {
-                    const rp = await fetch(`/profissionais/${state.usuario.id}`, { credentials: 'include' });
-                    if (rp.ok) {
-                        state.profissional = await rp.json();
-                        if (state.profissional.crp) {
-                            set('userDetail', state.profissional.crp);
-                        }
-                    }
-                } catch (_) {}
-
+                set('userDetail', state.usuario.email || '—');
+                const av = document.getElementById('userAvatar');
+                if (av) av.textContent = iniciais(state.usuario.nome);
+                const dataAtual = new Date().toLocaleDateString('pt-BR', {
+                    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                });
+                set('dataAtual', dataAtual.charAt(0).toUpperCase() + dataAtual.slice(1));
                 return state.usuario;
             } catch (e) {
-                console.error('Erro ao carregar usuário', e);
+                console.error(e);
                 return null;
             }
         }
 
-        // ---------- 2. Notificações ----------
         async function carregarNotificacoes() {
             if (!state.usuario?.id) return;
             try {
-                const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, { credentials: 'include' });
+                const r = await fetch(`/notificacoes/usuario/${state.usuario.id}/count`, {credentials: 'include'});
                 if (!r.ok) return;
                 const count = await r.json();
                 const badge = document.getElementById('badgeNotificacoes');
@@ -639,424 +1038,198 @@
                     if (count > 0) {
                         badge.textContent = count > 9 ? '9+' : String(count);
                         badge.style.display = '';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+                    } else badge.style.display = 'none';
                 }
-            } catch (_) {}
+            } catch (_) {
+            }
         }
 
-        // ---------- 3. Atendimentos ----------
-        async function carregarAtendimentos() {
-            if (!state.usuario?.id) return;
+        async function carregarAlunos() {
             try {
-                const r = await fetch(`/atendimentos/profissional/${state.usuario.id}`, { credentials: 'include' });
+                const r = await fetch('/alunos', {credentials: 'include'});
+                if (!r.ok) return;
+                const alunos = await r.json();
+                alunos.forEach(a => {
+                    state.alunosCache[a.id] = a.nome;
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function carregarAtendimentos() {
+            try {
+                const r = await fetch(`/atendimentos/profissional/${state.usuario.id}`, {
+                    credentials: 'include'
+                });
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 state.atendimentos = await r.json();
+                renderizarTudo();
             } catch (e) {
-                console.error('Erro ao carregar atendimentos', e);
-                state.atendimentos = [];
+                console.error('erro ao carregar:', e);
+                document.getElementById('listaAtendimentos').innerHTML =
+                    '<div class="agenda-empty"><b>Não foi possível carregar</b>Tente novamente.</div>';
             }
         }
 
-        // ---------- 4. Slots ----------
-        async function carregarSlots() {
-            if (!state.usuario?.id) return;
-            try {
-                const r = await fetch(`/horarios/profissional/${state.usuario.id}/disponiveis`, { credentials: 'include' });
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                state.slots = await r.json();
-            } catch (e) {
-                console.error('Erro ao carregar slots', e);
-                state.slots = [];
-            }
-        }
-
-        // ---------- 5. Aluno (cache) ----------
-        async function buscarAluno(id) {
-            if (!id) return null;
-            if (state.alunosCache[id]) return state.alunosCache[id];
-            try {
-                const r = await fetch(`/alunos/${id}`, { credentials: 'include' });
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                const aluno = await r.json();
-                state.alunosCache[id] = aluno;
-                return aluno;
-            } catch (_) {
-                return null;
-            }
-        }
-
-        // ---------- 6. Semana ----------
-        function calcularSemana(base) {
-            const d = normalizarData(base);
-            const diaSemana = d.getDay();       // 0 = domingo
-            const inicio = new Date(d);
-            inicio.setDate(d.getDate() - diaSemana);
-            const dias = [];
-            for (let i = 0; i < 7; i++) {
-                const dia = new Date(inicio);
-                dia.setDate(inicio.getDate() + i);
-                dias.push(dia);
-            }
-            return dias;
-        }
-
-        function atualizarLabelSemana(dias) {
-            const inicio = dias[0];
-            const fim = dias[6];
-            const mesmoMes = inicio.getMonth() === fim.getMonth();
-
-            if (mesmoMes) {
-                set('semanaLabel',
-                    `${inicio.getDate()} – ${fim.getDate()} de ${fim.toLocaleDateString('pt-BR', { month: 'long' })} de ${fim.getFullYear()}`);
-            } else {
-                set('semanaLabel',
-                    `${inicio.getDate()} ${inicio.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')} – ${fim.getDate()} ${fim.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}`);
-            }
+        // ---------- Renderização ----------
+        function renderizarTudo() {
+            renderizarSemana();
+            renderizarStats();
+            renderizarLista();
         }
 
         function renderizarSemana() {
-            const dias = calcularSemana(state.dataReferencia);
-            atualizarLabelSemana(dias);
-
+            const container = document.getElementById('agendaSemana');
             const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            if (!state.inicioSemana) state.inicioSemana = segundaDaSemana(hoje);
+            if (!state.diaSelecionado) state.diaSelecionado = hoje;
 
-            document.getElementById('semanaGrid').innerHTML = dias.map(d => {
-                const isHoje = mesmaData(d, hoje);
-                const isSelecionado = mesmaData(d, state.diaSelecionado);
-                const qtdDoDia = state.atendimentos.filter(a => {
-                    if (!mesmaData(new Date(a.dataHoraInicio), d)) return false;
-                    if (a.status === 'CANCELADO') return false;
-                    return true;
-                }).length;
+            const dias = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(state.inicioSemana);
+                d.setDate(d.getDate() + i);
+                dias.push(d);
+            }
+            const mesLabel = dias[0].toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+            set('agendaMesAtual', mesLabel.charAt(0).toUpperCase() + mesLabel.slice(1));
 
+            container.innerHTML = dias.map(d => {
+                const iso = isoDia(d);
+                const count = state.atendimentos.filter(a =>
+                    a.dataHoraInicio && isoDia(new Date(a.dataHoraInicio)) === iso
+                ).length;
+                const nomeDia = d.toLocaleDateString('pt-BR', {weekday: 'short'}).replace('.', '').toUpperCase();
+                const isHoje = mesmoDia(d, hoje);
+                const isSel = mesmoDia(d, state.diaSelecionado);
                 return `
-        <button class="agenda-dia ${isHoje ? 'hoje' : ''} ${isSelecionado ? 'selecionado' : ''}"
-                data-data="${isoDataLocal(d)}" type="button">
-          <span class="agenda-dia-nome">${DIAS_SEMANA[d.getDay()]}</span>
-          <span class="agenda-dia-num">${String(d.getDate()).padStart(2, '0')}</span>
-          <span class="agenda-dia-badge ${qtdDoDia === 0 ? 'vazio' : ''}">${qtdDoDia || '0'}</span>
-        </button>
-      `;
+                <button type="button" class="agenda-dia ${isSel ? 'selecionado' : ''} ${isHoje ? 'hoje' : ''}"
+                        data-dia="${iso}">
+                    <span class="agenda-dia-nome">${nomeDia}</span>
+                    <span class="agenda-dia-num">${d.getDate()}</span>
+                    <span class="agenda-dia-badge ${count === 0 ? 'vazio' : ''}">${count}</span>
+                </button>`;
             }).join('');
 
-            document.querySelectorAll('.agenda-dia').forEach(btn => {
+            container.querySelectorAll('.agenda-dia').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const [y, m, dd] = btn.dataset.data.split('-').map(Number);
+                    const [y, m, dd] = btn.dataset.dia.split('-').map(Number);
                     state.diaSelecionado = new Date(y, m - 1, dd);
                     renderizarSemana();
                     renderizarLista();
                     renderizarStats();
                 });
             });
+        }
 
+        function atendimentosDoDia() {
+            const iso = isoDia(state.diaSelecionado);
+            return state.atendimentos
+                .filter(a => a.dataHoraInicio && isoDia(new Date(a.dataHoraInicio)) === iso)
+                .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio));
+        }
+
+        function renderizarStats() {
+            const doDia = atendimentosDoDia();
+            const agora = new Date();
+            const proximos = doDia.filter(a =>
+                (a.status === 'AGENDADO' || a.status === 'CONFIRMADO') && new Date(a.dataHoraInicio) > agora
+            ).length;
+            const finalizados = doDia.filter(a => a.status === 'REALIZADO').length;
+            set('statDia', String(doDia.length));
+            set('statProximos', String(proximos));
+            set('statFinalizados', String(finalizados));
+        }
+
+        function renderizarLista() {
+            const container = document.getElementById('listaAtendimentos');
+            const labelDia = state.diaSelecionado.toLocaleDateString('pt-BR', {
+                weekday: 'long', day: '2-digit', month: 'long'
+            });
+            set('diaSelecionadoLabel', labelDia.charAt(0).toUpperCase() + labelDia.slice(1));
+
+            let lista = atendimentosDoDia();
+            if (state.filtroStatus !== 'all') {
+                lista = lista.filter(a => a.status === state.filtroStatus);
+            }
+
+            if (!lista.length) {
+                const msg = atendimentosDoDia().length === 0
+                    ? {titulo: 'Nenhum atendimento neste dia', texto: 'Escolha outro dia ou navegue para outra semana.'}
+                    : {titulo: 'Nenhum resultado para o filtro', texto: 'Ajuste o filtro de status.'};
+                container.innerHTML = `<div class="agenda-empty"><b>${msg.titulo}</b>${msg.texto}</div>`;
+                return;
+            }
+
+            container.innerHTML = lista.map(a => {
+                const info = statusInfo(a.status);
+                const inicio = new Date(a.dataHoraInicio);
+                const inicioPassou = inicio <= new Date();
+                const permiteAcoes = a.status === 'AGENDADO' || a.status === 'CONFIRMADO';
+
+                let botoes = '';
+                if (permiteAcoes) {
+                    if (inicioPassou) {
+                        botoes += `<button type="button" class="pap-acao pap-acao--finalizar"
+                        data-prof-acao="finalizar" data-atendimento-id="${a.id}">Finalizar</button>`;
+                        botoes += `<button type="button" class="pap-acao pap-acao--falta"
+                        data-prof-acao="falta" data-atendimento-id="${a.id}">Registrar falta</button>`;
+                    }
+                    botoes += `<button type="button" class="pap-acao pap-acao--cancelar"
+                    data-prof-acao="cancelar" data-atendimento-id="${a.id}">Cancelar</button>`;
+                }
+
+                return `
+                <div class="agenda-atendimento">
+                    <div class="agenda-atendimento-main">
+                        <div class="agenda-atendimento-hora">
+                            <b>${formatarHora(a.dataHoraInicio)}</b>
+                            <small>${a.dataHoraFim ? formatarHora(a.dataHoraFim) : ''}</small>
+                        </div>
+                        <div class="agenda-atendimento-info">
+                            <strong>${escapeHtml(nomeAluno(a.alunoId))}</strong>
+                            <small>${a.modalidade ? a.modalidade.toLowerCase() : 'presencial'}${a.local ? ' · ' + escapeHtml(a.local) : ''}</small>
+                        </div>
+                        <span class="pap-status-pill ${info.classe}">${info.rotulo}</span>
+                    </div>
+                    ${botoes ? `<div class="agenda-atendimento-acoes">${botoes}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function navegarSemana(delta) {
+            const nova = new Date(state.inicioSemana);
+            nova.setDate(nova.getDate() + delta * 7);
+            state.inicioSemana = nova;
+            const diaSel = new Date(state.diaSelecionado);
+            diaSel.setDate(diaSel.getDate() + delta * 7);
+            state.diaSelecionado = diaSel;
+            renderizarSemana();
+            renderizarLista();
             renderizarStats();
         }
 
-        // ---------- 7. Stats ----------
-        function renderizarStats() {
-            const dias = calcularSemana(state.dataReferencia);
-            const inicio = normalizarData(dias[0]);
-            const fim = normalizarData(dias[6]);
-            fim.setHours(23, 59, 59);
-
-            const daSemana = state.atendimentos.filter(a => {
-                const d = new Date(a.dataHoraInicio);
-                return d >= inicio && d <= fim;
-            });
-
-            set('statTotal', String(daSemana.length));
-            set('statRealizados', String(daSemana.filter(a => a.status === 'REALIZADO').length));
-            set('statAgendados', String(daSemana.filter(a => a.status === 'AGENDADO' || a.status === 'CONFIRMADO').length));
-        }
-
-        // ---------- 8. Lista ----------
-        function renderizarLista() {
-            const container = document.getElementById('listaAtendimentos');
-            const dia = state.diaSelecionado;
-            const statusFiltro = document.getElementById('filtroStatus').value;
-
-            set('tituloLista', mesmaData(dia, new Date()) ? 'Atendimentos de hoje' : 'Atendimentos do dia');
-            set('subtituloLista', fmtDataLonga(dia));
-
-            const doDia = state.atendimentos
-                .filter(a => mesmaData(new Date(a.dataHoraInicio), dia))
-                .filter(a => statusFiltro === 'all' || a.status === statusFiltro)
-                .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio));
-
-            if (!doDia.length) {
-                container.innerHTML = `
-        <div class="agenda-empty">
-          <b>Nenhum atendimento para este dia</b>
-          <p>${statusFiltro === 'all' ? 'Sua agenda está livre nesta data.' : 'Nenhum atendimento com este status nesta data.'}</p>
-        </div>`;
-                return;
-            }
-
-            container.innerHTML = doDia.map(a => {
-                const info = statusInfo(a.status);
-                const aluno = state.alunosCache[a.alunoId];
-                const nomeAluno = aluno?.nome || 'Aluno #' + a.alunoId;
-                const matricula = aluno?.matricula || '';
-                const podeFinalizar = (a.status === 'AGENDADO' || a.status === 'CONFIRMADO')
-                    && new Date(a.dataHoraInicio) <= new Date();
-
-                return `
-        <article class="agenda-card ${info.classe}">
-          <div class="agenda-hora">
-            <b>${fmtHora(a.dataHoraInicio)}</b>
-            <small>até ${fmtHora(a.dataHoraFim)}</small>
-          </div>
-          <div class="agenda-info">
-            <p class="agenda-info-titulo">${escapeHtml(nomeAluno)}${matricula ? ' · Matrícula ' + escapeHtml(matricula) : ''}</p>
-            <div class="agenda-info-meta">
-              <span>📍 ${escapeHtml(a.local || 'Local não definido')}</span>
-              <span>•</span>
-              <span>${a.modalidade === 'PRESENCIAL' ? 'Presencial' : 'Remoto'}</span>
-            </div>
-          </div>
-          <span class="agenda-status ${info.classe}">${info.rotulo}</span>
-          <div class="agenda-acoes">
-            ${podeFinalizar ? `
-              <button class="agenda-btn primary" data-finalizar="${a.id}" type="button">
-                Finalizar
-              </button>
-            ` : ''}
-          </div>
-        </article>
-      `;
-            }).join('');
-
-            container.querySelectorAll('[data-finalizar]').forEach(btn => {
-                btn.addEventListener('click', () => finalizarAtendimento(Number(btn.dataset.finalizar), btn));
-            });
-        }
-
-        // ---------- 9. Finalizar ----------
-        async function finalizarAtendimento(id, btn) {
-            if (!confirm('Confirma a finalização deste atendimento?')) return;
-
-            btn.disabled = true;
-            btn.textContent = 'Finalizando…';
-
-            try {
-                const r = await fetch(`/atendimentos/${id}/finalizar`, {
-                    method: 'PATCH',
-                    credentials: 'include'
-                });
-
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-
-                const atualizado = await r.json();
-
-                // Atualiza o item no state
-                const idx = state.atendimentos.findIndex(a => a.id === id);
-                if (idx !== -1) state.atendimentos[idx] = atualizado;
-
-                renderizarLista();
-                renderizarSemana();
-            } catch (e) {
-                console.error('Erro ao finalizar', e);
-                alert('Não foi possível finalizar o atendimento. Tente novamente.');
-                btn.disabled = false;
-                btn.textContent = 'Finalizar';
-            }
-        }
-
-        // ---------- 10. Slots disponíveis ----------
-        function renderizarSlots() {
-            const container = document.getElementById('slotsDisponiveis');
-
-            if (!state.slots.length) {
-                container.innerHTML = `
-        <div class="agenda-empty">
-          <b>Nenhum horário publicado</b>
-          <p>Publique horários para que os alunos possam agendar atendimentos.</p>
-        </div>`;
-                return;
-            }
-
-            // Agrupa por data
-            const grupos = {};
-            state.slots.forEach(h => {
-                if (!grupos[h.data]) grupos[h.data] = [];
-                grupos[h.data].push(h);
-            });
-
-            const datas = Object.keys(grupos).sort();
-
-            container.innerHTML = datas.map(data => {
-                const horarios = grupos[data].sort((a, b) =>
-                    (a.horaInicio || '').localeCompare(b.horaInicio || '')
-                );
-
-                return `
-        <div style="margin-bottom:16px">
-          <div style="font-size:12px;font-weight:700;color:#102249;margin-bottom:8px">
-            ${fmtDataCurta(new Date(data + 'T00:00:00'))}
-            <span style="font-size:10px;color:#98a3b5;font-weight:500">
-              (${horarios.length} horário${horarios.length > 1 ? 's' : ''})
-            </span>
-          </div>
-          <div class="slots-grid">
-            ${horarios.map(h => `
-              <div class="slot-chip">
-                ${(h.horaInicio || '').substring(0, 5)} — ${(h.horaFim || '').substring(0, 5)}
-                <button class="btn-remover" type="button" data-remover-slot="${h.id}" title="Remover horário">×</button>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-            }).join('');
-
-            container.querySelectorAll('[data-remover-slot]').forEach(btn => {
-                btn.addEventListener('click', () => removerSlot(Number(btn.dataset.removerSlot)));
-            });
-        }
-
-        // ---------- 11. Remover slot ----------
-        async function removerSlot(id) {
-            if (!confirm('Remover este horário da agenda?')) return;
-            try {
-                const r = await fetch(`/horarios/${id}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (!r.ok && r.status !== 204) throw new Error('HTTP ' + r.status);
-
-                state.slots = state.slots.filter(h => h.id !== id);
-                renderizarSlots();
-            } catch (e) {
-                console.error('Erro ao remover slot', e);
-                alert('Não foi possível remover o horário.');
-            }
-        }
-
-        // ---------- 12. Modal novo horário ----------
-        function abrirModalNovoHorario() {
-            const modal = document.getElementById('modalNovoHorario');
-            modal.style.display = 'flex';
-            document.getElementById('erroNovoHorario').textContent = '';
-
-            // Pré-preenche com o dia selecionado
-            document.getElementById('novoData').value = isoDataLocal(state.diaSelecionado);
-            document.getElementById('novoInicio').value = '14:00';
-            document.getElementById('novoFim').value = '15:00';
-        }
-
-        function fecharModalNovoHorario() {
-            document.getElementById('modalNovoHorario').style.display = 'none';
-        }
-
-        async function salvarNovoHorario() {
-            const data = document.getElementById('novoData').value;
-            const inicio = document.getElementById('novoInicio').value;
-            const fim = document.getElementById('novoFim').value;
-            const erro = document.getElementById('erroNovoHorario');
-            erro.textContent = '';
-
-            if (!data) { erro.textContent = 'Informe a data.'; return; }
-            if (!inicio || !fim) { erro.textContent = 'Informe início e fim.'; return; }
-            if (inicio >= fim) { erro.textContent = 'O horário de fim deve ser depois do início.'; return; }
-
-            const btn = document.getElementById('btnSalvarNovoHorario');
-            btn.disabled = true;
-            btn.textContent = 'Publicando…';
-
-            try {
-                const payload = {
-                    profissionalId: state.usuario.id,
-                    data,
-                    horaInicio: inicio + ':00',
-                    horaFim: fim + ':00',
-                    disponivel: true
-                };
-
-                const r = await fetch('/horarios', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!r.ok) {
-                    const body = await r.json().catch(() => ({}));
-                    throw new Error(body.message || 'Erro ao publicar horário');
-                }
-
-                fecharModalNovoHorario();
-                await carregarSlots();
-                renderizarSlots();
-            } catch (e) {
-                console.error('Erro ao salvar horário', e);
-                erro.textContent = e.message || 'Não foi possível publicar o horário.';
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Publicar';
-            }
-        }
-
-        // ---------- 13. Navegação de semana ----------
-        function irSemana(delta) {
-            const d = new Date(state.dataReferencia);
-            d.setDate(d.getDate() + delta * 7);
-            state.dataReferencia = d;
-            renderizarSemana();
-            renderizarLista();
-        }
-
-        function voltarParaHoje() {
-            state.dataReferencia = new Date();
-            state.diaSelecionado = new Date();
-            renderizarSemana();
-            renderizarLista();
-        }
-
-        // ---------- 14. Eventos ----------
         function ligarEventos() {
-            document.getElementById('btnSemanaAnterior').addEventListener('click', () => irSemana(-1));
-            document.getElementById('btnSemanaProxima').addEventListener('click', () => irSemana(1));
-            document.getElementById('btnHoje').addEventListener('click', voltarParaHoje);
-
+            document.getElementById('btnSemanaAnterior').addEventListener('click', () => navegarSemana(-1));
+            document.getElementById('btnProximaSemana').addEventListener('click', () => navegarSemana(1));
             document.getElementById('filtroStatus').addEventListener('change', (e) => {
                 state.filtroStatus = e.target.value;
                 renderizarLista();
             });
-
-            document.getElementById('btnNovoHorario').addEventListener('click', abrirModalNovoHorario);
-            document.getElementById('btnCancelarNovoHorario').addEventListener('click', fecharModalNovoHorario);
-            document.getElementById('btnSalvarNovoHorario').addEventListener('click', salvarNovoHorario);
-
-            document.getElementById('modalNovoHorario').addEventListener('click', (e) => {
-                if (e.target.id === 'modalNovoHorario') fecharModalNovoHorario();
-            });
         }
 
-        // ---------- Inicialização ----------
         document.addEventListener('DOMContentLoaded', async () => {
             ligarEventos();
-
             const u = await carregarUsuario();
-            if (!u) return;
-
-            await Promise.allSettled([
-                carregarAtendimentos(),
-                carregarSlots(),
-                carregarNotificacoes()
-            ]);
-
-            // Pré-carrega nomes dos alunos
-            const idsAlunos = [...new Set(state.atendimentos.map(a => a.alunoId).filter(Boolean))];
-            await Promise.allSettled(idsAlunos.map(id => buscarAluno(id)));
-
-            renderizarSemana();
-            renderizarLista();
-            renderizarSlots();
+            if (!u) {
+                console.error('usuário não carregado');
+                return;
+            }
+            await Promise.allSettled([carregarAlunos(), carregarNotificacoes()]);
+            await carregarAtendimentos();
         });
     })();
 </script>
-
 </body>
 </html>

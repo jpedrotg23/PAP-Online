@@ -560,6 +560,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
+<script src="/js/notificacoes.js"></script>
 
 <script>
   (function () {
@@ -639,13 +640,17 @@
 
     function filtrarPorArea(lista) {
       if (state.filtroArea === 'all') return lista;
-      // Deriva a área do cargo do profissional
+      const alvo = state.filtroArea.toLowerCase();
+      // "psicologia" -> "psico" (sem acento); "psicopedagogia" -> "psicop" (ambíguo com "psico")
+      const chave = alvo.startsWith('psicopedag') ? 'psicopedag' : 'psicolog';
       return lista.filter(a => {
         const prof = state.profissionaisCache[a.profissionalId];
         if (!prof) return false;
-        const cargo = (prof.cargo || '').toLowerCase();
-        const alvo = state.filtroArea.toLowerCase();
-        return cargo.includes(alvo.substring(0, 6));
+        // Remove acentos do cargo antes de comparar
+        const cargo = (prof.cargo || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        return cargo.includes(chave);
       });
     }
 

@@ -3,7 +3,7 @@ spring:
     name: paponline
 
   datasource:
-    url: jdbc:h2:mem:paponline
+    url: jdbc:h2:mem:paponline;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -11,8 +11,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+    open-in-view: false
 
-  web:
-    error:
-      include-message: always
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+server:
+  port: 8080
