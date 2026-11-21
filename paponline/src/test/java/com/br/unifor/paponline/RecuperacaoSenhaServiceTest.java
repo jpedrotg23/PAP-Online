@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -32,6 +33,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class RecuperacaoSenhaServiceTest {
+
+    private static final ZoneId FUSO_PAP = ZoneId.of("America/Fortaleza");
 
     private TokenRecuperacaoSenhaRepository tokens;
     private UsuarioRepository usuarios;
@@ -65,7 +68,7 @@ class RecuperacaoSenhaServiceTest {
         verify(tokens).save(captor.capture());
         TokenRecuperacaoSenha token = captor.getValue();
         assertEquals("student@example.edu", token.getIdentificador());
-        assertTrue(token.getExpiraEm().isAfter(LocalDateTime.now()));
+        assertTrue(token.getExpiraEm().isAfter(agoraPAP()));
         assertEquals(0, token.getTentativas());
         var codeCaptor = org.mockito.ArgumentCaptor.forClass(String.class);
         verify(email).enviarCodigoRecuperacao(eq("Student@Example.edu"), codeCaptor.capture());
@@ -103,7 +106,7 @@ class RecuperacaoSenhaServiceTest {
     @Test
     void expiredCodeIsInvalidated() {
         TokenRecuperacaoSenha token = token("123456");
-        token.setExpiraEm(LocalDateTime.now().minusSeconds(1));
+        token.setExpiraEm(agoraPAP().minusSeconds(1));
         when(tokens.findFirstByIdentificadorAndUsadoFalseOrderByCriadoEmDesc("student@example.edu"))
                 .thenReturn(Optional.of(token));
 
@@ -125,7 +128,7 @@ class RecuperacaoSenhaServiceTest {
     @Test
     void resendInvalidatesPreviousCode() {
         TokenRecuperacaoSenha old = token("111111");
-        old.setCriadoEm(LocalDateTime.now().minusMinutes(2));
+        old.setCriadoEm(agoraPAP().minusMinutes(2));
         when(tokens.findFirstByIdentificadorOrderByCriadoEmDesc("student@example.edu"))
                 .thenReturn(Optional.of(old));
         when(tokens.findByIdentificadorAndUsadoFalse("student@example.edu")).thenReturn(List.of(old));
@@ -139,7 +142,7 @@ class RecuperacaoSenhaServiceTest {
     @Test
     void requestInsideFrequencyWindowDoesNotSendAnotherEmail() {
         TokenRecuperacaoSenha recent = token("111111");
-        recent.setCriadoEm(LocalDateTime.now().minusSeconds(10));
+        recent.setCriadoEm(agoraPAP().minusSeconds(10));
         when(tokens.findFirstByIdentificadorOrderByCriadoEmDesc("student@example.edu"))
                 .thenReturn(Optional.of(recent));
 
@@ -165,7 +168,7 @@ class RecuperacaoSenhaServiceTest {
     @Test
     void failedEmailDoesNotPersistARecoveryToken() {
         TokenRecuperacaoSenha previousToken = token("111111");
-        previousToken.setCriadoEm(LocalDateTime.now().minusMinutes(2));
+        previousToken.setCriadoEm(agoraPAP().minusMinutes(2));
         when(tokens.findFirstByIdentificadorOrderByCriadoEmDesc("student@example.edu"))
                 .thenReturn(Optional.of(previousToken));
         when(tokens.findByIdentificadorAndUsadoFalse("student@example.edu"))
@@ -304,10 +307,14 @@ class RecuperacaoSenhaServiceTest {
         TokenRecuperacaoSenha token = new TokenRecuperacaoSenha();
         token.setIdentificador("student@example.edu");
         token.setCodigo(encoder.encode(rawCode));
-        token.setExpiraEm(LocalDateTime.now().plusMinutes(15));
+        token.setExpiraEm(agoraPAP().plusMinutes(15));
         token.setUsado(false);
         token.setTentativas(0);
-        token.setCriadoEm(LocalDateTime.now().minusMinutes(2));
+        token.setCriadoEm(agoraPAP().minusMinutes(2));
         return token;
+    }
+
+    private static LocalDateTime agoraPAP() {
+        return LocalDateTime.now(FUSO_PAP);
     }
 }
