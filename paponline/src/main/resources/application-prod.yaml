@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${PAP_DDL_AUTO:update}
+  h2:
+    console:
+      enabled: false
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+pap:
+  demo:
+    seed: false
+  upload-dir: ${PAP_UPLOAD_DIR}
+  consent:
+    version: ${PAP_CONSENT_VERSION}

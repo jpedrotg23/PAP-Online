@@ -1,0 +1,28 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, feature/backend-hardening]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Test and build executable JAR
+        working-directory: paponline
+        run: ./gradlew clean test bootJar --no-daemon

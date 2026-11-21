@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public interface HorarioDisponivelRepository extends JpaRepository<HorarioDisponivel, Long> {
 
@@ -19,4 +21,10 @@ public interface HorarioDisponivelRepository extends JpaRepository<HorarioDispon
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select h from HorarioDisponivel h where h.id = :id")
     Optional<HorarioDisponivel> findByIdForUpdate(@Param("id") Long id);
+
+    boolean existsByProfissionalIdAndDataAndHoraInicioLessThanAndHoraFimGreaterThan(
+            Long profissionalId, LocalDate data, LocalTime fim, LocalTime inicio);
+
+    boolean existsByProfissionalIdAndDataAndHoraInicioLessThanAndHoraFimGreaterThanAndIdNot(
+            Long profissionalId, LocalDate data, LocalTime fim, LocalTime inicio, Long id);
 }

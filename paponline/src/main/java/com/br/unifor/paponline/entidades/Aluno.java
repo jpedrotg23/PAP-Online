@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "aluno")
 @DiscriminatorValue("ALUNO")
@@ -20,4 +22,12 @@ public class Aluno extends Usuario {
     private String curso;
 
     private String vinculo;
+
+    @Column
+    private Boolean consentimentoAceito;
+
+    @Column(length = 40)
+    private String consentimentoVersao;
+
+    private LocalDateTime consentimentoEm;
 }

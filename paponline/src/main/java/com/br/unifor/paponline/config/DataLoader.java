@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -29,9 +31,17 @@ public class DataLoader implements CommandLineRunner {
     private final AtendimentoRepository atendimentoRepository;
     private final AvisoInstitucionalRepository avisoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
+
+    @Value("${pap.demo.seed:false}")
+    private boolean seedEnabled;
 
     @Override
     public void run(String... args) {
+        if (!seedEnabled || environment.matchesProfiles("prod")) {
+            log.info("Dados de demonstração desabilitados.");
+            return;
+        }
         if (areaServicoRepository.count() > 0) return;
 
         String senhaCriptografada = passwordEncoder.encode("Senha@123");

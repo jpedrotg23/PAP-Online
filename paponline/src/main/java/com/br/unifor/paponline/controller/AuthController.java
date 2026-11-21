@@ -9,14 +9,13 @@ import com.br.unifor.paponline.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -26,9 +25,6 @@ public class AuthController {
 
     private final UsuarioService usuarioService;
     private final RecuperacaoSenhaService recuperacaoService;
-
-    @Value("${pap.demo.mostrar-codigo:false}")
-    private boolean mostrarCodigoDemo;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpServletRequest request) {
@@ -63,9 +59,9 @@ public class AuthController {
         }
 
         HttpSession session = request.getSession(true);
-        session.setAttribute("usuarioId", u.getId());
-        session.setAttribute("perfil", tipo);       // <- NOVO
         request.changeSessionId();
+        session.setAttribute("usuarioId", u.getId());
+        session.setAttribute("perfil", tipo);
 
         return ResponseEntity.ok(montarResposta(u, tipo));
     }
@@ -115,14 +111,8 @@ public class AuthController {
         if (identificador == null || identificador.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe e-mail ou telefone");
         }
-        String codigo = recuperacaoService.solicitarCodigo(identificador);
-
-        Map<String, String> resp = new HashMap<>();
-        resp.put("mensagem", "Se o contato estiver cadastrado, enviaremos um código de recuperação.");
-        if (mostrarCodigoDemo && codigo != null) {
-            resp.put("codigoDemo", codigo);
-        }
-        return resp;
+        recuperacaoService.solicitarCodigo(identificador);
+        return Map.of("mensagem", "Se o contato estiver cadastrado, enviaremos um código de recuperação.");
     }
 
     @PostMapping("/validar-codigo")

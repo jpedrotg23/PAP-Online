@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +55,17 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> autenticar(String identificador, String senha) {
-        Optional<Usuario> opt = repository.findByEmailOrTelefone(identificador, identificador);
+        Optional<Usuario> opt;
+        if (identificador != null && identificador.contains("@")) {
+            opt = repository.findByEmailIgnoreCase(identificador.trim().toLowerCase(Locale.ROOT));
+        } else {
+            String telefone = identificador == null ? "" : identificador.replaceAll("\\D", "");
+            List<Usuario> encontrados = repository.findAll().stream()
+                    .filter(usuario -> usuario.getTelefone() != null
+                            && telefone.equals(usuario.getTelefone().replaceAll("\\D", "")))
+                    .toList();
+            opt = encontrados.size() == 1 ? Optional.of(encontrados.get(0)) : Optional.empty();
+        }
         if (opt.isEmpty()) return Optional.empty();
 
         Usuario u = opt.get();

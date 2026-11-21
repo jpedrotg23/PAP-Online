@@ -9,6 +9,7 @@ import com.br.unifor.paponline.entidades.HorarioDisponivel;
 import com.br.unifor.paponline.repository.AreaServicoRepository;
 import com.br.unifor.paponline.repository.AtendimentoRepository;
 import com.br.unifor.paponline.repository.HorarioDisponivelRepository;
+import com.br.unifor.paponline.repository.ProfissionalRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,8 @@ public class AtendimentoService {
     private final EntityManager entityManager;
     private final HorarioDisponivelRepository horarioRepository;
     private final NotificacaoService notificacaoService;
+    private final ProfissionalRepository profissionalRepository;
+    private final AuditoriaAtendimentoService auditoriaService;
 
     /** Cria o atendimento a partir de um horário publicado e bloqueia esse horário na mesma transação. */
     @Transactional
@@ -66,6 +69,13 @@ public class AtendimentoService {
 
         HorarioDisponivel horario = buscarHorarioParaAtualizacao(req.horarioId());
         validarHorarioDisponivel(horario, req.profissionalId());
+        var profissional = profissionalRepository.findById(horario.getProfissionalId())
+                .orElseThrow(() -> erro(HttpStatus.NOT_FOUND, "Profissional não encontrado."));
+        entityManager.lock(profissional, LockModeType.PESSIMISTIC_WRITE);
+        Long areaProfissional = profissional.getAreaId();
+        if (!Objects.equals(area.getId(), areaProfissional)) {
+            throw erro(HttpStatus.BAD_REQUEST, "O profissional não atende na área selecionada.");
+        }
 
         Long alunoId = sessao.userId();
         boolean jaPossuiAtendimentoNaArea = repository.existsByAlunoIdAndAreaIdAndStatusIn(
@@ -98,6 +108,7 @@ public class AtendimentoService {
         horarioRepository.save(horario);
 
         Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "CRIAR");
         notificacaoService.notificarAgendamentoCriado(salvo);
 
         log.info("[RF08/RGN10] Atendimento {} criado: aluno={}, area={}, horario={}, inicio={}",
@@ -106,12 +117,23 @@ public class AtendimentoService {
     }
 
     public List<Atendimento> listar() {
-        return repository.findAll();
+        SessionContext.SessionInfo sessao = exigirSessao();
+        if ("ALUNO".equals(sessao.perfil())) {
+            return auditarLista(repository.findByAlunoId(sessao.userId()), "CONSULTAR");
+        }
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            return auditarLista(repository.findByProfissionalId(sessao.userId()), "CONSULTAR");
+        }
+        if ("ADMIN".equals(sessao.perfil())) {
+            return auditarLista(repository.findAll(), "CONSULTAR_AGENDA");
+        }
+        throw erro(HttpStatus.FORBIDDEN, "Perfil sem acesso aos atendimentos.");
     }
 
     public Atendimento buscar(Long id) {
         Atendimento atendimento = buscarEntidade(id);
         aplicarOwnership(atendimento);
+        auditoriaService.registrar(atendimento, "CONSULTAR");
         return atendimento;
     }
 
@@ -120,7 +142,19 @@ public class AtendimentoService {
         if ("ALUNO".equals(sessao.perfil()) && !Objects.equals(sessao.userId(), alunoId)) {
             throw erro(HttpStatus.FORBIDDEN, "Você não pode consultar o histórico de outro aluno.");
         }
-        return repository.findByAlunoId(alunoId);
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            if (!repository.existsByAlunoIdAndProfissionalId(alunoId, sessao.userId())) {
+                throw erro(HttpStatus.FORBIDDEN,
+                        "Você não tem atendimento vinculado a este aluno.");
+            }
+            return auditarLista(repository.findByAlunoId(alunoId).stream()
+                    .filter(atendimento -> Objects.equals(atendimento.getProfissionalId(), sessao.userId()))
+                    .toList(), "CONSULTAR_HISTORICO");
+        }
+        if (!"ALUNO".equals(sessao.perfil()) && !"ADMIN".equals(sessao.perfil())) {
+            throw erro(HttpStatus.FORBIDDEN, "Perfil sem acesso ao histórico.");
+        }
+        return auditarLista(repository.findByAlunoId(alunoId), "CONSULTAR_HISTORICO");
     }
 
     public List<Atendimento> listarPorProfissional(Long profissionalId) {
@@ -130,7 +164,7 @@ public class AtendimentoService {
                 || !Objects.equals(sessao.userId(), profissionalId))) {
             throw erro(HttpStatus.FORBIDDEN, "Você não pode consultar a agenda deste profissional.");
         }
-        return repository.findByProfissionalId(profissionalId);
+        return auditarLista(repository.findByProfissionalId(profissionalId), "CONSULTAR_AGENDA");
     }
 
     /** O PUT legado permanece disponível, mas não pode alterar horário ou identidade e contornar a remarcação. */
@@ -147,7 +181,9 @@ public class AtendimentoService {
 
         atendimento.setModalidade(req.modalidade());
         atendimento.setLocal(req.local());
-        return repository.save(atendimento);
+        Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "ALTERAR");
+        return salvo;
     }
 
     /**
@@ -178,6 +214,7 @@ public class AtendimentoService {
         }
 
         Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "CANCELAR");
         notificacaoService.notificarCancelamentoAtendimento(salvo);
         return salvo;
     }
@@ -220,6 +257,7 @@ public class AtendimentoService {
         atendimento.setDataHoraFim(novoIntervalo.fim());
 
         Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "REMARCAR");
         notificacaoService.notificarRemarcacaoAtendimento(salvo);
 
         log.info("[RF23] Atendimento {} remarcado: novoHorario={}, novoInicio={}",
@@ -237,7 +275,9 @@ public class AtendimentoService {
             throw erro(HttpStatus.BAD_REQUEST, "O atendimento só pode ser finalizado após o horário de início.");
         }
         atendimento.setStatus(REALIZADO);
-        return repository.save(atendimento);
+        Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "FINALIZAR");
+        return salvo;
     }
 
     /** Registro manual de falta pelo profissional responsável, após o início do atendimento. */
@@ -250,7 +290,9 @@ public class AtendimentoService {
             throw erro(HttpStatus.BAD_REQUEST, "A falta só pode ser registrada após o início do horário agendado.");
         }
         atendimento.setStatus(FALTA);
-        return repository.save(atendimento);
+        Atendimento salvo = repository.save(atendimento);
+        auditoriaService.registrar(salvo, "REGISTRAR_FALTA");
+        return salvo;
     }
 
     /** Remoção física é uma operação administrativa excepcional; o fluxo normal é cancelar. */
@@ -260,9 +302,9 @@ public class AtendimentoService {
         if (!"ADMIN".equals(sessao.perfil())) {
             throw erro(HttpStatus.FORBIDDEN, "Somente um administrador pode excluir um atendimento.");
         }
-        Atendimento atendimento = buscarEntidade(id);
-        liberarHorario(atendimento);
-        repository.delete(atendimento);
+        buscarEntidade(id);
+        throw erro(HttpStatus.CONFLICT,
+                "Atendimentos devem ser preservados no histórico. Use cancelamento em vez de exclusão.");
     }
 
     /** Executado de hora em hora: registra FALTA após mais de 24h do início do atendimento. */
@@ -270,13 +312,14 @@ public class AtendimentoService {
     @Transactional
     public void marcarFaltasAutomaticamente() {
         LocalDateTime limite = agora().minusHours(24);
-        List<Atendimento> atrasados = repository.findByStatusInAndDataHoraInicioBefore(
+        List<Atendimento> atrasados = repository.findByStatusInAndDataHoraFimBefore(
                 STATUS_EM_ABERTO, limite);
         if (atrasados.isEmpty()) {
             return;
         }
         atrasados.forEach(atendimento -> atendimento.setStatus(FALTA));
         repository.saveAll(atrasados);
+        auditoriaService.registrarTodos(atrasados, "FALTA_AUTOMATICA");
         log.info("[RF32] {} atendimento(s) marcados como FALTA automaticamente.", atrasados.size());
     }
 
@@ -392,6 +435,11 @@ public class AtendimentoService {
             horario.setDisponivel(true);
             horarioRepository.save(horario);
         });
+    }
+
+    private List<Atendimento> auditarLista(List<Atendimento> atendimentos, String acao) {
+        auditoriaService.registrarTodos(atendimentos, acao);
+        return atendimentos;
     }
 
     private LocalDateTime agora() {

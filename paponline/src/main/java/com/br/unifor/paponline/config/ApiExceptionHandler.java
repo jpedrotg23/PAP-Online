@@ -14,6 +14,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.server.ResponseStatusException;
+import com.br.unifor.paponline.service.EmailDeliveryException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
@@ -28,6 +29,12 @@ public class ApiExceptionHandler {
                 ? "Não foi possível concluir a operação."
                 : ex.getReason();
         return ResponseEntity.status(ex.getStatusCode()).body(Map.of("message", mensagem));
+    }
+
+    @ExceptionHandler(EmailDeliveryException.class)
+    public ResponseEntity<Map<String, String>> tratarFalhaDeEmail(EmailDeliveryException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("message", "O serviço de recuperação está temporariamente indisponível. Tente novamente."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -25,6 +25,8 @@ public class SolicitacaoAdaptacao {
     @Column(nullable = false)
     private Long alunoId;
 
+    private Long areaId;
+
     private Long profissionalId;
 
     @Column(nullable = false)
