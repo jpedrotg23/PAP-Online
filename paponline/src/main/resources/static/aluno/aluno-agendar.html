@@ -415,7 +415,7 @@
     </div>
     <nav class="portal-navigation" aria-label="Menu principal">
       <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
-        <span class="portal-nav-icon">⌂</span><span>Início</span>
+        <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
       </a>
       <a class="portal-nav-link active" href="/aluno/aluno-agendar.html">
         <span class="portal-nav-icon">▦</span><span>Agendar</span>
@@ -434,7 +434,7 @@
       </a>
     </nav>
     <button class="portal-exit" type="button" data-role-logout>
-      <span class="portal-nav-icon">↪</span><span>Sair</span>
+      <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
     </button>
   </aside>
 
@@ -617,6 +617,8 @@
 <script src="/js/auth.js"></script>
 <script src="/js/portais.js"></script>
 <script src="/js/notificacoes.js"></script>
+<script src="/js/profissionais-filter.js"></script>
+<script src="/js/ui.js"></script>
 
 <script>
   (function () {
@@ -811,7 +813,7 @@
 
         container.innerHTML = state.areas.map(a => `
         <button type="button" class="area-card" data-area-id="${a.id}">
-          <div class="area-card-icone">${icones[a.nome] || '◈'}</div>
+          <div class="area-card-icone">${icones[normalizarTexto(a.nome)] || '◈'}</div>
           <h3 class="area-card-titulo">${escapeHtml(a.nome.toLowerCase())}</h3>
           <p class="area-card-descricao">${escapeHtml(a.descricao || '')}</p>
         </button>
@@ -860,21 +862,15 @@
       try {
         const r = await fetch('/profissionais', { credentials: 'include' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        const todos = await r.json();
+        const resposta = await r.json();
+        const todos = Array.isArray(resposta)
+          ? resposta
+          : (Array.isArray(resposta?.content) ? resposta.content : []);
 
         const areaNome = normalizarTexto(state.areaSelecionada.nome);
-        const areaId = state.areaSelecionada.id;
-        const filtrados = todos.filter(p => {
-          if (p.ativo === false) return false;
-          const cargo = normalizarTexto(p.cargo);
-          const atendePorArea = Number(p.areaId) === Number(areaId);
-          const atendePorCargo = areaNome === 'PSICOLOGIA'
-            ? cargo.includes('PSICOLOG')
-            : areaNome === 'PSICOPEDAGOGIA'
-              ? cargo.includes('PSICOPEDAGOG')
-              : false;
-          return atendePorArea || atendePorCargo;
-        });
+        const filtrados = window.PAPProfissionaisFiltro
+          ? window.PAPProfissionaisFiltro.filtrarProfissionais(todos, areaNome)
+          : [];
 
         state.profissionais = filtrados;
 

@@ -14,6 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
@@ -38,44 +40,35 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!seedEnabled || environment.matchesProfiles("prod")) {
+        if (!seedEnabled || !environment.matchesProfiles("local")
+                || environment.matchesProfiles("prod")) {
             log.info("Dados de demonstração desabilitados.");
             return;
         }
-        if (areaServicoRepository.count() > 0) return;
 
-        String senhaCriptografada = passwordEncoder.encode("Senha@123");
+        AreaServico psicologia = obterOuCriarArea("PSICOLOGIA", "Apoio emocional e saúde mental");
+        AreaServico psicopedagogia = obterOuCriarArea("PSICOPEDAGOGIA", "Apoio à aprendizagem acadêmica");
 
-        AreaServico psicologia = criarArea("PSICOLOGIA", "Apoio emocional e saúde mental");
-        AreaServico psicopedagogia = criarArea("PSICOPEDAGOGIA", "Apoio à aprendizagem acadêmica");
-
-        Administrador admin = new Administrador();
-        admin.setNome("Coordenação PAP");
-        admin.setEmail("admin@unifor.br");
-        admin.setTelefone("(85) 3477-3000");
-        admin.setSenha(senhaCriptografada);
-        admin.setCargo("Coordenador(a) do PAP");
-        admin.setAtivo(true);
-        admin.setDataCadastro(LocalDateTime.now());
-        administradorRepository.save(admin);
-
-        Aluno aluno1 = criarAluno("Aluno1", "aluno@edu.unifor.br", "(85) 99999-9999",
-                "2412345", "Ciência da Computação", senhaCriptografada);
-        Aluno aluno2 = criarAluno("Aluno2", "aluno2@edu.unifor.br", "(85) 98888-8888",
-                "2412346", "Engenharia de Software", senhaCriptografada);
-        Aluno aluno3 = criarAluno("Aluno3", "aluno3@edu.unifor.br", "(85) 97777-1111",
-                "2412347", "Design", senhaCriptografada);
-
-        Profissional profissional1 = criarProfissional("Profissional1", "profissional@unifor.br",
+        boolean criouConta = criarAdminSeAusente();
+        SeedResult<Aluno> aluno1 = criarAlunoSeAusente("Aluno1", "aluno@edu.unifor.br", "(85) 99999-9999",
+                "2412345", "Ciência da Computação");
+        SeedResult<Aluno> aluno2 = criarAlunoSeAusente("Aluno2", "aluno2@edu.unifor.br", "(85) 98888-8888",
+                "2412346", "Engenharia de Software");
+        SeedResult<Aluno> aluno3 = criarAlunoSeAusente("Aluno3", "aluno3@edu.unifor.br", "(85) 97777-1111",
+                "2412347", "Design");
+        SeedResult<Profissional> profissional1 = criarProfissionalSeAusente("Profissional1", "profissional@unifor.br",
                 "(85) 99876-5432", "CRP 11/54321", "Psicóloga e Psicopedagoga",
-                psicologia.getId(), senhaCriptografada);
-        Profissional profissional2 = criarProfissional("Profissional2", "prof2@unifor.br",
+                psicologia.getId());
+        SeedResult<Profissional> profissional2 = criarProfissionalSeAusente("Profissional2", "prof2@unifor.br",
                 "(85) 97777-7777", "CRP 11/12345", "Psicopedagoga",
-                psicopedagogia.getId(), senhaCriptografada);
+                psicopedagogia.getId());
+
+        criouConta |= aluno1.criado() || aluno2.criado() || aluno3.criado()
+                || profissional1.criado() || profissional2.criado();
 
         LocalDate hoje = LocalDate.now(FUSO_PAP);
-        criarHorariosFuturos(profissional1, hoje);
-        criarHorariosFuturos(profissional2, hoje);
+        if (profissional1.usuario() != null) criarHorariosFuturos(profissional1.usuario(), hoje);
+        if (profissional2.usuario() != null) criarHorariosFuturos(profissional2.usuario(), hoje);
 
         criarAviso("Semana de Saúde Mental Unifor",
                 "De 12 a 16 de outubro, o PAP oferece rodas de conversa e oficinas abertas a todos os estudantes.",
@@ -84,52 +77,117 @@ public class DataLoader implements CommandLineRunner {
                 "Horários de outubro abertos para agendamento. Confira a disponibilidade na área de agendamento.",
                 "AVISO", false, "ALUNOS");
 
-        seedAtendimentosAluno(aluno1, aluno2, profissional1, profissional2, psicologia, psicopedagogia);
-        seedAtendimentosProfissional(aluno3, profissional1, psicologia);
+        if (criouConta && atendimentoRepository.count() == 0
+                && aluno1.usuario() != null && aluno2.usuario() != null && aluno3.usuario() != null
+                && profissional1.usuario() != null && profissional2.usuario() != null) {
+            seedAtendimentosAluno(aluno1.usuario(), aluno2.usuario(), profissional1.usuario(),
+                    profissional2.usuario(), psicologia, psicopedagogia);
+            seedAtendimentosProfissional(aluno3.usuario(), profissional1.usuario(), psicologia);
+        }
     }
 
     // ---------------------------------------------------------------
     // Helpers de criação
     // ---------------------------------------------------------------
 
-    private AreaServico criarArea(String nome, String descricao) {
+    private AreaServico obterOuCriarArea(String nome, String descricao) {
+        AreaServico existente = areaServicoRepository.findAll().stream()
+                .filter(area -> nome.equalsIgnoreCase(area.getNome()))
+                .findFirst()
+                .orElse(null);
+        if (existente != null) return existente;
+
         AreaServico a = new AreaServico();
         a.setNome(nome);
         a.setDescricao(descricao);
         return areaServicoRepository.save(a);
     }
 
-    private Aluno criarAluno(String nome, String email, String telefone,
-                             String matricula, String curso, String senha) {
+    private boolean criarAdminSeAusente() {
+        var existente = usuarioRepository.findByEmailIgnoreCase("admin@unifor.br");
+        if (existente.isPresent()) {
+            if (!(existente.get() instanceof Administrador)) {
+                log.warn("Conta de demonstração admin existente com tipo incompatível; preservada.");
+            }
+            return false;
+        }
+
+        Administrador admin = new Administrador();
+        admin.setNome("Coordenação PAP");
+        admin.setEmail("admin@unifor.br");
+        admin.setTelefone("(85) 3477-3000");
+        admin.setSenha(passwordEncoder.encode("Senha@123"));
+        admin.setCargo("Coordenador(a) do PAP");
+        admin.setAtivo(true);
+        admin.setDataCadastro(LocalDateTime.now());
+        administradorRepository.save(admin);
+        return true;
+    }
+
+    private SeedResult<Aluno> criarAlunoSeAusente(String nome, String email, String telefone,
+                                                   String matricula, String curso) {
+        var existentePorEmail = usuarioRepository.findByEmailIgnoreCase(email);
+        if (existentePorEmail.isPresent()) {
+            if (existentePorEmail.get() instanceof Aluno aluno) {
+                return new SeedResult<>(aluno, false);
+            }
+            log.warn("Conta de demonstração de aluno existente com tipo incompatível; preservada.");
+            return new SeedResult<>(null, false);
+        }
+        var existentePorMatricula = alunoRepository.findByMatricula(matricula);
+        if (existentePorMatricula.isPresent()) {
+            return new SeedResult<>(existentePorMatricula.get(), false);
+        }
+
         Aluno a = new Aluno();
         a.setNome(nome);
         a.setEmail(email);
         a.setTelefone(telefone);
-        a.setSenha(senha);
+        a.setSenha(passwordEncoder.encode("Senha@123"));
         a.setMatricula(matricula);
         a.setCurso(curso);
         a.setVinculo("GRADUACAO");
         a.setAtivo(true);
         a.setDataCadastro(LocalDateTime.now());
-        return alunoRepository.save(a);
+        Aluno criado = alunoRepository.save(a);
+        return new SeedResult<>(criado, true);
     }
 
-    private Profissional criarProfissional(String nome, String email, String telefone,
-                                           String crp, String cargo, Long areaId, String senha) {
+    private SeedResult<Profissional> criarProfissionalSeAusente(String nome, String email, String telefone,
+                                                                 String crp, String cargo, Long areaId) {
+        var existentePorEmail = usuarioRepository.findByEmailIgnoreCase(email);
+        if (existentePorEmail.isPresent()) {
+            if (existentePorEmail.get() instanceof Profissional profissional) {
+                return new SeedResult<>(profissional, false);
+            }
+            log.warn("Conta de demonstração profissional existente com tipo incompatível; preservada.");
+            return new SeedResult<>(null, false);
+        }
+        var existentePorCrp = profissionalRepository.findByCrp(crp);
+        if (existentePorCrp.isPresent()) {
+            return new SeedResult<>(existentePorCrp.get(), false);
+        }
+
         Profissional p = new Profissional();
         p.setNome(nome);
         p.setEmail(email);
         p.setTelefone(telefone);
-        p.setSenha(senha);
+        p.setSenha(passwordEncoder.encode("Senha@123"));
         p.setCrp(crp);
         p.setCargo(cargo);
         p.setAreaId(areaId);
         p.setAtivo(true);
         p.setDataCadastro(LocalDateTime.now());
-        return profissionalRepository.save(p);
+        Profissional criado = profissionalRepository.save(p);
+        return new SeedResult<>(criado, true);
+    }
+
+    private record SeedResult<T>(T usuario, boolean criado) {
     }
 
     private void criarHorariosFuturos(Profissional prof, LocalDate hoje) {
+        if (!horarioRepository.findByProfissionalId(prof.getId()).isEmpty()) return;
+
         for (int i = 1; i <= 5; i++) {
             LocalDate dia = hoje.plusDays(i);
             for (int h = 8; h <= 16; h += 2) {
@@ -147,6 +205,10 @@ public class DataLoader implements CommandLineRunner {
 
     private void criarAviso(String titulo, String conteudo, String categoria,
                             boolean destaque, String publicoAlvo) {
+        boolean existe = avisoRepository.findAll().stream()
+                .anyMatch(aviso -> Objects.equals(titulo, aviso.getTitulo()));
+        if (existe) return;
+
         AvisoInstitucional a = new AvisoInstitucional();
         a.setTitulo(titulo);
         a.setConteudo(conteudo);

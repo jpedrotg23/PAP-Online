@@ -1,7 +1,3 @@
-const papUiScript = document.createElement('script');
-papUiScript.src = '/js/ui.js';
-document.head.appendChild(papUiScript);
-
 document.addEventListener('DOMContentLoaded', () => {
   const filterButtons = document.querySelectorAll('[data-filter]');
   filterButtons.forEach(button => button.addEventListener('click', () => {

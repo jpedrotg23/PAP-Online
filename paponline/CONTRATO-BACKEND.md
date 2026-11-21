@@ -15,9 +15,9 @@ Este contrato descreve o código atualmente presente, não uma promessa de funci
 
 ## Recuperação de senha e e-mail
 
-`POST /auth/recuperar` aceita `identifier` (e-mail ou telefone normalizado). A conta é localizada e o código de seis dígitos é enviado ao e-mail cadastrado usando a API HTTPS do Resend. O código é salvo com BCrypt, expira em 15 minutos, tem até cinco tentativas e o envio é limitado a um por minuto e cinco por dia por conta. Um novo código enviado invalida os anteriores. Senhas iguais à atual são recusadas.
+`POST /auth/recuperar` aceita `identifier` (e-mail ou telefone normalizado). A conta é localizada e o código de seis dígitos é enviado ao e-mail cadastrado usando a API HTTPS do Resend. O código é salvo com BCrypt somente depois que o Resend aceita o envio, expira em 15 minutos, tem até cinco tentativas e o envio é limitado a um por minuto e cinco por dia por conta. Uma nova solicitação invalida códigos anteriores antes da tentativa de envio; se a entrega falhar, nenhum código novo é salvo. Senhas iguais à atual são recusadas.
 
-O endpoint nunca devolve o código. Contas inexistentes recebem uma resposta genérica. Falha de entrega resulta em HTTP 503; nesse caso nenhum código é salvo, e somente a classe da falha operacional é registrada. Essa diferença de resposta em falha de entrega ainda permite inferência de existência da conta; eliminar totalmente essa inferência exige processamento assíncrono durável sem confirmação síncrona de entrega.
+O endpoint nunca devolve o código. Contas inexistentes e falhas na entrega recebem o mesmo HTTP 200 e o mesmo corpo genérico: `Se o endereço estiver cadastrado, você receberá as instruções de recuperação.` Assim, a resposta não confirma se a conta existe nem afirma que o e-mail foi enviado. Falhas operacionais são registradas somente com metadados diagnósticos seguros (código, classe técnica ou status HTTP), sem e-mail, código, token ou credenciais.
 
 Configure `RESEND_API_KEY` e `PAP_EMAIL_FROM` no ambiente. O endereço remetente deve pertencer a domínio verificado no Resend. A suíte automatizada usa servidor HTTP simulado; não envia e-mails reais.
 

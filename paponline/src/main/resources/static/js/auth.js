@@ -113,7 +113,7 @@
     if (!getPreviewRole() || document.getElementById('pap-preview-banner')) return;
     const banner = document.createElement('div');
     banner.id = 'pap-preview-banner';
-    banner.textContent = 'MODO DE DEMONSTRAÇÃO — BACKEND NÃO CONECTADO';
+    banner.textContent = 'MODO DE DEMONSTRAÇíO — BACKEND NíO CONECTADO';
     banner.setAttribute('role', 'status');
     banner.style.cssText = 'position:fixed;z-index:9999;left:50%;bottom:12px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:7px 12px;border:1px solid #d7a94a;border-radius:999px;background:#fff8df;color:#765a16;font-size:10px;font-weight:700;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.08)';
     document.body.appendChild(banner);

@@ -64,8 +64,9 @@
             'width: 380px',
             'max-width: calc(100vw - 40px)',
             'max-height: 70vh',
-            'background: #fff',
-            'border: 1px solid #dfe6f1',
+            'background: var(--surface, #fff)',
+            'border: 1px solid var(--line, #dfe6f1)',
+            'color: var(--text, #34415a)',
             'border-radius: 14px',
             'box-shadow: 0 20px 60px rgba(10,26,63,.25)',
             'z-index: 100000',
@@ -83,15 +84,15 @@
         const naoLidas = state.notificacoes.filter(n => !n.lida).length;
 
         painel.innerHTML = `
-            <div style="padding:14px 18px;border-bottom:1px solid #edf0f5;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="padding:14px 18px;border-bottom:1px solid var(--line, #edf0f5);display:flex;align-items:center;justify-content:space-between;gap:8px">
                 <div>
-                    <strong style="font-size:14px;color:#0f1b33">Notificações</strong>
+                    <strong style="font-size:14px;color:var(--text, #0f1b33)">Notificações</strong>
                     ${naoLidas > 0
-            ? `<span style="margin-left:6px;font-size:11px;color:#64738d">${naoLidas} não lida${naoLidas > 1 ? 's' : ''}</span>`
+            ? `<span style="margin-left:6px;font-size:11px;color:var(--muted, #64738d)">${naoLidas} não lida${naoLidas > 1 ? 's' : ''}</span>`
             : ''}
                 </div>
                 ${naoLidas > 0
-            ? `<button type="button" data-marcar-todas style="border:0;background:none;color:#2059dc;font-size:11px;font-weight:700;cursor:pointer;padding:4px">Marcar todas como lidas</button>`
+            ? `<button type="button" data-marcar-todas style="border:0;background:none;color:var(--blue, #2059dc);font-size:11px;font-weight:700;cursor:pointer;padding:4px">Marcar todas como lidas</button>`
             : ''}
             </div>
             <div style="flex:1;overflow-y:auto;padding:6px" data-lista></div>
@@ -107,15 +108,15 @@
             lista.innerHTML = state.notificacoes.map(n => `
                 <div data-notif-id="${n.id}" style="
                     display:flex;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;
-                    background:${n.lida ? 'transparent' : '#f0f5ff'};
+                    background:${n.lida ? 'transparent' : 'var(--info-bg, #f0f5ff)'};
                     margin-bottom:2px;
                 ">
-                    <span style="width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;background:${n.lida ? 'transparent' : '#2059dc'}"></span>
+                    <span style="width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;background:${n.lida ? 'transparent' : 'var(--blue, #2059dc)'}"></span>
                     <div style="flex:1;min-width:0">
-                        <div style="font-size:12px;font-weight:700;color:#0f1b33;margin-bottom:2px">
+                        <div style="font-size:12px;font-weight:700;color:var(--text, #0f1b33);margin-bottom:2px">
                             ${escapeHtml(n.titulo)}
                         </div>
-                        <div style="font-size:11px;color:#52617a;line-height:1.4">
+                        <div style="font-size:11px;color:var(--muted, #52617a);line-height:1.4">
                             ${escapeHtml(n.mensagem)}
                         </div>
                         <div style="font-size:10px;color:#94a0b3;margin-top:4px">

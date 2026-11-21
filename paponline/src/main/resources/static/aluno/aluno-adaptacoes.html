@@ -161,7 +161,7 @@
         </div>
         <nav class="portal-navigation" aria-label="Menu principal">
             <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
-                <span class="portal-nav-icon">⌂</span><span>Início</span>
+                <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
             </a>
             <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
                 <span class="portal-nav-icon">▦</span><span>Agendar</span>
@@ -180,7 +180,7 @@
             </a>
         </nav>
         <button class="portal-exit" type="button" data-role-logout>
-            <span class="portal-nav-icon">↪</span><span>Sair</span>
+            <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
         </button>
     </aside>
 
@@ -243,7 +243,9 @@
                         <div class="span-2">
                             <label for="anexosInput">Documentos comprobatórios (opcional)</label>
                             <div class="pap-upload-area" id="dropZone">
-                                <span class="pap-upload-icon">⬆</span>
+                                <span class="pap-upload-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+                                </span>
                                 <span class="pap-upload-titulo">Clique aqui ou arraste seus arquivos</span>
                                 <span class="pap-upload-hint">
                                     PDF, JPG ou PNG · até 10 MB por arquivo<br>
@@ -384,8 +386,8 @@
             }
             container.innerHTML = state.arquivosSelecionados.map((file, idx) => `
                 <div class="pap-upload-item">
-                    <span>📄 ${escapeHtml(file.name)} (${fmtTamanho(file.size)})</span>
-                    <button type="button" class="pap-upload-remover" data-remover-idx="${idx}" title="Remover">×</button>
+                    <span><span aria-hidden="true">📎</span> ${escapeHtml(file.name)} (${fmtTamanho(file.size)})</span>
+                    <button type="button" class="pap-upload-remover" data-remover-idx="${idx}" title="Remover" aria-label="Remover ${escapeHtml(file.name)}">×</button>
                 </div>
             `).join('');
 
@@ -518,7 +520,7 @@
                        href="/solicitacoes/${s.id}/anexos/${a.id}"
                        target="_blank"
                        download="${escapeHtml(a.nomeArquivo)}">
-                        📎 ${escapeHtml(a.nomeArquivo)} (${fmtTamanho(a.tamanho)})
+                        <span aria-hidden="true">📎</span> ${escapeHtml(a.nomeArquivo)} (${fmtTamanho(a.tamanho)})
                     </a>
                 `).join('');
 
@@ -693,5 +695,6 @@
         });
     })();
 </script>
+<script src="/js/ui.js"></script>
 </body>
 </html>

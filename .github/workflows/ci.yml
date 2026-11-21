@@ -23,6 +23,10 @@ jobs:
           java-version: '21'
           cache: gradle
 
+      - name: Make Gradle Wrapper executable
+        working-directory: paponline
+        run: chmod +x ./gradlew
+
       - name: Test and build executable JAR
         working-directory: paponline
         run: ./gradlew clean test bootJar --no-daemon

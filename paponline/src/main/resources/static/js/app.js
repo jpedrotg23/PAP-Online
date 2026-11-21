@@ -1,7 +1,3 @@
-const papUiScript = document.createElement('script');
-papUiScript.src = '/js/ui.js';
-document.head.appendChild(papUiScript);
-
 const login = document.getElementById('loginForm');
 if (login) login.addEventListener('submit', async event => {
   event.preventDefault();

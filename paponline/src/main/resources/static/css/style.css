@@ -8,7 +8,17 @@
     --line: #dfe6f1;
     --field: #f6f8fb;
     --text: #34415a;
-    --focus: #2059dc
+    --surface: #ffffff;
+    --surface-alt: #f7f9fc;
+    --success: #117a50;
+    --success-bg: #edf8f2;
+    --danger: #b42318;
+    --danger-bg: #fff1f0;
+    --warning: #8a5a00;
+    --warning-bg: #fff8df;
+    --info: #2059dc;
+    --info-bg: #edf3ff;
+    --focus: #2059dc;
 }
 
 :root[data-theme="dark"] {
@@ -17,11 +27,21 @@
     --line: #34425d;
     --field: #1c2940;
     --text: #e7edf8;
+    --surface: #152238;
+    --surface-alt: #101d31;
+    --success: #75d6ad;
+    --success-bg: #16382f;
+    --danger: #ffaaa3;
+    --danger-bg: #442724;
+    --warning: #f4cf73;
+    --warning-bg: #44391f;
+    --info: #91b6ff;
+    --info-bg: #1a3158;
 }
 
-:root[data-palette="protanopia"] { --blue: #0072b2; --blue2: #005a8c; --focus: #0072b2; }
-:root[data-palette="deuteranopia"] { --blue: #0072b2; --blue2: #005a8c; --focus: #0072b2; }
-:root[data-palette="tritanopia"] { --blue: #d55e00; --blue2: #a94600; --focus: #d55e00; }
+:root[data-palette="protanopia"] { --blue: #0072b2; --blue2: #005a8c; --focus: #0072b2; --info: #0072b2; --info-bg: #e7f3fa; --warning: #7a4a00; --warning-bg: #fff2d6; }
+:root[data-palette="deuteranopia"] { --blue: #0067a3; --blue2: #004b79; --focus: #0067a3; --info: #0067a3; --info-bg: #e7f2f8; --warning: #805500; --warning-bg: #fff1cf; }
+:root[data-palette="tritanopia"] { --blue: #b74700; --blue2: #843400; --focus: #b74700; --info: #b74700; --info-bg: #fff0e5; --warning: #765100; --warning-bg: #fff3dc; }
 
 * {
     box-sizing: border-box
@@ -46,11 +66,15 @@ body.auth-bg { background-color: #f4f7fc; }
 :root[data-theme="dark"] .portal-professional-option { background: #152238; color: var(--text); border-color: var(--line); }
 :root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: var(--field); color: var(--text); }
 
-.appearance-controls { position: fixed; right: 16px; bottom: 16px; z-index: 1000; display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, Canvas 92%, transparent); box-shadow: 0 4px 16px #07142b20; font-size: 11px; }
+.appearance-controls { display: grid; grid-template-columns: max-content minmax(180px, 1fr); align-items: center; gap: 10px 12px; width: min(100%, 520px); padding: 0; font-size: 12px; }
+.appearance-controls label { font-weight: 700; color: var(--text); }
+.appearance-controls .appearance-theme { grid-row: 1 / span 1; }
 .appearance-controls button, .appearance-controls select { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; padding: 5px 7px; font: inherit; cursor: pointer; }
 .appearance-controls label { display: flex; align-items: center; gap: 4px; margin: 0; color: inherit; }
 .eye svg, .portal-nav-icon svg, .nav-ico svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
 .eye { display: grid; place-items: center; }
+.appearance-controls button, .appearance-controls select { min-height: 38px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--text); padding: 8px 10px; font: inherit; cursor: pointer; }
+.appearance-controls button:focus-visible, .appearance-controls select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
 a {
     color: #0756ed;
@@ -322,7 +346,7 @@ input:focus, select:focus, textarea:focus {
 
 .recovery-card {
     width: min(100%, 480px);
-    padding: 44px 48px 48px
+    padding: 40px 48px 44px
 }
 
 .steps {
@@ -362,8 +386,20 @@ input:focus, select:focus, textarea:focus {
 }
 
 .recovery-card .auth-heading {
-    margin-bottom: 30px
+    margin: 0 0 26px
 }
+
+.recovery-card .auth-heading h1 { margin-bottom: 6px }
+.recovery-card .auth-heading p { max-width: 390px; margin: 0 auto }
+.recovery-card form { display: flex; flex-direction: column; gap: 18px }
+.recovery-card form label { display: block; margin: 0 }
+.recovery-card form label .password-wrap { margin-top: 7px }
+.recovery-card .strength { margin-top: 9px }
+.recovery-card #resetStrengthText { display: block; margin: 6px 0 0 }
+.recovery-card .password-rules { margin-top: 8px }
+.recovery-card .primary-btn { margin-top: 2px }
+.recovery-card .notice { min-height: 18px; margin: 14px 0 0 }
+.recovery-card .auth-footer { margin-top: 16px }
 
 .recovery-card form label {
     margin-bottom: 0
@@ -2524,3 +2560,50 @@ input:focus, select:focus, textarea:focus {
         width: 100%
     }
 }
+
+:root[data-theme="dark"] .pro-body,
+:root[data-theme="dark"] .portal-body { background:var(--surface-alt)!important;color:var(--text)!important }
+:root[data-theme="dark"] .pro-header h1,
+:root[data-theme="dark"] .profile-summary h2,
+:root[data-theme="dark"] .pro-section h2,
+:root[data-theme="dark"] .chat-contact,
+:root[data-theme="dark"] .request-person-title b { color:var(--text)!important }
+:root[data-theme="dark"] .pro-header p,
+:root[data-theme="dark"] .pro-section > p,
+:root[data-theme="dark"] .profile-summary p,
+:root[data-theme="dark"] .chat-contact small,
+:root[data-theme="dark"] .appt-info small,
+:root[data-theme="dark"] .request-info p { color:var(--muted)!important }
+:root[data-theme="dark"] .pro-user,
+:root[data-theme="dark"] .feature-card,
+:root[data-theme="dark"] .next-appt,
+:root[data-theme="dark"] .calendar-bar,
+:root[data-theme="dark"] .pro-stat,
+:root[data-theme="dark"] .pro-appointment,
+:root[data-theme="dark"] .notice-card,
+:root[data-theme="dark"] .request-card,
+:root[data-theme="dark"] .profile-summary,
+:root[data-theme="dark"] .pro-section,
+:root[data-theme="dark"] .filter-bar,
+:root[data-theme="dark"] .chat-list,
+:root[data-theme="dark"] .chat-panel,
+:root[data-theme="dark"] .deactivate,
+:root[data-theme="dark"] .bubble.incoming,
+:root[data-theme="dark"] .today,
+:root[data-theme="dark"] .bell,
+:root[data-theme="dark"] .icon-button { background:var(--surface)!important;color:var(--text)!important;border-color:var(--line)!important }
+:root[data-theme="dark"] .chat-messages { background:var(--surface-alt)!important }
+:root[data-theme="dark"] .chat-list > input,
+:root[data-theme="dark"] .pro-section form input,
+:root[data-theme="dark"] .filter,
+:root[data-theme="dark"] .day,
+:root[data-theme="dark"] .file-chip { background:var(--field)!important;color:var(--text)!important;border-color:var(--line)!important }
+:root[data-theme="dark"] .day small,
+:root[data-theme="dark"] .chat-meta,
+:root[data-theme="dark"] .pro-section form small { color:var(--muted)!important }
+:root[data-theme="dark"] .notice-error { color:#ffaaa3!important }
+:root[data-theme="dark"] .notice-success { color:#75d6ad!important }
+.portal-notification svg, .bell svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle }
+.portal-nav-icon svg, .nav-ico svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle }
+.pap-upload-icon svg { width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round }
+.chat-empty-icon svg, .admin-stat-ico svg { width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round }
