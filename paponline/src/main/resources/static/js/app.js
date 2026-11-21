@@ -1,7 +1,6 @@
-document.querySelectorAll('[data-toggle]').forEach(button => button.addEventListener('click', () => {
-  const input = document.getElementById(button.dataset.toggle);
-  if (input) input.type = input.type === 'password' ? 'text' : 'password';
-}));
+const papUiScript = document.createElement('script');
+papUiScript.src = '/js/ui.js';
+document.head.appendChild(papUiScript);
 
 const login = document.getElementById('loginForm');
 if (login) login.addEventListener('submit', async event => {
@@ -51,16 +50,13 @@ const np = document.getElementById('newPassword');
 if (np) np.addEventListener('input', () => {
   const value = np.value;
   const score = [value.length >= 8, /[A-Z]/.test(value), /[a-z]/.test(value), /[0-9]/.test(value)].filter(Boolean).length;
-  document.getElementById('strengthBar')?.style.setProperty('width', score * 25 + '%');
+  const bar = document.getElementById('strengthBar');
+  if (bar) {
+    bar.style.width = score * 25 + '%';
+    bar.dataset.level = String(score);
+  }
   const text = document.getElementById('strengthText');
-  if (text) text.textContent = ['Muito fraca', 'Fraca', 'Média', 'Boa', 'Forte'][score];
-});
-
-const recover = document.getElementById('recoverForm');
-if (recover) recover.addEventListener('submit', e => {
-  e.preventDefault();
-  const n = document.getElementById('recoverNotice');
-  if (n) n.textContent = 'A recuperação de senha depende da integração com o backend.';
+  if (text) text.textContent = score === 0 ? 'Força da senha' : ['Muito fraca', 'Fraca', 'Média', 'Boa', 'Forte'][score];
 });
 
 const code = document.getElementById('codeForm');

@@ -1,9 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-toggle]').forEach(button => button.addEventListener('click', () => {
-    const input = document.getElementById(button.dataset.toggle);
-    if (input) input.type = input.type === 'password' ? 'text' : 'password';
-  }));
+const papUiScript = document.createElement('script');
+papUiScript.src = '/js/ui.js';
+document.head.appendChild(papUiScript);
 
+document.addEventListener('DOMContentLoaded', () => {
   const filterButtons = document.querySelectorAll('[data-filter]');
   filterButtons.forEach(button => button.addEventListener('click', () => {
     filterButtons.forEach(item => item.classList.remove('active'));

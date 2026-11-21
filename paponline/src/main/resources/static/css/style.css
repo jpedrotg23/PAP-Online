@@ -7,8 +7,21 @@
     --muted: #697895;
     --line: #dfe6f1;
     --field: #f6f8fb;
-    --text: #34415a
+    --text: #34415a;
+    --focus: #2059dc
 }
+
+:root[data-theme="dark"] {
+    --navy: #dbe7ff;
+    --muted: #aab8d2;
+    --line: #34425d;
+    --field: #1c2940;
+    --text: #e7edf8;
+}
+
+:root[data-palette="protanopia"] { --blue: #0072b2; --blue2: #005a8c; --focus: #0072b2; }
+:root[data-palette="deuteranopia"] { --blue: #0072b2; --blue2: #005a8c; --focus: #0072b2; }
+:root[data-palette="tritanopia"] { --blue: #d55e00; --blue2: #a94600; --focus: #d55e00; }
 
 * {
     box-sizing: border-box
@@ -19,6 +32,25 @@ body {
     font-family: Inter, Arial, sans-serif;
     color: var(--text)
 }
+
+body, .auth-card, input, select, textarea { transition: background-color .2s, color .2s, border-color .2s; }
+body.auth-bg { background-color: #f4f7fc; }
+:root[data-theme="dark"] body.auth-bg { background: radial-gradient(ellipse at 100% 100%, #263b67 0%, #111d35 48%, #0b1325 100%); }
+:root[data-theme="dark"] .auth-card,
+:root[data-theme="dark"] .portal-panel,
+:root[data-theme="dark"] .portal-user-chip,
+:root[data-theme="dark"] .portal-notification,
+:root[data-theme="dark"] .portal-icon-button,
+:root[data-theme="dark"] .portal-stat,
+:root[data-theme="dark"] .portal-choice,
+:root[data-theme="dark"] .portal-professional-option { background: #152238; color: var(--text); border-color: var(--line); }
+:root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: var(--field); color: var(--text); }
+
+.appearance-controls { position: fixed; right: 16px; bottom: 16px; z-index: 1000; display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, Canvas 92%, transparent); box-shadow: 0 4px 16px #07142b20; font-size: 11px; }
+.appearance-controls button, .appearance-controls select { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; padding: 5px 7px; font: inherit; cursor: pointer; }
+.appearance-controls label { display: flex; align-items: center; gap: 4px; margin: 0; color: inherit; }
+.eye svg, .portal-nav-icon svg, .nav-ico svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.eye { display: grid; place-items: center; }
 
 a {
     color: #0756ed;
@@ -251,9 +283,15 @@ input:focus, select:focus, textarea:focus {
     display: block;
     width: 45%;
     height: 100%;
-    background: #f4b400;
+    background: #e15759;
     border-radius: 8px
 }
+
+.strength span[data-level="2"] { background: #f28e2b; }
+.strength span[data-level="3"] { background: #e6c229; }
+.strength span[data-level="4"] { background: #4e79a7; }
+.strength span[data-level="5"] { background: #59a14f; }
+.password-rules { flex-wrap: wrap; gap: 6px 12px; }
 
 .password-rules {
     display: flex;

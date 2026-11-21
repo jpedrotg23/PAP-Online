@@ -108,6 +108,7 @@
             line-height: 1.4;
             min-height: 14px;
         }
+        #cursoOutroWrap { display: none; }
     </style>
 </head>
 <body class="auth-bg">
@@ -165,6 +166,9 @@
                 <span class="chevron">▾</span>
             </button>
             <input type="hidden" id="cadCurso">
+            <span id="cursoOutroWrap">
+                <input id="cadCursoOutro" placeholder="Informe o nome do curso" maxlength="120">
+            </span>
         </label>
 
         <label>
@@ -257,6 +261,7 @@
             'Psicologia',
             'Publicidade e Propaganda',
             'Sistemas de Informação'
+            ,'Outros'
         ];
 
         function valor(id) {
@@ -397,6 +402,14 @@
                     cadCurso.value = curso;
                     cursoSelecionadoTexto.textContent = curso;
                     btnAbrirCurso.classList.remove('vazio');
+                    const outro = document.getElementById('cursoOutroWrap');
+                    const outroInput = document.getElementById('cadCursoOutro');
+                    const isOutro = curso === 'Outros';
+                    if (outro) outro.style.display = isOutro ? 'block' : 'none';
+                    if (outroInput) {
+                        outroInput.required = isOutro;
+                        if (!isOutro) outroInput.value = '';
+                    }
                     fecharModalCurso();
                 });
             });
@@ -438,7 +451,9 @@
             const vinculo = valor('cadVinculo');
             const email = valor('cadEmail');
             const telefone = valor('cadTelefone');
-            const curso = valor('cadCurso');
+            const cursoSelecionado = valor('cadCurso');
+            const cursoOutro = valor('cadCursoOutro');
+            const curso = cursoSelecionado === 'Outros' ? cursoOutro : cursoSelecionado;
             const senha = valor('newPassword');
             const confirmar = valor('confirmPassword');
             const consent = document.getElementById('cadConsent')?.checked;
@@ -472,9 +487,14 @@
                 return;
             }
 
-            if (!curso) {
+            if (!cursoSelecionado) {
                 mostrarNoticia('Selecione seu curso.');
                 btnAbrirCurso.focus();
+                return;
+            }
+            if (cursoSelecionado === 'Outros' && !cursoOutro) {
+                mostrarNoticia('Informe o nome do seu curso.');
+                document.getElementById('cadCursoOutro').focus();
                 return;
             }
             if (!senhaForte(senha)) {

@@ -1,3 +1,7 @@
+const papUiScript = document.createElement('script');
+papUiScript.src = '/js/ui.js';
+document.head.appendChild(papUiScript);
+
 (function () {
   document.addEventListener('DOMContentLoaded', () => {
     function getFeedback(button) {

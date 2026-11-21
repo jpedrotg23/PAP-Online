@@ -1,7 +1,13 @@
 /* Complemento das áreas de estudante e administrador do PAP Online.
    Mantém a identidade visual definida no Figma e na área profissional existente. */
 :root{--portal-navy:#0d2450;--portal-blue:#1e5bd6;--portal-active:#1a3a7a;--portal-bg:#f7f9fc;--portal-text:#0a1a3f;--portal-muted:#667085;--portal-line:#e2e7f0;--portal-card:#fff}
+:root[data-theme="dark"]{--portal-navy:#0b1528;--portal-blue:#4e8cff;--portal-active:#244579;--portal-bg:#0d1729;--portal-text:#e7edf8;--portal-muted:#aab8d2;--portal-line:#30405b;--portal-card:#152238}
+:root[data-palette="protanopia"]{--portal-blue:#0072b2;--portal-active:#005a8c}
+:root[data-palette="deuteranopia"]{--portal-blue:#0072b2;--portal-active:#005a8c}
+:root[data-palette="tritanopia"]{--portal-blue:#d55e00;--portal-active:#a94600}
 .portal-body{margin:0;min-height:100vh;background:var(--portal-bg);font-family:Inter,Arial,sans-serif;color:var(--portal-text);font-size:14px}
+:root[data-theme="dark"] .portal-panel,:root[data-theme="dark"] .portal-stat,:root[data-theme="dark"] .portal-user-chip,:root[data-theme="dark"] .portal-notification,:root[data-theme="dark"] .portal-icon-button,:root[data-theme="dark"] .portal-date,:root[data-theme="dark"] .portal-booking-steps,:root[data-theme="dark"] .portal-choice,:root[data-theme="dark"] .portal-professional-option,:root[data-theme="dark"] .portal-chat-list,:root[data-theme="dark"] .portal-chat-window{background:var(--portal-card);color:var(--portal-text);border-color:var(--portal-line)}
+:root[data-theme="dark"] .portal-chat-messages{background:#101d31}
 .portal-app{min-height:100vh}
 .portal-sidebar{position:fixed;inset:0 auto 0 0;width:264px;background:var(--portal-navy);padding:26px 18px 18px;display:flex;flex-direction:column;z-index:20;box-sizing:border-box}
 .portal-brand{height:42px;display:flex;align-items:center;gap:12px;padding:0 10px;margin-bottom:32px;color:#fff;font-size:16.8px}
