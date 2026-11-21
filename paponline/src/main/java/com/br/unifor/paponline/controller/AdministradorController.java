@@ -1,6 +1,7 @@
 package com.br.unifor.paponline.controller;
 
 import com.br.unifor.paponline.dto.AlterarSenhaRequest;
+import com.br.unifor.paponline.dto.AdministradorCadastroRequest;
 import com.br.unifor.paponline.dto.AdministradorResponse;
 import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.service.AdministradorService;
@@ -21,8 +22,8 @@ public class AdministradorController {
     private final AdministradorService service;
 
     @PostMapping
-    public AdministradorResponse criar(@RequestBody Administrador a) {
-        return AdministradorResponse.from(service.criar(a));
+    public AdministradorResponse criar(@Valid @RequestBody AdministradorCadastroRequest request) {
+        return AdministradorResponse.from(service.criar(request.toEntity()));
     }
 
     @GetMapping

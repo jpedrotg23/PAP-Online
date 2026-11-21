@@ -31,7 +31,11 @@ public class AdministradorService {
         if (usuarioRepository.existsByEmailIgnoreCase(a.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um usuário com este e-mail");
         }
-        SenhaValidator.exigirValida(a.getSenha());
+        try {
+            SenhaValidator.exigirValida(a.getSenha());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
         a.setSenha(passwordEncoder.encode(a.getSenha()));
         return repository.save(a);
     }

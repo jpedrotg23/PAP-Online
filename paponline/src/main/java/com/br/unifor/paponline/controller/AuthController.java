@@ -4,11 +4,13 @@ import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.entidades.Aluno;
 import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.entidades.Usuario;
+import com.br.unifor.paponline.service.EmailDeliveryException;
 import com.br.unifor.paponline.service.RecuperacaoSenhaService;
 import com.br.unifor.paponline.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
+
+    private static final String RESPOSTA_RECUPERACAO =
+            "Se o endereço estiver cadastrado, você receberá as instruções de recuperação.";
 
     private final UsuarioService usuarioService;
     private final RecuperacaoSenhaService recuperacaoService;
@@ -111,8 +117,12 @@ public class AuthController {
         if (identificador == null || identificador.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe e-mail ou telefone");
         }
-        recuperacaoService.solicitarCodigo(identificador);
-        return Map.of("mensagem", "Se o contato estiver cadastrado, enviaremos um código de recuperação.");
+        try {
+            recuperacaoService.solicitarCodigo(identificador);
+        } catch (EmailDeliveryException ex) {
+            log.warn("Falha na entrega da recuperação de senha ({})", ex.getDiagnosticCode());
+        }
+        return Map.of("mensagem", RESPOSTA_RECUPERACAO);
     }
 
     @PostMapping("/validar-codigo")

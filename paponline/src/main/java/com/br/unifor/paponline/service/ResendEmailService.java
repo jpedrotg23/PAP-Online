@@ -3,9 +3,14 @@ package com.br.unifor.paponline.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -26,8 +31,14 @@ public class ResendEmailService {
     }
 
     public void enviarCodigoRecuperacao(String destinatario, String codigo) {
-        if (apiKey.isBlank() || from.isBlank()) {
-            throw new EmailDeliveryException("O serviço de e-mail não está configurado.");
+        List<String> missingConfiguration = new ArrayList<>();
+        if (apiKey == null || apiKey.isBlank()) missingConfiguration.add("RESEND_API_KEY");
+        if (from == null || from.isBlank()) missingConfiguration.add("PAP_EMAIL_FROM");
+        if (!missingConfiguration.isEmpty()) {
+            String diagnosticCode = "resend_configuration_missing";
+            log.error("Envio Resend indisponível: variáveis ausentes {}", missingConfiguration);
+            throw new EmailDeliveryException(
+                    "O serviço de e-mail não está configurado.", diagnosticCode, null);
         }
         Map<String, Object> body = Map.of(
                 "from", from,
@@ -42,10 +53,24 @@ public class ResendEmailService {
                     .body(body)
                     .retrieve()
                     .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
+            int status = ex.getStatusCode().value();
+            log.warn("Resend recusou o envio de recuperação: HTTP {}", status);
+            throw new EmailDeliveryException(
+                    "Não foi possível enviar o e-mail de recuperação.",
+                    "resend_http_" + status, ex);
+        } catch (ResourceAccessException ex) {
+            String causeType = ex.getMostSpecificCause().getClass().getSimpleName();
+            log.warn("Falha de conexão com Resend durante envio de recuperação ({})", causeType);
+            throw new EmailDeliveryException(
+                    "Não foi possível enviar o e-mail de recuperação.",
+                    "resend_connection_failure", ex);
         } catch (RestClientException ex) {
             log.warn("Falha operacional no envio de e-mail de recuperação ({})",
                     ex.getClass().getSimpleName());
-            throw new EmailDeliveryException("Não foi possível enviar o e-mail de recuperação.");
+            throw new EmailDeliveryException(
+                    "Não foi possível enviar o e-mail de recuperação.",
+                    "resend_client_failure", ex);
         }
     }
 }

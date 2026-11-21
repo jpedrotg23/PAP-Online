@@ -67,13 +67,13 @@ public class RecuperacaoSenhaService {
         usuario.setUltimaSolicitacaoRecuperacao(agora);
         usuarioRepository.save(usuario);
 
-        String codigo = String.format(java.util.Locale.ROOT, "%06d", RANDOM.nextInt(1_000_000));
-        emailService.enviarCodigoRecuperacao(usuario.getEmail(), codigo);
-
         tokenRepository.findByIdentificadorAndUsadoFalse(chave).forEach(token -> {
             token.setUsado(true);
             tokenRepository.save(token);
         });
+
+        String codigo = String.format(java.util.Locale.ROOT, "%06d", RANDOM.nextInt(1_000_000));
+        emailService.enviarCodigoRecuperacao(usuario.getEmail(), codigo);
 
         TokenRecuperacaoSenha token = new TokenRecuperacaoSenha();
         token.setIdentificador(chave);

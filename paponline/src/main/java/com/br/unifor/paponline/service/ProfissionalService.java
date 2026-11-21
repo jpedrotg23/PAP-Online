@@ -37,7 +37,11 @@ public class ProfissionalService {
                     "Já existe um profissional com este CRP");
         }
         validarTelefone(p.getTelefone());
-        SenhaValidator.exigirValida(p.getSenha());
+        try {
+            SenhaValidator.exigirValida(p.getSenha());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
         p.setSenha(passwordEncoder.encode(p.getSenha()));
         return repository.save(p);
     }

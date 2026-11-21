@@ -51,7 +51,11 @@ public class AlunoService {
         validarTelefone(aluno.getTelefone());
         aluno.setConsentimentoVersao(versaoTermoConsentimento);
         aluno.setConsentimentoEm(LocalDateTime.now(FUSO_PAP));
-        SenhaValidator.exigirValida(aluno.getSenha());
+        try {
+            SenhaValidator.exigirValida(aluno.getSenha());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
         aluno.setSenha(passwordEncoder.encode(aluno.getSenha()));
         return repository.save(aluno);
     }

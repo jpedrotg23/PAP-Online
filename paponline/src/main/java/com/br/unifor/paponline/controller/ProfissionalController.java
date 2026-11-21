@@ -1,6 +1,7 @@
 package com.br.unifor.paponline.controller;
 
 import com.br.unifor.paponline.dto.AlterarSenhaRequest;
+import com.br.unifor.paponline.dto.ProfissionalCadastroRequest;
 import com.br.unifor.paponline.dto.ProfissionalResponse;
 import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.service.ProfissionalService;
@@ -21,8 +22,8 @@ public class ProfissionalController {
     private final ProfissionalService service;
 
     @PostMapping
-    public ProfissionalResponse criar(@RequestBody Profissional p) {
-        return ProfissionalResponse.from(service.criar(p));
+    public ProfissionalResponse criar(@Valid @RequestBody ProfissionalCadastroRequest request) {
+        return ProfissionalResponse.from(service.criar(request.toEntity()));
     }
 
     @GetMapping
