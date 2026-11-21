@@ -1,15 +1,6 @@
 (function () {
     'use strict';
 
-    // Mostrar/ocultar senha (mesmo comportamento do app.js)
-    document.querySelectorAll('[data-toggle]').forEach(button => {
-        button.addEventListener('click', () => {
-            const input = document.getElementById(button.dataset.toggle);
-            if (input) input.type = input.type === 'password' ? 'text' : 'password';
-        });
-    });
-
-
     // 1 — Solicitar código
 
     const formRecuperar = document.getElementById('recoverForm');
@@ -42,12 +33,9 @@
                     throw new Error(erro.message || 'Não foi possível enviar o código.');
                 }
 
-                const data = await r.json();
                 sessionStorage.setItem('recuperar_identificador', identificador);
 
-                notice.textContent = data.codigoDemo
-                    ? `Código enviado! (Demo: ${data.codigoDemo})`
-                    : 'Código enviado para seu e-mail/telefone.';
+                notice.textContent = 'Se o contato estiver cadastrado, enviaremos um código de recuperação.';
                 notice.className = 'notice notice-success';
 
                 setTimeout(() => { window.location.href = '/recuperar/recuperar-2.html'; }, 1800);
@@ -108,10 +96,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ identifier: identificador })
                     });
-                    const data = await r.json();
-                    notice.textContent = data.codigoDemo
-                        ? `Novo código! (Demo: ${data.codigoDemo})`
-                        : 'Novo código enviado.';
+                    if (!r.ok) throw new Error('Não foi possível reenviar o código.');
+                    notice.textContent = 'Se o contato estiver cadastrado, enviaremos um novo código.';
                     notice.className = 'notice notice-success';
                 } catch (err) {
                     notice.textContent = err.message || 'Erro ao reenviar.';
@@ -176,6 +162,18 @@
             window.location.href = '/recuperar/recuperar-1.html';
             return;
         }
+
+        const senhaReset = document.getElementById('resetPassword');
+        const barraReset = document.getElementById('resetStrengthBar');
+        const textoReset = document.getElementById('resetStrengthText');
+        if (senhaReset) senhaReset.addEventListener('input', () => {
+            const score = [senhaReset.value.length >= 8, /[A-Z]/.test(senhaReset.value), /[a-z]/.test(senhaReset.value), /\d/.test(senhaReset.value)].filter(Boolean).length;
+            if (barraReset) {
+                barraReset.style.width = `${score * 25}%`;
+                barraReset.dataset.level = String(score);
+            }
+            if (textoReset) textoReset.textContent = score ? ['Muito fraca', 'Fraca', 'Média', 'Boa', 'Forte'][score] : 'Força da senha';
+        });
 
         formReset.addEventListener('submit', async (e) => {
             e.preventDefault();

@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/paponline;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: ${PAP_H2_CONSOLE_ENABLED:false}
+      path: /h2-console
+
+pap:
+  demo:
+    seed: ${PAP_DEMO_SEED:false}

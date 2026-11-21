@@ -3,6 +3,8 @@ package com.br.unifor.paponline.service;
 import com.br.unifor.paponline.config.SessionContext;
 import com.br.unifor.paponline.entidades.SolicitacaoAdaptacao;
 import com.br.unifor.paponline.repository.SolicitacaoAdaptacaoRepository;
+import com.br.unifor.paponline.repository.AreaServicoRepository;
+import com.br.unifor.paponline.repository.ProfissionalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,8 @@ public class SolicitacaoAdaptacaoService {
 
     private final SolicitacaoAdaptacaoRepository repository;
     private final NotificacaoService notificacaoService;
+    private final AreaServicoRepository areaRepository;
+    private final ProfissionalRepository profissionalRepository;
 
     @Transactional
     public SolicitacaoAdaptacao criar(SolicitacaoAdaptacao dados) {
@@ -63,6 +67,10 @@ public class SolicitacaoAdaptacaoService {
         SolicitacaoAdaptacao nova = new SolicitacaoAdaptacao();
         nova.setProtocolo(gerarProtocolo());
         nova.setAlunoId(sessao.userId());
+        if (dados.getAreaId() != null && !areaRepository.existsById(dados.getAreaId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Área de serviço inválida.");
+        }
+        nova.setAreaId(dados.getAreaId());
         nova.setProfissionalId(null);
         nova.setTipo(tipo);
         nova.setTitulo(titulo);
@@ -83,7 +91,11 @@ public class SolicitacaoAdaptacaoService {
         if ("ALUNO".equals(sessao.perfil())) {
             return repository.findByAlunoId(sessao.userId());
         }
-        return repository.findAll();
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            return repository.findByProfissionalId(sessao.userId());
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Administradores não podem consultar o conteúdo das solicitações.");
     }
 
     public SolicitacaoAdaptacao buscar(Long id) {
@@ -92,6 +104,17 @@ public class SolicitacaoAdaptacaoService {
         if ("ALUNO".equals(sessao.perfil()) && !Objects.equals(s.getAlunoId(), sessao.userId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Você não tem permissão para visualizar esta solicitação.");
+        }
+        if ("PROFISSIONAL".equals(sessao.perfil())
+                && !Objects.equals(s.getProfissionalId(), sessao.userId())
+                && (s.getAreaId() == null
+                || !Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId())))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Você não está autorizado a consultar esta solicitação.");
+        }
+        if ("ADMIN".equals(sessao.perfil())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administradores não podem consultar o conteúdo das solicitações.");
         }
         return s;
     }
@@ -105,6 +128,15 @@ public class SolicitacaoAdaptacaoService {
         }
 
         SolicitacaoAdaptacao s = buscarEntidade(id);
+        Long areaProfissional = areaDoProfissional(sessao.userId());
+        if (s.getProfissionalId() != null && !Objects.equals(s.getProfissionalId(), sessao.userId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "A solicitação está atribuída a outro profissional.");
+        }
+        if (s.getAreaId() == null || !Objects.equals(s.getAreaId(), areaProfissional)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "A solicitação não está vinculada à sua área de atuação.");
+        }
         if (!Objects.equals(s.getAlunoId(), sessao.userId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Você não tem permissão para editar esta solicitação.");
@@ -191,12 +223,31 @@ public class SolicitacaoAdaptacaoService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Você só pode consultar suas próprias solicitações.");
         }
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            return repository.findByAlunoId(alunoId).stream()
+                    .filter(s -> Objects.equals(s.getProfissionalId(), sessao.userId())
+                            || (s.getAreaId() != null
+                            && Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId()))))
+                    .toList();
+        }
+        if (!"ALUNO".equals(sessao.perfil())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administradores não podem consultar o conteúdo das solicitações.");
+        }
         return repository.findByAlunoId(alunoId);
     }
 
     public List<SolicitacaoAdaptacao> listarPorStatus(String status) {
-        exigirSessao();
-        return repository.findByStatus(status);
+        SessionContext.SessionInfo sessao = exigirSessao();
+        if (!"PROFISSIONAL".equals(sessao.perfil())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Somente profissionais podem consultar solicitações por status.");
+        }
+        return repository.findByStatus(status).stream()
+                .filter(s -> Objects.equals(s.getProfissionalId(), sessao.userId())
+                        || (s.getAreaId() != null
+                        && Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId()))))
+                .toList();
     }
 
     private SolicitacaoAdaptacao buscarEntidade(Long id) {
@@ -276,5 +327,12 @@ public class SolicitacaoAdaptacaoService {
                     "Sua sessão expirou. Entre novamente no PAP Online.");
         }
         return sessao;
+    }
+
+    private Long areaDoProfissional(Long profissionalId) {
+        return profissionalRepository.findById(profissionalId)
+                .map(profissional -> profissional.getAreaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Profissional não encontrado ou sem área de atuação."));
     }
 }

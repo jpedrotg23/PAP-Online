@@ -4,31 +4,33 @@ import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.entidades.Aluno;
 import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.entidades.Usuario;
+import com.br.unifor.paponline.service.EmailDeliveryException;
 import com.br.unifor.paponline.service.RecuperacaoSenhaService;
 import com.br.unifor.paponline.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
+
+    private static final String RESPOSTA_RECUPERACAO =
+            "Se o endereço estiver cadastrado, você receberá as instruções de recuperação.";
 
     private final UsuarioService usuarioService;
     private final RecuperacaoSenhaService recuperacaoService;
-
-    @Value("${pap.demo.mostrar-codigo:false}")
-    private boolean mostrarCodigoDemo;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpServletRequest request) {
@@ -63,9 +65,9 @@ public class AuthController {
         }
 
         HttpSession session = request.getSession(true);
-        session.setAttribute("usuarioId", u.getId());
-        session.setAttribute("perfil", tipo);       // <- NOVO
         request.changeSessionId();
+        session.setAttribute("usuarioId", u.getId());
+        session.setAttribute("perfil", tipo);
 
         return ResponseEntity.ok(montarResposta(u, tipo));
     }
@@ -115,14 +117,12 @@ public class AuthController {
         if (identificador == null || identificador.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe e-mail ou telefone");
         }
-        String codigo = recuperacaoService.solicitarCodigo(identificador);
-
-        Map<String, String> resp = new HashMap<>();
-        resp.put("mensagem", "Se o contato estiver cadastrado, enviaremos um código de recuperação.");
-        if (mostrarCodigoDemo && codigo != null) {
-            resp.put("codigoDemo", codigo);
+        try {
+            recuperacaoService.solicitarCodigo(identificador);
+        } catch (EmailDeliveryException ex) {
+            log.warn("Falha na entrega da recuperação de senha ({})", ex.getDiagnosticCode());
         }
-        return resp;
+        return Map.of("mensagem", RESPOSTA_RECUPERACAO);
     }
 
     @PostMapping("/validar-codigo")

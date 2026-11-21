@@ -47,6 +47,15 @@ public class NotificacaoService {
         return criar(usuarioId, titulo, mensagem, "GERAL", null);
     }
 
+    public Notificacao criarManual(Long usuarioId, String titulo, String mensagem) {
+        SessionContext.SessionInfo sessao = SessionContext.get();
+        if (sessao == null || !"ADMIN".equals(sessao.perfil())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Somente administradores podem criar notificações manualmente.");
+        }
+        return criar(usuarioId, titulo, mensagem, "GERAL", null);
+    }
+
     @Transactional
     public Notificacao criar(Long usuarioId, String titulo, String mensagem, String tipo, Long referenciaId) {
         if (usuarioId == null) {
@@ -167,7 +176,10 @@ public class NotificacaoService {
         if (solicitacao == null) {
             return;
         }
-        List<Profissional> profissionaisAtivos = profissionalRepository.findByAtivoTrue();
+        List<Profissional> profissionaisAtivos = profissionalRepository.findByAtivoTrue().stream()
+                .filter(profissional -> solicitacao.getAreaId() != null
+                        && Objects.equals(profissional.getAreaId(), solicitacao.getAreaId()))
+                .toList();
         for (Profissional profissional : profissionaisAtivos) {
             criar(
                     profissional.getId(),
@@ -273,7 +285,7 @@ public class NotificacaoService {
         if (sessao == null || sessao.userId() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sua sessão expirou. Entre novamente no PAP Online.");
         }
-        if (!"ADMIN".equals(sessao.perfil()) && !Objects.equals(sessao.userId(), usuarioId)) {
+        if (!Objects.equals(sessao.userId(), usuarioId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar notificações de outro usuário.");
         }
     }

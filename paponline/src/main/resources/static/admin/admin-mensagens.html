@@ -192,7 +192,7 @@
     </div>
     <nav class="portal-navigation" aria-label="Menu principal">
       <a class="portal-nav-link" href="/admin/admin-inicial.html">
-        <span class="portal-nav-icon">⌂</span><span>Início</span>
+        <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
       </a>
       <a class="portal-nav-link" href="/admin/admin-profissionais.html">
         <span class="portal-nav-icon">♙</span><span>Profissionais</span>
@@ -210,11 +210,11 @@
         <span class="portal-nav-icon">♢</span><span>Notificações</span>
       </a>
       <a class="portal-nav-link" href="/admin/admin-perfil.html">
-        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+        <span class="portal-nav-icon" data-icon="user"></span><span>Perfil</span>
       </a>
     </nav>
     <button class="portal-exit" type="button" data-role-logout>
-      <span class="portal-nav-icon">↪</span><span>Sair</span>
+      <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
     </button>
   </aside>
 
@@ -643,7 +643,9 @@
       if (!mensagens.length) {
         container.innerHTML = `
           <div class="chat-empty-wrap">
-            <div class="chat-empty-icon">💬</div>
+            <div class="chat-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg>
+            </div>
             <b>Nenhuma mensagem ainda</b>
             <p>Envie a primeira mensagem para iniciar a conversa.</p>
           </div>`;
@@ -885,5 +887,6 @@
   })();
 </script>
 
+<script src="/js/ui.js"></script>
 </body>
 </html>

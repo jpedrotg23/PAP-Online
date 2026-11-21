@@ -1,5 +1,6 @@
 package com.br.unifor.paponline.service;
 
+import com.br.unifor.paponline.config.SessionContext;
 import com.br.unifor.paponline.dto.AreaServicoRequest;
 import com.br.unifor.paponline.entidades.AreaServico;
 import com.br.unifor.paponline.repository.AreaServicoRepository;
@@ -29,6 +30,7 @@ public class AreaServicoService {
     }
 
     public AreaServico criar(AreaServicoRequest req) {
+        exigirAdministrador();
         AreaServico a = new AreaServico();
         a.setNome(req.nome().trim().toUpperCase());
         a.setDescricao(req.descricao());
@@ -36,6 +38,7 @@ public class AreaServicoService {
     }
 
     public AreaServico atualizar(Long id, AreaServicoRequest req) {
+        exigirAdministrador();
         AreaServico a = buscar(id);
         a.setNome(req.nome().trim().toUpperCase());
         a.setDescricao(req.descricao());
@@ -43,11 +46,20 @@ public class AreaServicoService {
     }
 
     public void excluir(Long id) {
+        exigirAdministrador();
         AreaServico a = buscar(id);
         if (atendimentoRepository.existsByAreaId(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Área possui atendimentos vinculados e não pode ser excluída.");
         }
         repository.delete(a);
+    }
+
+    private void exigirAdministrador() {
+        SessionContext.SessionInfo sessao = SessionContext.get();
+        if (sessao == null || !"ADMIN".equals(sessao.perfil())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Somente administradores podem gerenciar áreas de serviço.");
+        }
     }
 }

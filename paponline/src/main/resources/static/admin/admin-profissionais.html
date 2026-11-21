@@ -368,7 +368,7 @@
     </div>
     <nav class="portal-navigation" aria-label="Menu principal">
       <a class="portal-nav-link" href="/admin/admin-inicial.html">
-        <span class="portal-nav-icon">⌂</span><span>Início</span>
+        <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
       </a>
       <a class="portal-nav-link active" href="/admin/admin-profissionais.html">
         <span class="portal-nav-icon">♙</span><span>Profissionais</span>
@@ -386,11 +386,11 @@
         <span class="portal-nav-icon">♢</span><span>Notificações</span>
       </a>
       <a class="portal-nav-link" href="/admin/admin-perfil.html">
-        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+        <span class="portal-nav-icon" data-icon="user"></span><span>Perfil</span>
       </a>
     </nav>
     <button class="portal-exit" type="button" data-role-logout>
-      <span class="portal-nav-icon">↪</span><span>Sair</span>
+      <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
     </button>
   </aside>
 
@@ -452,14 +452,18 @@
           </div>
         </article>
         <article class="admin-stat">
-          <span class="admin-stat-ico purple">🧠</span>
+          <span class="admin-stat-ico purple" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+          </span>
           <div>
             <small>Psicólogos</small>
             <strong id="statPsicologos">—</strong>
           </div>
         </article>
         <article class="admin-stat">
-          <span class="admin-stat-ico orange">📚</span>
+          <span class="admin-stat-ico orange" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 4h11v16H5zM8 8h5M8 12h5M16 7h3v13h-3"/></svg>
+          </span>
           <div>
             <small>Psicopedagogos</small>
             <strong id="statPsicopedagogos">—</strong>
@@ -1031,5 +1035,6 @@
   })();
 </script>
 
+<script src="/js/ui.js"></script>
 </body>
 </html>

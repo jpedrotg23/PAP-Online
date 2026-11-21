@@ -1,14 +1,18 @@
 package com.br.unifor.paponline.controller;
 
 import com.br.unifor.paponline.dto.AlterarSenhaRequest;
+import com.br.unifor.paponline.dto.AdministradorCadastroRequest;
+import com.br.unifor.paponline.dto.AdministradorResponse;
 import com.br.unifor.paponline.entidades.Administrador;
 import com.br.unifor.paponline.service.AdministradorService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admins")
@@ -18,23 +22,23 @@ public class AdministradorController {
     private final AdministradorService service;
 
     @PostMapping
-    public Administrador criar(@RequestBody Administrador a) {
-        return service.criar(a);
+    public AdministradorResponse criar(@Valid @RequestBody AdministradorCadastroRequest request) {
+        return AdministradorResponse.from(service.criar(request.toEntity()));
     }
 
     @GetMapping
-    public List<Administrador> listar() {
-        return service.listar();
+    public List<AdministradorResponse> listar() {
+        return service.listar().stream().map(AdministradorResponse::from).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Administrador buscar(@PathVariable Long id) {
-        return service.buscar(id);
+    public AdministradorResponse buscar(@PathVariable Long id) {
+        return AdministradorResponse.from(service.buscar(id));
     }
 
     @PutMapping("/{id}")
-    public Administrador atualizar(@PathVariable Long id, @RequestBody Administrador dados) {
-        return service.atualizar(id, dados);
+    public AdministradorResponse atualizar(@PathVariable Long id, @RequestBody Administrador dados) {
+        return AdministradorResponse.from(service.atualizar(id, dados));
     }
 
     @PatchMapping("/{id}/senha")
@@ -44,7 +48,10 @@ public class AdministradorController {
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) {
+    public void excluir(@PathVariable Long id, HttpSession session) {
         service.excluir(id);
+        if (session.getAttribute("usuarioId") instanceof Number userId && userId.longValue() == id) {
+            session.invalidate();
+        }
     }
 }

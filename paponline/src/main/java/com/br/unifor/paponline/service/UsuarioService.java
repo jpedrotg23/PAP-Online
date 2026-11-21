@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class UsuarioService {
         if (repository.existsByEmail(usuario.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um usuário com este e-mail");
         }
-        SenhaValidator.exigirValida(usuario.getSenha());
+        validarSenha(usuario.getSenha());
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return repository.save(usuario);
     }
@@ -53,7 +54,17 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> autenticar(String identificador, String senha) {
-        Optional<Usuario> opt = repository.findByEmailOrTelefone(identificador, identificador);
+        Optional<Usuario> opt;
+        if (identificador != null && identificador.contains("@")) {
+            opt = repository.findByEmailIgnoreCase(identificador.trim().toLowerCase(Locale.ROOT));
+        } else {
+            String telefone = identificador == null ? "" : identificador.replaceAll("\\D", "");
+            List<Usuario> encontrados = repository.findAll().stream()
+                    .filter(usuario -> usuario.getTelefone() != null
+                            && telefone.equals(usuario.getTelefone().replaceAll("\\D", "")))
+                    .toList();
+            opt = encontrados.size() == 1 ? Optional.of(encontrados.get(0)) : Optional.empty();
+        }
         if (opt.isEmpty()) return Optional.empty();
 
         Usuario u = opt.get();
@@ -82,7 +93,7 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Senha atual incorreta.");
         }
 
-        SenhaValidator.exigirValida(novaSenha);
+        validarSenha(novaSenha);
 
         if (passwordEncoder.matches(novaSenha, u.getSenha())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -91,5 +102,13 @@ public class UsuarioService {
 
         u.setSenha(passwordEncoder.encode(novaSenha));
         repository.save(u);
+    }
+
+    private void validarSenha(String senha) {
+        try {
+            SenhaValidator.exigirValida(senha);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }

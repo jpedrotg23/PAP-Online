@@ -21,7 +21,7 @@ public class TokenRecuperacaoSenha {
     @Column(nullable = false, length = 160)
     private String identificador;
 
-    @Column(nullable = false, length = 6)
+    @Column(nullable = false, length = 100)
     private String codigo;
 
     @Column(nullable = false)

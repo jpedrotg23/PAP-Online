@@ -252,7 +252,7 @@
     </div>
     <nav>
         <a class="side-link" href="/profissional/profissional-inicial.html">
-            <span class="nav-ico">⌂</span>Início
+            <span class="nav-ico" data-icon="home"></span>Início
         </a>
         <a class="side-link" href="/profissional/profissional-agenda.html">
             <span class="nav-ico">▣</span>Agenda
@@ -268,7 +268,7 @@
         </a>
     </nav>
     <button class="exit-link" type="button" data-role-logout>
-        ↪ &nbsp; Sair
+        <span class="nav-ico" data-icon="logout"></span> Sair
     </button>
 </aside>
 
@@ -656,7 +656,9 @@
             if (!mensagens.length) {
                 container.innerHTML = `
         <div class="chat-empty-wrap">
-          <div class="chat-empty-icon">💬</div>
+          <div class="chat-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg>
+          </div>
           <b>Nenhuma mensagem ainda</b>
           <p>Envie a primeira mensagem para iniciar a conversa.</p>
         </div>`;
@@ -876,5 +878,6 @@
     })();
 </script>
 
+<script src="/js/ui.js"></script>
 </body>
 </html>

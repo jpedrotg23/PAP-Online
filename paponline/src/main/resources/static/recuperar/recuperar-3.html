@@ -23,11 +23,17 @@
         <label>Nova senha
             <div class="password-wrap">
                 <input id="resetPassword" type="password" minlength="8" required placeholder="Mínimo de 8 caracteres">
-                <button class="eye" type="button" data-toggle="resetPassword">◉</button>
+                <button class="eye" type="button" data-toggle="resetPassword" aria-label="Mostrar senha"></button>
             </div>
+            <div class="strength"><span id="resetStrengthBar"></span></div>
+            <small id="resetStrengthText">Força da senha</small>
+            <div class="password-rules"><span>8 caracteres</span><span>1 maiúscula</span><span>1 minúscula</span><span>1 número</span></div>
         </label>
         <label>Confirmar nova senha
-            <input id="resetConfirm" type="password" required placeholder="Repita a nova senha">
+            <div class="password-wrap">
+                <input id="resetConfirm" type="password" required placeholder="Repita a nova senha">
+                <button class="eye" type="button" data-toggle="resetConfirm" aria-label="Mostrar senha"></button>
+            </div>
         </label>
         <button class="primary-btn" type="submit">Redefinir senha</button>
     </form>
@@ -42,5 +48,6 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/recuperar.js"></script>
+<script src="/js/ui.js"></script>
 </body>
 </html>

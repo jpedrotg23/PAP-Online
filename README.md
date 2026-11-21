@@ -1,235 +1,79 @@
-<div align="center">
-
 # PAP Online
 
-### Programa de Apoio Psicopedagógico da Universidade de Fortaleza
+Sistema web monolítico do Programa de Apoio Psicopedagógico (PAP) da Universidade de Fortaleza. O backend Java/Spring Boot também serve o frontend HTML, CSS e JavaScript incluído no mesmo artefato.
 
-<p>
-  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
-  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-</p>
+**Aplicação publicada:** https://pap-online.onrender.com/
 
-<p>
-  <img src="https://img.shields.io/badge/Status-Em_Desenvolvimento-F59E0B?style=flat-square">
-</p>
+## Arquitetura e tecnologias
 
-</div>
+- Java 21 e Spring Boot 4.1
+- Spring MVC, Spring Data JPA, Hibernate e Bean Validation
+- Sessões HTTP, perfis ALUNO/PROFISSIONAL/ADMIN e BCrypt
+- H2 para desenvolvimento/testes locais; PostgreSQL no perfil `prod`
+- HTML/CSS/JavaScript em `paponline/src/main/resources/static/`
+- Gradle e Docker
 
----
+O fluxo é `navegador → Spring MVC → services → repositories/JPA → banco`. Não há frontend publicado separadamente nem arquitetura de microserviços.
 
-## 🎯 Objetivo
+## Funcionalidades presentes no backend
 
-O **PAP Online** é um sistema web desenvolvido como proposta de digitalização e modernização do acesso aos serviços do **Programa de Apoio Psicopedagógico (PAP) da Universidade de Fortaleza (Unifor)**.
+Autenticação por sessão, cadastro público de alunos com aceite de consentimento, administração de profissionais, agenda e atendimentos, solicitações de adaptação com anexos, conversas, notificações, avisos e áreas de serviço. O escopo implementado ainda não cobre todos os requisitos oficiais; a matriz de rastreabilidade e as pendências estão em [`paponline/CONTRATO-BACKEND.md`](paponline/CONTRATO-BACKEND.md).
 
-A proposta surgiu a partir da percepção de que muitos estudantes podem não conhecer os serviços oferecidos pelo PAP ou podem encontrar dificuldades para descobrir como solicitar atendimento, acompanhar seus processos e entrar em contato com a equipe responsável.
+## Execução local
 
-O sistema busca centralizar essas informações e serviços em uma plataforma web simples, acessível e organizada, aproximando o PAP dos estudantes e facilitando o trabalho dos profissionais responsáveis pelos atendimentos.
+Requer JDK 21. No PowerShell:
 
-> 🚧 **Status: Em desenvolvimento. O frontend está publicado; o backend ainda será iniciado pela equipe responsável.**
+```powershell
+cd paponline
+$env:SPRING_PROFILES_ACTIVE = "local"
+.\gradlew.bat bootRun
+```
 
----
+No Linux/macOS:
 
-## 🛠️ Tecnologias e arquitetura planejada
+```bash
+cd paponline
+SPRING_PROFILES_ACTIVE=local ./gradlew bootRun
+```
 
-O projeto está dividido em duas partes:
+O perfil local usa H2 em arquivo (`paponline/data/`), não cria contas de demonstração por padrão e mantém o console H2 desligado. Para habilitá-lo explicitamente, defina `PAP_H2_CONSOLE_ENABLED=true`; para carregar dados de demonstração apenas fora de produção, defina `PAP_DEMO_SEED=true`.
 
-| Camada | Tecnologias | Estado |
-|:---|:---|:---|
-| **Frontend** | HTML5, CSS3 e JavaScript | Implementado e publicado |
-| **Backend** | Java, Spring Boot e Spring Web | Planejado; desenvolvimento ainda não iniciado |
+## Testes e build
 
-A equipe de backend utilizará Java com Spring Boot e Spring Web para disponibilizar uma API HTTP/REST consumida pelo frontend. O uso de Spring Security é uma opção recomendada para a implementação de autenticação e autorização, mas deverá ser confirmada pela equipe de backend.
+```powershell
+cd paponline
+.\gradlew.bat clean test
+.\gradlew.bat bootJar
+```
 
-**Importante:** Java, Spring Boot e Spring Web representam a stack definida para o backend. Eles ainda não estão implementados neste repositório. O código atualmente disponível na pasta `PAP-Online/` é o frontend estático em HTML, CSS e JavaScript.
+O workflow de CI executa os testes e gera o JAR, sem deploy e sem publicar frontend estático.
 
-## 🌐 Acessar o frontend
+## Variáveis de ambiente
 
-- **Demonstração publicada:** https://jpedrotg23.github.io/PAP-Online/
-- **Repositório:** https://github.com/jpedrotg23/PAP-Online
-- **Documentação de integração:** [PAP-Online/CONTRATO-BACKEND.md](PAP-Online/CONTRATO-BACKEND.md)
+Para produção, ative `SPRING_PROFILES_ACTIVE=prod` e configure:
 
-O modo demonstrativo permite navegar pelas áreas de aluno, profissional e administrador sem autenticação real. Ele serve somente para apresentação do frontend e não deve ser utilizado para dados pessoais ou operações reais.
-
----
-
-## 💡 Por que o PAP Online é viável?
-
-A proposta busca solucionar um problema presente no ambiente universitário: a dificuldade de tornar os serviços de apoio psicopedagógico conhecidos e acessíveis aos estudantes.
-
-Uma plataforma web pode funcionar como um **ponto central de acesso ao PAP**, reunindo informações e serviços em um único local.
-
-Além de facilitar os processos já existentes, o sistema pode atuar como uma ferramenta de **divulgação institucional**, aumentando a presença do PAP no cotidiano dos estudantes.
-
----
-
-## 🌱 Visibilidade do PAP
-
-Um dos principais diferenciais da proposta é utilizar o sistema não apenas para gerenciar atendimentos, mas também para **aumentar a visibilidade do PAP dentro da Universidade de Fortaleza**.
-
-O PAP Online poderá apresentar, de forma clara e acessível:
-
-- O que é o PAP;
-- Qual é a finalidade do programa;
-- Quais serviços estão disponíveis;
-- Quem pode utilizar os serviços;
-- Como solicitar atendimento;
-- Como funciona o acompanhamento;
-- Como entrar em contato;
-- Perguntas frequentes;
-- Orientações gerais.
-
-Dessa forma, o sistema pode funcionar como uma **porta de entrada para o PAP**, permitindo que mais estudantes descubram os serviços oferecidos pela universidade.
-
----
-
-## 🌎 Impacto na sociedade
-
-O PAP Online busca contribuir para uma comunidade acadêmica mais **informada, inclusiva e acolhedora**.
-
-O sistema pode contribuir para:
-
-- Facilitar o acesso ao apoio psicopedagógico;
-- Aumentar a divulgação dos serviços do PAP;
-- Reduzir dificuldades no processo de solicitação de atendimento;
-- Promover maior autonomia aos estudantes;
-- Facilitar o acompanhamento dos atendimentos;
-- Contribuir para uma universidade mais inclusiva;
-- Aproximar os estudantes dos profissionais responsáveis pelo atendimento.
-
-O sistema **não pretende substituir os profissionais do PAP**. Seu objetivo é facilitar o acesso aos serviços e melhorar a comunicação entre estudantes e equipe.
-
----
-
-## 👥 Usuários do sistema
-
-### 👨‍🎓 Estudante
-
-- Acessar informações sobre o PAP;
-- Solicitar atendimento;
-- Visualizar profissionais disponíveis;
-- Consultar horários;
-- Agendar atendimento;
-- Consultar histórico de atendimentos;
-- Acompanhar solicitações;
-- Solicitar adaptações acadêmicas;
-- Enviar documentos;
-- Entrar em contato com profissionais.
-
-### 🧑‍⚕️ Profissional do PAP
-
-- Visualizar sua agenda;
-- Consultar atendimentos;
-- Acessar informações dos alunos vinculados;
-- Registrar orientações;
-- Acompanhar solicitações de adaptação;
-- Comunicar-se com estudantes.
-
-### 🧑‍💼 Administrador/Gestor
-
-- Gerenciar estudantes;
-- Gerenciar profissionais;
-- Organizar horários;
-- Acompanhar atendimentos;
-- Gerenciar solicitações;
-- Acompanhar informações administrativas;
-- Visualizar indicadores do PAP.
-
----
-
-## ⚙️ Funcionalidades previstas
-
-### 🔐 Autenticação
-
-- Login de usuários;
-- Controle de acesso de acordo com o perfil;
-- Validação das credenciais;
-- Recuperação de acesso.
-
-### 📅 Atendimento
-
-- Solicitação de atendimento;
-- Visualização de profissionais;
-- Visualização de horários disponíveis;
-- Agendamento;
-- Cancelamento ou alteração de atendimento;
-- Consulta ao histórico.
-
-### 🏢 Gestão
-
-- Cadastro de profissionais;
-- Edição de profissionais;
-- Gerenciamento de horários;
-- Visualização dos atendimentos;
-- Gerenciamento de usuários.
-
-### ♿ Solicitações de adaptação
-
-- Criação de solicitação;
-- Descrição da necessidade do estudante;
-- Envio de documentação;
-- Acompanhamento do status;
-- Análise por profissional ou gestor.
-
-### 💬 Comunicação
-
-- Canal de comunicação entre estudante e equipe;
-- Histórico de mensagens;
-- Organização das conversas por usuário.
-
-### 📢 Informações sobre o PAP
-
-- O que é o PAP;
-- Serviços oferecidos;
-- Público atendido;
-- Como solicitar atendimento;
-- Como entrar em contato;
-- Perguntas frequentes;
-- Orientações gerais.
-
----
-
-## 📚 Contexto acadêmico
-
-O PAP Online está sendo desenvolvido como um projeto acadêmico envolvendo estudantes da área de tecnologia, tendo como foco a aplicação de conceitos de desenvolvimento de sistemas e solução de problemas reais dentro do ambiente universitário.
-
-A proposta busca demonstrar como uma solução digital pode ser utilizada para melhorar o acesso dos estudantes a serviços institucionais e contribuir para uma experiência universitária mais inclusiva.
-
----
-
-## 👨‍💻 Equipe
-
-| Nome | Curso |
+| Variável | Uso |
 |---|---|
-| **João Pedro Teixeira Guimarães** | Ciência da Computação |
-| **Suzani Jia Yi Wang** | Ciência da Computação |
-| **Arthur Braz Masrua** | Ciência da Computação |
-| **Paulo Haskley Queiroz de Lima** | Análise e Desenvolvimento de Sistemas |
+| `SPRING_DATASOURCE_URL` | URL JDBC PostgreSQL |
+| `SPRING_DATASOURCE_USERNAME` | Usuário do banco |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco |
+| `RESEND_API_KEY` | Chave fornecida pela conta Resend |
+| `PAP_EMAIL_FROM` | Remetente em domínio verificado no Resend |
+| `PAP_UPLOAD_DIR` | Diretório montado em armazenamento persistente |
+| `PAP_CONSENT_VERSION` | Versão aprovada do termo de consentimento |
+| `PAP_DDL_AUTO` | Política Hibernate; padrão atual `update` no perfil produtivo |
+| `PAP_SESSION_COOKIE_SECURE` | Cookie Secure; produção força `true` |
 
----
+Não versionar arquivos com valores secretos. O envio de e-mail falha fechado sem as variáveis do Resend e não devolve código de recuperação.
 
-## 📌 Considerações finais
+## Deploy no Render
 
-O **PAP Online** parte de uma ideia simples:
+Configure o serviço Docker com o diretório raiz `paponline`, perfil `prod`, PostgreSQL externo e as variáveis acima. O armazenamento de upload precisa ser um disco persistente do Render montado em `PAP_UPLOAD_DIR` ou um serviço de objetos que ainda deverá ser integrado. Configure health check em `/health`. Faça o primeiro deploy somente após criar/verificar o schema PostgreSQL, configurar e-mail/domínio, armazenamento durável, backups e os demais itens pendentes documentados.
 
-> **Tornar o apoio psicopedagógico mais fácil de encontrar e acessar.**
+O workflow antigo de GitHub Pages foi substituído por CI. **A desativação do GitHub Pages é manual**: nas configurações do repositório, defina Pages como desativado/remova a origem de publicação.
 
-Mais do que criar uma plataforma para agendamento, a proposta é utilizar a tecnologia para **aproximar o PAP da comunidade acadêmica e aumentar a visibilidade dos serviços oferecidos pela universidade**.
+## Documentação
 
-Uma plataforma centralizada pode permitir que estudantes descubram o PAP, entendam quais serviços estão disponíveis e encontrem um caminho mais simples para buscar apoio.
-
-O projeto está em desenvolvimento e poderá evoluir conforme os requisitos e necessidades identificados durante sua construção.
-
----
-
-<div align="center">
-
-### PAP Online
-
-**Tecnologia aproximando estudantes do apoio que eles precisam.**
-
-<br>
-
-<img src="https://img.shields.io/badge/Made_with-Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Made with Java">
-<img src="https://img.shields.io/badge/Powered_by-Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Powered by Spring Boot">
-
-</div>
+- Backend e execução: [`paponline/README.md`](paponline/README.md)
+- API, configuração e rastreabilidade: [`paponline/CONTRATO-BACKEND.md`](paponline/CONTRATO-BACKEND.md)
+- Especificação oficial: [`docs/Especificação de Requisitos de Software — PAP Online.md`](docs/Especificação%20de%20Requisitos%20de%20Software%20%E2%80%94%20PAP%20Online.md)

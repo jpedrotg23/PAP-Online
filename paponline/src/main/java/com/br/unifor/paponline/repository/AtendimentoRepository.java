@@ -21,6 +21,8 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
 
     List<Atendimento> findByStatusInAndDataHoraInicioBefore(Collection<String> status, LocalDateTime limite);
 
+    List<Atendimento> findByStatusInAndDataHoraFimBefore(Collection<String> status, LocalDateTime limite);
+
     List<Atendimento> findByStatusAndDataHoraInicioBetween(String status, LocalDateTime inicio, LocalDateTime fim);
 
     long countByAlunoIdAndStatusAndDataHoraInicioBetween(

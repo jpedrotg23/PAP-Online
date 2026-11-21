@@ -1,9 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-toggle]').forEach(button => button.addEventListener('click', () => {
-    const input = document.getElementById(button.dataset.toggle);
-    if (input) input.type = input.type === 'password' ? 'text' : 'password';
-  }));
-
   const filterButtons = document.querySelectorAll('[data-filter]');
   filterButtons.forEach(button => button.addEventListener('click', () => {
     filterButtons.forEach(item => item.classList.remove('active'));

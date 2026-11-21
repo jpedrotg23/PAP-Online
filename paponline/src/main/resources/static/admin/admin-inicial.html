@@ -106,7 +106,7 @@
     </div>
     <nav class="portal-navigation" aria-label="Menu principal">
       <a class="portal-nav-link active" href="/admin/admin-inicial.html">
-        <span class="portal-nav-icon">⌂</span><span>Início</span>
+        <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
       </a>
       <a class="portal-nav-link" href="/admin/admin-profissionais.html">
         <span class="portal-nav-icon">♙</span><span>Profissionais</span>
@@ -124,11 +124,11 @@
         <span class="portal-nav-icon">♢</span><span>Notificações</span>
       </a>
       <a class="portal-nav-link" href="/admin/admin-perfil.html">
-        <span class="portal-nav-icon">⚙</span><span>Perfil</span>
+        <span class="portal-nav-icon" data-icon="user"></span><span>Perfil</span>
       </a>
     </nav>
     <button class="portal-exit" type="button" data-role-logout>
-      <span class="portal-nav-icon">↪</span><span>Sair</span>
+      <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
     </button>
   </aside>
 
@@ -208,7 +208,7 @@
           <div class="portal-panel-head">
             <div>
               <h2>Atividades recentes</h2>
-              <p>Últimas movimentações no sistema.</p>
+              <p>últimas movimentações no sistema.</p>
             </div>
           </div>
           <div id="atividadesRecentes">
@@ -552,7 +552,7 @@
       const container = document.getElementById('atividadesRecentes');
       const atividades = [];
 
-      // Últimos atendimentos (5 mais recentes com status REALIZADO ou AGENDADO)
+      // últimos atendimentos (5 mais recentes com status REALIZADO ou AGENDADO)
       const ultimosAtendimentos = state.atendimentos
               .sort((a, b) => new Date(b.criadoEm || b.dataHoraInicio) - new Date(a.criadoEm || a.dataHoraInicio))
               .slice(0, 3);
@@ -569,7 +569,7 @@
         });
       });
 
-      // Últimas solicitações
+      // últimas solicitações
       const ultimasSolicitacoes = state.solicitacoes
               .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
               .slice(0, 3);
@@ -634,5 +634,6 @@
   })();
 </script>
 
+<script src="/js/ui.js"></script>
 </body>
 </html>

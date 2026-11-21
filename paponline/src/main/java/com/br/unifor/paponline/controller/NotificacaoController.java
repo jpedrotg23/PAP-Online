@@ -20,7 +20,7 @@ public class NotificacaoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Notificacao criar(@Valid @RequestBody NotificacaoRequest req) {
-        return service.criar(req.usuarioId(), req.titulo(), req.mensagem());
+        return service.criarManual(req.usuarioId(), req.titulo(), req.mensagem());
     }
 
     @GetMapping("/usuario/{usuarioId}")

@@ -1,6 +1,7 @@
 package com.br.unifor.paponline.controller;
 
 import com.br.unifor.paponline.entidades.Anexo;
+import com.br.unifor.paponline.dto.AnexoResponse;
 import com.br.unifor.paponline.entidades.SolicitacaoAdaptacao;
 import com.br.unifor.paponline.service.AnexoService;
 import com.br.unifor.paponline.service.AnexoService.AnexoDownload;
@@ -66,17 +67,17 @@ public class SolicitacaoAdaptacaoController {
 
     @PostMapping(value = "/{id}/anexos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Anexo uploadAnexo(
+    public AnexoResponse uploadAnexo(
             @PathVariable Long id,
             @RequestParam(value = "arquivo", required = false) MultipartFile arquivo,
             @RequestParam(value = "file", required = false) MultipartFile file) {
         MultipartFile escolhido = (arquivo != null && !arquivo.isEmpty()) ? arquivo : file;
-        return anexoService.salvar(id, escolhido);
+        return AnexoResponse.from(anexoService.salvar(id, escolhido));
     }
 
     @GetMapping("/{id}/anexos")
-    public List<Anexo> listarAnexos(@PathVariable Long id) {
-        return anexoService.listarPorSolicitacao(id);
+    public List<AnexoResponse> listarAnexos(@PathVariable Long id) {
+        return anexoService.listarPorSolicitacao(id).stream().map(AnexoResponse::from).toList();
     }
 
     @GetMapping("/{id}/anexos/{anexoId}")

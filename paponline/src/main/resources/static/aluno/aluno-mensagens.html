@@ -190,7 +190,7 @@
     </div>
     <nav class="portal-navigation" aria-label="Menu principal">
       <a class="portal-nav-link" href="/aluno/aluno-inicial.html">
-        <span class="portal-nav-icon">⌂</span><span>Início</span>
+        <span class="portal-nav-icon" data-icon="home"></span><span>Início</span>
       </a>
       <a class="portal-nav-link" href="/aluno/aluno-agendar.html">
         <span class="portal-nav-icon">▦</span><span>Agendar</span>
@@ -209,7 +209,7 @@
       </a>
     </nav>
     <button class="portal-exit" type="button" data-role-logout>
-      <span class="portal-nav-icon">↪</span><span>Sair</span>
+      <span class="portal-nav-icon" data-icon="logout"></span><span>Sair</span>
     </button>
   </aside>
 
@@ -619,7 +619,9 @@
       if (!mensagens.length) {
         container.innerHTML = `
         <div class="chat-empty-wrap">
-          <div class="chat-empty-icon">💬</div>
+          <div class="chat-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg>
+          </div>
           <b>Nenhuma mensagem ainda</b>
           <p>Envie a primeira mensagem para iniciar a conversa com este profissional.</p>
         </div>`;
@@ -810,5 +812,6 @@
   })();
 </script>
 
+<script src="/js/ui.js"></script>
 </body>
 </html>
