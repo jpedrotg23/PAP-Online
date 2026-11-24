@@ -176,10 +176,9 @@ public class NotificacaoService {
         if (solicitacao == null) {
             return;
         }
-        List<Profissional> profissionaisAtivos = profissionalRepository.findByAtivoTrue().stream()
-                .filter(profissional -> solicitacao.getAreaId() != null
-                        && Objects.equals(profissional.getAreaId(), solicitacao.getAreaId()))
-                .toList();
+        // As solicitações são compartilhadas com todos os profissionais ativos do PAP,
+        // independentemente da área de atuação.
+        List<Profissional> profissionaisAtivos = profissionalRepository.findByAtivoTrue();
         for (Profissional profissional : profissionaisAtivos) {
             criar(
                     profissional.getId(),

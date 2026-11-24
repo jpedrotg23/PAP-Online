@@ -702,16 +702,25 @@
     }
 
     // ---------- 4. Stats ----------
+    // Remove acentos antes de comparar os cargos. Ex.: "Psicólogo(a)"
+    // precisa ser normalizado para "psicologo(a)" para a busca por "psicolog" funcionar.
+    function normalizarTexto(valor) {
+      return String(valor || '')
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .toLowerCase();
+    }
+
     function calcularStats() {
       const total = state.profissionais.length;
       const ativos = state.profissionais.filter(p => p.ativo !== false).length;
 
       const psicologos = state.profissionais.filter(p =>
-              (p.cargo || '').toLowerCase().includes('psicolog')
+              normalizarTexto(p.cargo).includes('psicolog')
       ).length;
 
       const psicopedagogos = state.profissionais.filter(p =>
-              (p.cargo || '').toLowerCase().includes('psicopedagog')
+              normalizarTexto(p.cargo).includes('psicopedagog')
       ).length;
 
       set('statTotal', String(total));

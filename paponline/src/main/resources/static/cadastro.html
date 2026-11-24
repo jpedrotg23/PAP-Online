@@ -109,6 +109,42 @@
             min-height: 14px;
         }
         #cursoOutroWrap { display: none; }
+
+        .termo-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(10,26,63,.55);
+            display: none; align-items: center; justify-content: center;
+            z-index: 99999; padding: 20px;
+        }
+        .termo-modal {
+            background: #fff; border-radius: 16px;
+            width: 100%; max-width: 620px; max-height: 82vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(10,26,63,.25);
+        }
+        .termo-modal-head {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:18px 22px; border-bottom:1px solid #edf0f5;
+        }
+        .termo-modal-head h2 { margin:0; font-size:16px; }
+        .termo-modal-close {
+            border:0; background:none; font-size:22px; cursor:pointer;
+            color:#6b7280; border-radius:6px; padding:4px 8px;
+        }
+        .termo-modal-corpo {
+            overflow-y:auto; max-height:55vh; padding:18px 22px;
+            color:#34415a; font-size:13px; line-height:1.55;
+        }
+        .termo-modal-corpo h3 { color:#0f1b33; font-size:13px; margin:14px 0 4px; }
+        .termo-modal-rodape {
+            padding:12px 22px; border-top:1px solid #edf0f5;
+            color:#64738d; font-size:12px;
+        }
+        .termo-link {
+            border:0; background:none; padding:0; color:#2059dc;
+            text-decoration:underline; cursor:pointer; font:inherit;
+        }
+        .consent input:disabled + span { opacity:.65; }
     </style>
 </head>
 <body class="auth-bg">
@@ -196,9 +232,9 @@
         </label>
 
         <label class="consent">
-            <input type="checkbox" id="cadConsent" required>
+            <input type="checkbox" id="cadConsent" required disabled>
             <span>
-        Li e concordo com o <a href="#" class="local-link">Termo de consentimento</a>
+        Li e concordo com o <button type="button" id="abrirTermo" class="termo-link">Termo de consentimento</button>
         para o tratamento dos meus dados pessoais e dos meus dados sensíveis de saúde,
         conforme a Lei nº 13.709/2018 (LGPD). Veja também os
         <a href="#" class="local-link">Termos de Uso</a> e a
@@ -225,6 +261,33 @@
         </header>
         <input type="search" id="cursoBusca" class="curso-modal-busca" placeholder="Buscar curso..." autocomplete="off">
         <div class="curso-modal-lista" id="cursoLista"></div>
+    </div>
+</div>
+
+<div class="termo-modal-overlay" id="termoModal" role="dialog" aria-modal="true" aria-labelledby="termoModalTitulo">
+    <div class="termo-modal" tabindex="-1">
+        <header class="termo-modal-head">
+            <h2 id="termoModalTitulo">Termo de consentimento — versão <span id="termoVersao">1.0</span></h2>
+            <button type="button" class="termo-modal-close" id="fecharTermo" aria-label="Fechar termo">×</button>
+        </header>
+        <div class="termo-modal-corpo" id="termoCorpo" tabindex="0">
+            <p><strong>VERSÃO PROVISÓRIA — sujeita à aprovação pela coordenação do PAP.</strong></p>
+            <h3>1. Dados que coletamos</h3>
+            <p>Coletamos nome, matrícula, vínculo, curso, e-mail, telefone e dados necessários ao cadastro e ao agendamento de atendimentos.</p>
+            <h3>2. Finalidade</h3>
+            <p>Os dados são utilizados para identificar o titular, administrar o atendimento, comunicar mudanças e cumprir obrigações institucionais.</p>
+            <h3>3. Dados sensíveis de saúde</h3>
+            <p>Informações sobre solicitações, adaptações e atendimentos são tratadas como dados sensíveis, exclusivamente para as finalidades descritas neste termo e conforme a Lei nº 13.709/2018.</p>
+            <h3>4. Quem pode acessar</h3>
+            <p>Alunos acessam seus próprios dados; profissionais acessam informações vinculadas aos atendimentos sob sua responsabilidade; administradores podem consultar dados operacionais agregados. O conteúdo dos atendimentos só pode ser acessado pelo profissional responsável.</p>
+            <h3>5. Direitos do titular e retenção</h3>
+            <p>O titular pode solicitar acesso, correção e exclusão dos dados, observadas as obrigações legais. Registros de atendimento são mantidos por 5 anos, exceto quando outra exigência legal determinar período diverso.</p>
+            <h3>6. Contato do encarregado</h3>
+            <p>Encarregado pelo tratamento de dados pessoais: <strong>[preencher]</strong>.</p>
+        </div>
+        <footer class="termo-modal-rodape">
+            Role até o fim do texto para habilitar o aceite.
+        </footer>
     </div>
 </div>
 
@@ -435,6 +498,81 @@
                 fecharModalCurso();
             }
         });
+
+        // ================================================================
+        // MODAL DO TERMO DE CONSENTIMENTO
+        // ================================================================
+        const termoModal = document.getElementById('termoModal');
+        const termoCorpo = document.getElementById('termoCorpo');
+        const abrirTermo = document.getElementById('abrirTermo');
+        const fecharTermo = document.getElementById('fecharTermo');
+        const cadConsent = document.getElementById('cadConsent');
+        let elementoAnteriorTermo = null;
+        let termoFoiAberto = false;
+
+        async function carregarVersaoTermo() {
+            try {
+                const r = await fetch('/termo', {credentials: 'include'});
+                if (!r.ok) return;
+                const termo = await r.json();
+                document.getElementById('termoVersao').textContent = termo.versao || '1.0';
+            } catch (_) {}
+        }
+
+        function abrirModalTermo() {
+            elementoAnteriorTermo = document.activeElement;
+            termoModal.style.display = 'flex';
+            if (!termoFoiAberto) {
+                cadConsent.checked = false;
+                cadConsent.disabled = true;
+                termoFoiAberto = true;
+            }
+            termoCorpo.scrollTop = 0;
+            setTimeout(() => {
+                verificarFimTermo();
+                fecharTermo.focus();
+            }, 50);
+        }
+
+        function fecharModalTermo() {
+            termoModal.style.display = 'none';
+            if (elementoAnteriorTermo) elementoAnteriorTermo.focus();
+        }
+
+        function verificarFimTermo() {
+            if (termoCorpo.scrollTop + termoCorpo.clientHeight >= termoCorpo.scrollHeight - 4) {
+                cadConsent.disabled = false;
+            }
+        }
+
+        termoCorpo.addEventListener('scroll', verificarFimTermo);
+        abrirTermo.addEventListener('click', abrirModalTermo);
+        fecharTermo.addEventListener('click', fecharModalTermo);
+        termoModal.addEventListener('click', (e) => {
+            if (e.target === termoModal) fecharModalTermo();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (termoModal.style.display !== 'flex') return;
+            if (e.key === 'Escape') {
+                fecharModalTermo();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focaveis = [...termoModal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])')]
+                        .filter(el => !el.disabled);
+                if (!focaveis.length) return;
+                const primeiro = focaveis[0];
+                const ultimo = focaveis[focaveis.length - 1];
+                if (e.shiftKey && document.activeElement === primeiro) {
+                    e.preventDefault();
+                    ultimo.focus();
+                } else if (!e.shiftKey && document.activeElement === ultimo) {
+                    e.preventDefault();
+                    primeiro.focus();
+                }
+            }
+        });
+        carregarVersaoTermo();
 
         // ================================================================
         // SUBMIT

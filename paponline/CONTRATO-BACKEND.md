@@ -103,9 +103,9 @@ Classificação baseada no código desta revisão. **Implementado** indica compo
 | RF28 | Pendente | O modelo não armazena texto de prontuário/registro clínico. |
 | RF29 | Parcial | Profissional consulta somente atendimentos vinculados; não há prontuário clínico. |
 | RF30 | Parcial | ADMIN cria/edita/desativa profissionais; governança de permissões e múltiplas áreas não concluída. |
-| RF31 | Pendente | Não existe geração/exportação de relatórios CSV/PDF. |
+| RF31 | Parcial | Painel e CSV agregados por servidor com filtros de período e área; faltam exportação em PDF e filtros por status e curso (SRS). |
 | RF32 | Parcial | Scheduler registra falta após 24h do fim; sem justificativa/feriados ou monitoramento de execução. |
-| RF33 | Parcial | Aceite, timestamp e versão são persistidos; texto/versão precisam de aprovação e configuração institucional. |
+| RF33 | Implementado | Cadastro exige leitura até o fim do termo, persiste aceite, timestamp e versão; o texto público identifica claramente que é provisório e aguarda aprovação da coordenação. |
 | RF34 | Parcial | Tabela persistente de auditoria registra acesso/mutação; imutabilidade não é garantida no banco contra DBA. |
 
 ### Requisitos não funcionais
@@ -134,7 +134,7 @@ Classificação baseada no código desta revisão. **Implementado** indica compo
 | RGN04 | Implementado | Cancelamento/remarcação pelo aluno exigem 24h; cancelamento posterior vira falta. |
 | RGN05 | Parcial | Três faltas no semestre bloqueiam agendamento; não há diferenciação de justificadas nem calendário acadêmico. |
 | RGN06 | Parcial | ADMIN não recebe prontuário; o modelo clínico ainda não existe e a agenda administrativa contém dados de atendimento. |
-| RGN07 | Parcial | Cadastro exige aceite e registra data/versão; aprovação do termo institucional pendente. |
+| RGN07 | Implementado | Cadastro exige aceite após leitura até o fim, registra data e versão e publica o texto com menção a LGPD e aprovação provisória da coordenação. |
 | RGN08 | Parcial | Contas são anonimizadas; atendimentos ficam preservados, mas retenção de cinco anos não é administrada por política de banco. |
 | RGN09 | Implementado | Agendamento só aceita horário publicado/disponível. |
 | RGN10 | Implementado | Reserva usa lock transacional; publicação de horários rejeita sobreposição sob lock do profissional. |
@@ -142,7 +142,7 @@ Classificação baseada no código desta revisão. **Implementado** indica compo
 | RGN12 | Implementado | Conversas aluno-profissional exigem vínculo de atendimento atual ou anterior; terceiros são recusados. |
 | RGN13 | Parcial | Prazo em dias úteis é calculado; feriados e sinalização automática de atraso não existem. |
 | RGN14 | Parcial | Atendimentos finalizados não podem ser alterados e exclusão foi bloqueada; correções anexadas ao registro ainda não existem. |
-| RGN15 | Pendente | Não existe geração de relatórios agregados/anonimizados. |
+| RGN15 | Implementado | Relatórios usam contagens agregadas por status, área, período e profissional; não devolvem nem exportam dados pessoais de alunos. |
 | RGN16 | Pendente | Calendário acadêmico, feriados e recessos não estão integrados. |
 | RGN17 | Implementado | Cadastro de profissional não é público e serviços exigem perfil ADMIN. |
 | RGN18 | Implementado | Finalização exige profissional responsável e horário de início atingido. |

@@ -581,7 +581,15 @@
             }
 
             let blocoAcoes = '';
-            if (s.status === 'ENVIADA' || s.status === 'PENDENTE_DOCUMENTACAO') {
+            const atribuidaOutroProfissional = s.profissionalId != null
+                && Number(s.profissionalId) !== Number(state.usuario?.id);
+
+            if (atribuidaOutroProfissional) {
+                blocoAcoes = `
+                    <div class="sol-acoes" style="display:block;background:#f7f9fc;border:1px solid #e2e7f0;border-radius:9px;padding:12px 14px;color:#64738d;font-size:12px;">
+                        Esta solicitação está sob responsabilidade de outro profissional. Você pode consultar os dados, mas não pode alterar o andamento.
+                    </div>`;
+            } else if (s.status === 'ENVIADA' || s.status === 'PENDENTE_DOCUMENTACAO') {
                 const label = s.status === 'ENVIADA' ? 'Iniciar análise' : 'Retomar análise';
                 blocoAcoes = `
                     <div class="sol-acoes">

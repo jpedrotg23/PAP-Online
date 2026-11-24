@@ -25,7 +25,8 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             "/avisos",
             "/conversas",
             "/notificacoes",
-            "/areas"
+            "/areas",
+            "/relatorios"
     );
     private static final Set<String> METODOS_SEM_MUTACAO = Set.of("GET", "HEAD", "OPTIONS");
 
@@ -119,8 +120,9 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         }
         if (path.equals("/alunos") && "GET".equals(method)) return admin;
         if (path.matches("/alunos/\\d+") && "GET".equals(method)) {
-            return admin || donoDaRota(request, session);
+            return admin || profissional || donoDaRota(request, session);
         }
+        if (path.startsWith("/relatorios")) return admin;
         if (path.startsWith("/horarios") && !Set.of("GET", "HEAD").contains(method)) {
             return admin || profissional;
         }

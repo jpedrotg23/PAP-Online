@@ -33,7 +33,7 @@
       margin-bottom:6px;
     }
 
-    /* Atividades recentes */
+    /* Resumo por status */
     .admin-atividade{
       display:flex;
       align-items:flex-start;
@@ -207,14 +207,14 @@
         <section class="portal-panel">
           <div class="portal-panel-head">
             <div>
-              <h2>Atividades recentes</h2>
-              <p>últimas movimentações no sistema.</p>
+              <h2>Resumo por status</h2>
+              <p>Contagens atuais por status.</p>
             </div>
           </div>
           <div id="atividadesRecentes">
             <div class="admin-empty">
               <b>Carregando…</b>
-              Buscando atividades.
+              Buscando contagens por status.
             </div>
           </div>
         </section>
@@ -252,31 +252,28 @@
 
       </div>
 
-      <!-- Solicitações recentes -->
+      <!-- Solicitações por status -->
       <section class="portal-panel">
         <div class="portal-panel-head">
           <div>
-            <h2>Solicitações recentes</h2>
-            <p>Pedidos que precisam de acompanhamento administrativo.</p>
+            <h2>Solicitações por status</h2>
+            <p>Contagem de solicitações agrupadas por status.</p>
           </div>
-          <a class="portal-text-link" href="/admin/admin-relatorios.html">Acessar relatórios</a>
+          <a class="portal-text-link" href="/admin/admin-relatorios.html">Ver relatórios agregados</a>
         </div>
         <div class="portal-table-wrap">
           <table class="portal-table">
             <thead>
             <tr>
-              <th>Protocolo</th>
-              <th>Estudante</th>
-              <th>Tipo</th>
-              <th>Data</th>
               <th>Status</th>
+              <th>Quantidade</th>
             </tr>
             </thead>
             <tbody id="tabelaSolicitacoes">
             <tr>
-              <td class="portal-empty-table" colspan="5">
+              <td class="portal-empty-table" colspan="2">
                 Carregando…
-                <small>Buscando solicitações recentes.</small>
+                <small>Buscando contagens por status.</small>
               </td>
             </tr>
             </tbody>
@@ -301,19 +298,12 @@
 
     // Pré-requisitos no backend:
     //   GET   /auth/session
-    //   GET   /alunos
-    //   GET   /profissionais
-    //   GET   /atendimentos
-    //   GET   /solicitacoes
+    //   GET   /relatorios/resumo
     //   GET   /notificacoes/usuario/{id}/count
 
     const state = {
       usuario: null,
-      alunos: [],
-      profissionais: [],
-      atendimentos: [],
-      solicitacoes: [],
-      alunosCache: {}
+      resumo: null
     };
 
     const STATUS_INFO = {
@@ -322,15 +312,6 @@
       DEFERIDA: 'Deferida',
       INDEFERIDA: 'Indeferida',
       PENDENTE_DOCUMENTACAO: 'Pendente'
-    };
-
-    const TIPO_INFO = {
-      PROVA: 'Prova',
-      PRAZO: 'Prazo',
-      MATERIAL: 'Material',
-      DISPENSA: 'Dispensa',
-      LOCAL_PROVA: 'Local de prova',
-      OUTRO: 'Outro'
     };
 
     // ---------- Helpers ----------
@@ -352,40 +333,11 @@
       })[s]);
     }
 
-    function fmtData(iso) {
-      if (!iso) return '—';
-      return new Date(iso).toLocaleDateString('pt-BR', {
-        day: '2-digit', month: '2-digit', year: '2-digit'
-      });
-    }
-
-    function fmtDataHora(iso) {
-      if (!iso) return '—';
-      const d = new Date(iso);
-      const hoje = new Date();
-      const ontem = new Date(hoje);
-      ontem.setDate(hoje.getDate() - 1);
-
-      if (d.toDateString() === hoje.toDateString()) {
-        return 'Hoje · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      }
-      if (d.toDateString() === ontem.toDateString()) {
-        return 'Ontem · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      }
-      return fmtData(iso) + ' · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function fmtRelativo(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      const agora = new Date();
-      const diff = (agora - d) / 1000;   // segundos
-
-      if (diff < 60) return 'agora há pouco';
-      if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
-      if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`;
-      if (diff < 604800) return `há ${Math.floor(diff / 86400)} d`;
-      return fmtData(iso);
+    function formatarDataLocal(data) {
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const dia = String(data.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
     }
 
     // ---------- 1. Usuário ----------
@@ -435,170 +387,89 @@
     }
 
     // ---------- 3. Alunos ----------
-    async function carregarAlunos() {
+    async function carregarResumo() {
       try {
-        const r = await fetch('/alunos', { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        state.alunos = await r.json();
-        set('statAlunos', String(state.alunos.length));
-        set('statAlunosDetalhe', state.alunos.length === 1 ? 'cadastrado' : 'cadastrados');
-
-        // Cache local
-        state.alunos.forEach(a => { state.alunosCache[a.id] = a; });
-      } catch (e) {
-        console.error('Erro ao carregar alunos', e);
-        set('statAlunos', '—');
-        set('statAlunosDetalhe', 'Erro');
-      }
-    }
-
-    // ---------- 4. Profissionais ----------
-    async function carregarProfissionais() {
-      try {
-        const r = await fetch('/profissionais', { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        state.profissionais = await r.json();
-        set('statProfissionais', String(state.profissionais.length));
-        set('statProfissionaisDetalhe', state.profissionais.length === 1 ? 'ativo' : 'ativos');
-      } catch (e) {
-        console.error('Erro ao carregar profissionais', e);
-        set('statProfissionais', '—');
-        set('statProfissionaisDetalhe', 'Erro');
-      }
-    }
-
-    // ---------- 5. Atendimentos ----------
-    async function carregarAtendimentos() {
-      try {
-        const r = await fetch('/atendimentos', { credentials: 'include' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        state.atendimentos = await r.json();
-
         const agora = new Date();
-        const mesAtual = agora.getMonth();
-        const anoAtual = agora.getFullYear();
-
-        const doMes = state.atendimentos.filter(a => {
-          const d = new Date(a.dataHoraInicio);
-          return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
-        });
-
-        set('statAtendimentos', String(doMes.length));
-        set('statAtendimentosDetalhe', 'no mês atual');
-      } catch (e) {
-        console.error('Erro ao carregar atendimentos', e);
-        set('statAtendimentos', '—');
-        set('statAtendimentosDetalhe', 'Erro');
-      }
-    }
-
-    // ---------- 6. Solicitações ----------
-    async function carregarSolicitacoes() {
-      try {
-        const r = await fetch('/solicitacoes', { credentials: 'include' });
+        const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
+        const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+        const [r, rMes] = await Promise.all([
+          fetch('/relatorios/resumo', { credentials: 'include' }),
+          fetch(`/relatorios/resumo?de=${formatarDataLocal(primeiroDia)}&ate=${formatarDataLocal(ultimoDia)}`,
+                  { credentials: 'include' })
+        ]);
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        state.solicitacoes = await r.json();
+        if (!rMes.ok) throw new Error('HTTP ' + rMes.status);
+        state.resumo = await r.json();
+        const resumoMes = await rMes.json();
 
-        const emAnalise = state.solicitacoes.filter(s => s.status === 'EM_ANALISE');
-        set('statSolicitacoes', String(emAnalise.length));
-        set('statSolicitacoesDetalhe', emAnalise.length === 0 ? 'nada pendente' : 'aguardando parecer');
+        set('statAlunos', String(state.resumo.totalAlunosAtivos));
+        set('statAlunosDetalhe', state.resumo.totalAlunosAtivos === 1 ? 'ativo' : 'ativos');
+        set('statProfissionais', String(state.resumo.totalProfissionaisAtivos));
+        set('statProfissionaisDetalhe', state.resumo.totalProfissionaisAtivos === 1 ? 'ativo' : 'ativos');
+
+        const totalAtendimentos = Object.values(resumoMes.atendimentosPorStatus || {})
+                .reduce((soma, qtd) => soma + qtd, 0);
+        set('statAtendimentos', String(totalAtendimentos));
+        set('statAtendimentosDetalhe', 'neste mês');
+
+        const emAnalise = state.resumo.solicitacoesPorStatus?.EM_ANALISE || 0;
+        set('statSolicitacoes', String(emAnalise));
+        set('statSolicitacoesDetalhe', emAnalise === 0 ? 'nada pendente' : 'aguardando parecer');
 
         renderizarTabelaSolicitacoes();
       } catch (e) {
-        console.error('Erro ao carregar solicitações', e);
-        set('statSolicitacoes', '—');
-        set('statSolicitacoesDetalhe', 'Erro');
+        console.error('Erro ao carregar resumo', e);
+        ['statAlunos', 'statProfissionais', 'statAtendimentos', 'statSolicitacoes']
+                .forEach(id => set(id, '—'));
       }
     }
 
     // ---------- 7. Tabela de solicitações ----------
     function renderizarTabelaSolicitacoes() {
       const tbody = document.getElementById('tabelaSolicitacoes');
-      const recentes = state.solicitacoes
-              .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
-              .slice(0, 5);
+      const contagens = state.resumo?.solicitacoesPorStatus || {};
+      const linhas = Object.entries(contagens);
 
-      if (!recentes.length) {
+      if (!linhas.length) {
         tbody.innerHTML = `
         <tr>
-          <td class="portal-empty-table" colspan="5">
+          <td class="portal-empty-table" colspan="2">
             Nenhuma solicitação registrada
-            <small>Os pedidos aparecerão aqui quando forem criados.</small>
+            <small>Não há contagens por status.</small>
           </td>
         </tr>`;
         return;
       }
 
-      tbody.innerHTML = recentes.map(s => {
-        const aluno = state.alunosCache[s.alunoId];
-        const nome = aluno?.nome || 'Aluno #' + s.alunoId;
-        const status = STATUS_INFO[s.status] || s.status;
-        const tipo = TIPO_INFO[s.tipo] || s.tipo || '—';
-
+      tbody.innerHTML = linhas.map(([status, quantidade]) => {
         return `
         <tr>
-          <td><span class="admin-protocolo">${escapeHtml(s.protocolo || '—')}</span></td>
-          <td>${escapeHtml(nome)}</td>
-          <td>${escapeHtml(tipo)}</td>
-          <td>${fmtData(s.dataEnvio)}</td>
-          <td><span class="admin-tabela-status ${s.status}">${escapeHtml(status)}</span></td>
+          <td><span class="admin-tabela-status ${status}">${escapeHtml(STATUS_INFO[status] || status)}</span></td>
+          <td>${quantidade}</td>
         </tr>
       `;
       }).join('');
     }
 
-    // ---------- 8. Atividades recentes ----------
+    // ---------- 8. Resumo por status ----------
     function renderizarAtividades() {
       const container = document.getElementById('atividadesRecentes');
       const atividades = [];
-
-      // últimos atendimentos (5 mais recentes com status REALIZADO ou AGENDADO)
-      const ultimosAtendimentos = state.atendimentos
-              .sort((a, b) => new Date(b.criadoEm || b.dataHoraInicio) - new Date(a.criadoEm || a.dataHoraInicio))
-              .slice(0, 3);
-
-      ultimosAtendimentos.forEach(a => {
-        const aluno = state.alunosCache[a.alunoId];
-        const nome = aluno?.nome || 'Aluno';
-        atividades.push({
-          tipo: 'atendimento',
-          icone: '▤',
-          cor: 'blue',
-          titulo: `Novo atendimento agendado para <b>${escapeHtml(nome)}</b>`,
-          data: a.criadoEm || a.dataHoraInicio
-        });
+      Object.entries(state.resumo?.atendimentosPorStatus || {}).forEach(([status, qtd]) => {
+        atividades.push({ icone: '▤', cor: 'blue',
+          titulo: `<b>${escapeHtml(qtd)}</b> atendimento(s) com status ${escapeHtml(status)}` });
       });
-
-      // últimas solicitações
-      const ultimasSolicitacoes = state.solicitacoes
-              .sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio))
-              .slice(0, 3);
-
-      ultimasSolicitacoes.forEach(s => {
-        const aluno = state.alunosCache[s.alunoId];
-        const nome = aluno?.nome || 'Aluno';
-        const cor = s.status === 'DEFERIDA' ? 'green'
-                : s.status === 'INDEFERIDA' ? 'red'
-                        : s.status === 'EM_ANALISE' ? 'orange'
-                                : 'purple';
-        atividades.push({
-          tipo: 'solicitacao',
-          icone: '♧',
-          cor: cor,
-          titulo: `Solicitação de adaptação de <b>${escapeHtml(nome)}</b>`,
-          data: s.dataEnvio
-        });
+      Object.entries(state.resumo?.solicitacoesPorStatus || {}).forEach(([status, qtd]) => {
+        atividades.push({ icone: '♧', cor: 'purple',
+          titulo: `<b>${escapeHtml(qtd)}</b> solicitação(ões) com status ${escapeHtml(STATUS_INFO[status] || status)}` });
       });
-
-      // Ordena por data
-      atividades.sort((a, b) => new Date(b.data) - new Date(a.data));
-      const top = atividades.slice(0, 5);
+      const top = atividades;
 
       if (!top.length) {
         container.innerHTML = `
         <div class="admin-empty">
-          <b>Nenhuma atividade recente</b>
-          As movimentações aparecerão aqui quando houver cadastros e solicitações.
+          <b>Nenhum status para resumir</b>
+          Ainda não há contagens disponíveis.
         </div>`;
         return;
       }
@@ -608,7 +479,6 @@
         <span class="admin-atividade-ico ${a.cor}">${a.icone}</span>
         <div class="admin-atividade-conteudo">
           <p class="admin-atividade-titulo">${a.titulo}</p>
-          <span class="admin-atividade-hora">${fmtRelativo(a.data)}</span>
         </div>
       </div>
     `).join('');
@@ -619,15 +489,7 @@
       const u = await carregarUsuario();
       if (!u) return;
 
-      // Carrega tudo em paralelo, mas alunos primeiro (para o cache)
-      await carregarAlunos();
-
-      await Promise.allSettled([
-        carregarProfissionais(),
-        carregarAtendimentos(),
-        carregarSolicitacoes(),
-        carregarNotificacoes()
-      ]);
+      await Promise.allSettled([carregarResumo(), carregarNotificacoes()]);
 
       renderizarAtividades();
     });

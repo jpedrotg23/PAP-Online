@@ -66,4 +66,28 @@ class AnexoServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> service.listarPorSolicitacao(1L));
     }
+    @Test
+    void professionalCanReadRequestAttachmentsEvenWhenRequestHasAnotherArea() {
+        AnexoRepository anexos = mock(AnexoRepository.class);
+        SolicitacaoAdaptacaoRepository solicitacoes = mock(SolicitacaoAdaptacaoRepository.class);
+        ProfissionalRepository profissionais = mock(ProfissionalRepository.class);
+        AnexoService service = new AnexoService(anexos, solicitacoes, profissionais);
+
+        SessionContext.set(7L, "PROFISSIONAL");
+        SolicitacaoAdaptacao solicitacao = new SolicitacaoAdaptacao();
+        solicitacao.setId(1L);
+        solicitacao.setAreaId(99L);
+        solicitacao.setProfissionalId(88L);
+        when(solicitacoes.findById(1L)).thenReturn(Optional.of(solicitacao));
+
+        com.br.unifor.paponline.entidades.Profissional profissional =
+                new com.br.unifor.paponline.entidades.Profissional();
+        profissional.setId(7L);
+        profissional.setAreaId(10L);
+        when(profissionais.findById(7L)).thenReturn(Optional.of(profissional));
+        when(anexos.findBySolicitacaoId(1L)).thenReturn(java.util.List.of());
+
+        assertTrue(service.listarPorSolicitacao(1L).isEmpty());
+    }
+
 }

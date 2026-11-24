@@ -4,7 +4,6 @@ import com.br.unifor.paponline.config.SessionContext;
 import com.br.unifor.paponline.entidades.SolicitacaoAdaptacao;
 import com.br.unifor.paponline.repository.SolicitacaoAdaptacaoRepository;
 import com.br.unifor.paponline.repository.AreaServicoRepository;
-import com.br.unifor.paponline.repository.ProfissionalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,7 +42,6 @@ public class SolicitacaoAdaptacaoService {
     private final SolicitacaoAdaptacaoRepository repository;
     private final NotificacaoService notificacaoService;
     private final AreaServicoRepository areaRepository;
-    private final ProfissionalRepository profissionalRepository;
 
     @Transactional
     public SolicitacaoAdaptacao criar(SolicitacaoAdaptacao dados) {
@@ -92,7 +90,9 @@ public class SolicitacaoAdaptacaoService {
             return repository.findByAlunoId(sessao.userId());
         }
         if ("PROFISSIONAL".equals(sessao.perfil())) {
-            return repository.findByProfissionalId(sessao.userId());
+            // Todas as solicitações ficam visíveis para os profissionais do PAP.
+            // A atribuição individual continua controlando quem pode analisá-las.
+            return repository.findAll();
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                 "Administradores não podem consultar o conteúdo das solicitações.");
@@ -101,22 +101,19 @@ public class SolicitacaoAdaptacaoService {
     public SolicitacaoAdaptacao buscar(Long id) {
         SessionContext.SessionInfo sessao = exigirSessao();
         SolicitacaoAdaptacao s = buscarEntidade(id);
-        if ("ALUNO".equals(sessao.perfil()) && !Objects.equals(s.getAlunoId(), sessao.userId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não tem permissão para visualizar esta solicitação.");
+        if ("ALUNO".equals(sessao.perfil())) {
+            if (!Objects.equals(s.getAlunoId(), sessao.userId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Você não tem permissão para visualizar esta solicitação.");
+            }
+            return s;
         }
-        if ("PROFISSIONAL".equals(sessao.perfil())
-                && !Objects.equals(s.getProfissionalId(), sessao.userId())
-                && (s.getAreaId() == null
-                || !Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId())))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não está autorizado a consultar esta solicitação.");
+        if ("PROFISSIONAL".equals(sessao.perfil())) {
+            // A consulta é compartilhada com todos os profissionais do PAP.
+            return s;
         }
-        if ("ADMIN".equals(sessao.perfil())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Administradores não podem consultar o conteúdo das solicitações.");
-        }
-        return s;
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Administradores não podem consultar o conteúdo das solicitações.");
     }
 
     @Transactional
@@ -128,18 +125,13 @@ public class SolicitacaoAdaptacaoService {
         }
 
         SolicitacaoAdaptacao s = buscarEntidade(id);
-        Long areaProfissional = areaDoProfissional(sessao.userId());
-        if (s.getProfissionalId() != null && !Objects.equals(s.getProfissionalId(), sessao.userId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "A solicitação está atribuída a outro profissional.");
-        }
-        if (s.getAreaId() == null || !Objects.equals(s.getAreaId(), areaProfissional)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "A solicitação não está vinculada à sua área de atuação.");
-        }
         if (!Objects.equals(s.getAlunoId(), sessao.userId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Você não tem permissão para editar esta solicitação.");
+        }
+        if (s.getProfissionalId() != null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "A solicitação já foi assumida por um profissional e não pode mais ser editada.");
         }
 
         if (!ENVIADA.equals(s.getStatus())) {
@@ -166,7 +158,19 @@ public class SolicitacaoAdaptacaoService {
                     "Apenas profissionais podem analisar solicitações.");
         }
 
-        SolicitacaoAdaptacao s = buscarEntidade(id);
+        // Bloqueia a linha durante a atribuição para impedir que dois profissionais
+        // assumam a mesma solicitação simultaneamente.
+        SolicitacaoAdaptacao s = repository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Solicitação não encontrada"));
+
+        // Todos os profissionais podem visualizar, mas a análise fica exclusiva
+        // para quem assumiu a solicitação ao iniciar o atendimento.
+        if (s.getProfissionalId() != null
+                && !Objects.equals(s.getProfissionalId(), sessao.userId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Esta solicitação já está sob responsabilidade de outro profissional.");
+        }
 
         String statusBruto = body != null && body.get("status") != null
                 ? String.valueOf(body.get("status")).trim().toUpperCase()
@@ -224,11 +228,7 @@ public class SolicitacaoAdaptacaoService {
                     "Você só pode consultar suas próprias solicitações.");
         }
         if ("PROFISSIONAL".equals(sessao.perfil())) {
-            return repository.findByAlunoId(alunoId).stream()
-                    .filter(s -> Objects.equals(s.getProfissionalId(), sessao.userId())
-                            || (s.getAreaId() != null
-                            && Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId()))))
-                    .toList();
+            return repository.findByAlunoId(alunoId);
         }
         if (!"ALUNO".equals(sessao.perfil())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -243,11 +243,7 @@ public class SolicitacaoAdaptacaoService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Somente profissionais podem consultar solicitações por status.");
         }
-        return repository.findByStatus(status).stream()
-                .filter(s -> Objects.equals(s.getProfissionalId(), sessao.userId())
-                        || (s.getAreaId() != null
-                        && Objects.equals(s.getAreaId(), areaDoProfissional(sessao.userId()))))
-                .toList();
+        return repository.findByStatus(status);
     }
 
     private SolicitacaoAdaptacao buscarEntidade(Long id) {
@@ -329,10 +325,4 @@ public class SolicitacaoAdaptacaoService {
         return sessao;
     }
 
-    private Long areaDoProfissional(Long profissionalId) {
-        return profissionalRepository.findById(profissionalId)
-                .map(profissional -> profissional.getAreaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Profissional não encontrado ou sem área de atuação."));
-    }
 }

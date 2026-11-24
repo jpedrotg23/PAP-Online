@@ -3,7 +3,6 @@ package com.br.unifor.paponline.service;
 import com.br.unifor.paponline.config.SessionContext;
 import com.br.unifor.paponline.entidades.Anexo;
 import com.br.unifor.paponline.entidades.SolicitacaoAdaptacao;
-import com.br.unifor.paponline.entidades.Profissional;
 import com.br.unifor.paponline.repository.AnexoRepository;
 import com.br.unifor.paponline.repository.ProfissionalRepository;
 import com.br.unifor.paponline.repository.SolicitacaoAdaptacaoRepository;
@@ -120,7 +119,7 @@ public class AnexoService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Você não tem permissão para visualizar os anexos desta solicitação.");
         }
-        if ("PROFISSIONAL".equals(sessao.perfil())) exigirResponsavel(sessao, solicitacao);
+        if ("PROFISSIONAL".equals(sessao.perfil())) exigirProfissional(sessao);
         if (!"ALUNO".equals(sessao.perfil()) && !"PROFISSIONAL".equals(sessao.perfil())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Perfil sem permissão para visualizar documentos da solicitação.");
@@ -145,7 +144,7 @@ public class AnexoService {
                         "Você não tem permissão para acessar este anexo.");
             }
         } else if ("PROFISSIONAL".equals(sessao.perfil())) {
-            exigirResponsavel(sessao, solicitacao);
+            exigirProfissional(sessao);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Perfil sem permissão para acessar documentos da solicitação.");
@@ -222,17 +221,12 @@ public class AnexoService {
         return sessao;
     }
 
-    private void exigirResponsavel(SessionContext.SessionInfo sessao, SolicitacaoAdaptacao solicitacao) {
-        Profissional profissional = profissionalRepository.findById(sessao.userId())
+    private void exigirProfissional(SessionContext.SessionInfo sessao) {
+        // Todos os profissionais do PAP podem consultar documentos das solicitações.
+        // A restrição de quem pode alterar o andamento é aplicada em SolicitacaoAdaptacaoService.analisar().
+        profissionalRepository.findById(sessao.userId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
                         "Profissional não encontrado."));
-        boolean atribuido = Objects.equals(solicitacao.getProfissionalId(), sessao.userId());
-        boolean mesmaArea = solicitacao.getAreaId() != null
-                && Objects.equals(solicitacao.getAreaId(), profissional.getAreaId());
-        if (!atribuido && !mesmaArea) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Você não está autorizado a acessar os documentos desta solicitação.");
-        }
     }
 
     public record AnexoDownload(Anexo anexo, Resource resource) {

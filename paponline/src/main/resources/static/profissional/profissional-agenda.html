@@ -603,6 +603,8 @@
             alunosCache: {},
             diaSelecionado: null,
             inicioSemana: null,
+            selecaoDiaManual: false,
+            atualizacaoEmAndamento: false,
             filtroStatus: 'all',
             horarios: []
         };
@@ -655,13 +657,32 @@
             return copia;
         }
 
+        // O backend envia LocalDateTime (sem fuso). Interpretamos os componentes
+        // como horário local do PAP para não deslocar o dia em navegadores com outro fuso.
+        function dataHoraLocalPAP(valor) {
+            const texto = String(valor || '');
+            const partes = texto.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?/);
+            if (!partes) return new Date(valor);
+            const milissegundos = partes[7] ? Math.floor(Number('0.' + partes[7]) * 1000) : 0;
+            return new Date(
+                Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]),
+                Number(partes[4]), Number(partes[5]), Number(partes[6] || 0), milissegundos
+            );
+        }
+
+        function dataIsoAtendimento(atendimento) {
+            const valor = String(atendimento?.dataHoraInicio || '');
+            return /^\d{4}-\d{2}-\d{2}/.test(valor) ? valor.substring(0, 10) : '';
+        }
+
         function formatarHora(iso) {
-            return new Date(iso).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+            const d = dataHoraLocalPAP(iso);
+            return Number.isNaN(d.getTime()) ? '—' : d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
         }
 
         function formatarDataHoraCompleta(iso) {
             if (!iso) return '—';
-            const d = new Date(iso);
+            const d = dataHoraLocalPAP(iso);
             if (Number.isNaN(d.getTime())) return iso;
             return d.toLocaleDateString('pt-BR', {
                 weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
@@ -822,7 +843,7 @@
 
             let blocoInfo = '';
             if (atendimento && atendimento.dataHoraInicio) {
-                const restanteMs = new Date(atendimento.dataHoraInicio).getTime() - Date.now();
+                const restanteMs = dataHoraLocalPAP(atendimento.dataHoraInicio).getTime() - Date.now();
                 const viraFalta = restanteMs < 24 * 3600 * 1000 && restanteMs > 0;
                 blocoInfo = `
                 <div class="pap-modal-info">
@@ -921,31 +942,82 @@
         }
 
         async function carregarAlunos() {
-            try {
-                const r = await fetch('/alunos', {credentials: 'include'});
-                if (!r.ok) return;
-                const alunos = await r.json();
-                alunos.forEach(a => {
-                    state.alunosCache[a.id] = a.nome;
-                });
-            } catch (e) {
-                console.error(e);
+            state.alunosCache = {};
+            const ids = [...new Set(state.atendimentos.map(a => a.alunoId).filter(Boolean))];
+            await Promise.all(ids.map(async (id) => {
+                try {
+                    const r = await fetch(`/alunos/${id}`, {credentials: 'include'});
+                    if (!r.ok || (r.status === 403 || r.status === 404)) return;
+                    const aluno = await r.json();
+                    state.alunosCache[id] = aluno.nome;
+                } catch (_) {}
+            }));
+        }
+
+        function selecionarProximoDiaComAtendimento() {
+            const agora = new Date();
+            const proximos = state.atendimentos
+                .filter(a => ['AGENDADO', 'CONFIRMADO'].includes(a.status))
+                .map(a => ({atendimento: a, dataHora: dataHoraLocalPAP(a.dataHoraInicio)}))
+                .filter(item => !Number.isNaN(item.dataHora.getTime()) && item.dataHora >= agora)
+                .sort((a, b) => a.dataHora - b.dataHora);
+
+            const proximo = proximos[0];
+            if (proximo) {
+                const iso = dataIsoAtendimento(proximo.atendimento);
+                const [ano, mes, dia] = iso.split('-').map(Number);
+                state.diaSelecionado = new Date(ano, mes - 1, dia);
+            } else {
+                state.diaSelecionado = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
             }
+            state.inicioSemana = segundaDaSemana(state.diaSelecionado);
         }
 
         async function carregarAtendimentos() {
+            if (!state.usuario?.id || state.atualizacaoEmAndamento) return;
+            state.atualizacaoEmAndamento = true;
             try {
                 const r = await fetch(`/atendimentos/profissional/${state.usuario.id}`, {
-                    credentials: 'include'
+                    credentials: 'include',
+                    cache: 'no-store'
                 });
                 if (!r.ok) throw new Error('HTTP ' + r.status);
-                state.atendimentos = await r.json();
+                const resposta = await r.json();
+                state.atendimentos = Array.isArray(resposta) ? resposta : [];
+
+                // Na primeira carga (e enquanto o profissional não escolheu outro dia),
+                // abre diretamente a data do próximo atendimento pendente.
+                if (!state.selecaoDiaManual) {
+                    selecionarProximoDiaComAtendimento();
+                }
+
+                await carregarAlunos();
                 renderizarTudo();
             } catch (e) {
                 console.error('erro ao carregar:', e);
                 document.getElementById('listaAtendimentos').innerHTML =
                     '<div class="agenda-empty"><b>Não foi possível carregar</b>Tente novamente.</div>';
+            } finally {
+                state.atualizacaoEmAndamento = false;
             }
+        }
+
+        function iniciarAtualizacaoAutomatica() {
+            const atualizar = async () => {
+                if (document.hidden || !state.usuario?.id || state.atualizacaoEmAndamento) return;
+                await Promise.allSettled([
+                    carregarAtendimentos(),
+                    carregarNotificacoes(),
+                    carregarHorarios()
+                ]);
+            };
+
+            // Atualiza ao voltar para a aba e também periodicamente enquanto estiver visível.
+            window.addEventListener('focus', atualizar);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) atualizar();
+            });
+            window.setInterval(atualizar, 30000);
         }
 
         async function carregarHorarios() {
@@ -990,7 +1062,7 @@
             container.innerHTML = dias.map(d => {
                 const iso = isoDia(d);
                 const count = state.atendimentos.filter(a =>
-                    a.dataHoraInicio && isoDia(new Date(a.dataHoraInicio)) === iso
+                    dataIsoAtendimento(a) === iso
                 ).length;
                 const nomeDia = d.toLocaleDateString('pt-BR', {weekday: 'short'}).replace('.', '').toUpperCase();
                 const isHoje = mesmoDia(d, hoje);
@@ -1008,6 +1080,7 @@
                 btn.addEventListener('click', () => {
                     const [y, m, dd] = btn.dataset.dia.split('-').map(Number);
                     state.diaSelecionado = new Date(y, m - 1, dd);
+                    state.selecaoDiaManual = true;
                     renderizarSemana();
                     renderizarLista();
                     renderizarStats();
@@ -1018,15 +1091,15 @@
         function atendimentosDoDia() {
             const iso = isoDia(state.diaSelecionado);
             return state.atendimentos
-                .filter(a => a.dataHoraInicio && isoDia(new Date(a.dataHoraInicio)) === iso)
-                .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio));
+                .filter(a => dataIsoAtendimento(a) === iso)
+                .sort((a, b) => dataHoraLocalPAP(a.dataHoraInicio) - dataHoraLocalPAP(b.dataHoraInicio));
         }
 
         function renderizarStats() {
             const doDia = atendimentosDoDia();
             const agora = new Date();
             const proximos = doDia.filter(a =>
-                (a.status === 'AGENDADO' || a.status === 'CONFIRMADO') && new Date(a.dataHoraInicio) > agora
+                (a.status === 'AGENDADO' || a.status === 'CONFIRMADO') && dataHoraLocalPAP(a.dataHoraInicio) > agora
             ).length;
             const finalizados = doDia.filter(a => a.status === 'REALIZADO').length;
             set('statDia', String(doDia.length));
@@ -1056,7 +1129,7 @@
 
             container.innerHTML = lista.map(a => {
                 const info = statusInfo(a.status);
-                const inicio = new Date(a.dataHoraInicio);
+                const inicio = dataHoraLocalPAP(a.dataHoraInicio);
                 const inicioPassou = inicio <= new Date();
                 const permiteAcoes = a.status === 'AGENDADO' || a.status === 'CONFIRMADO';
 
@@ -1416,6 +1489,7 @@
             const diaSel = new Date(state.diaSelecionado);
             diaSel.setDate(diaSel.getDate() + delta * 7);
             state.diaSelecionado = diaSel;
+            state.selecaoDiaManual = true;
             renderizarSemana();
             renderizarLista();
             renderizarStats();
@@ -1438,8 +1512,9 @@
                 console.error('usuário não carregado');
                 return;
             }
-            await Promise.allSettled([carregarAlunos(), carregarNotificacoes(), carregarHorarios()]);
+            await Promise.allSettled([carregarNotificacoes(), carregarHorarios()]);
             await carregarAtendimentos();
+            iniciarAtualizacaoAutomatica();
         });
     })();
 </script>

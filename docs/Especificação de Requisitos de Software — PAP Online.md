@@ -8,6 +8,7 @@
 | --- | --- | --- | --- |
 | 26/09/2026 | 1.0 | Versão inicial do documento de requisitos | Arthur, João Pedro, Paulo, Suzani e Sálua |
 | 08/11/2026 | 1.1 | Revisão geral: padronização para sistema web; requisitos funcionais e não funcionais complementados; regras de negócio, atores, casos de uso, arquitetura, glossário e modelos de análise | Arthur, João Pedro, Paulo, Suzani e Sálua |
+| 24/11/2026 | 1.2 | Atualização para refletir a implementação: tecnologias (Java 21, Gradle, Docker, Render, PostgreSQL e Resend), status REALIZADO, entidades, arquitetura, estado de implementação (Apêndice C) e linhas de assinatura | Arthur, João Pedro, Paulo, Suzani e Sálua |
 
 ## 1. Introdução
 
@@ -74,14 +75,15 @@ As principais funções previstas para o PAP Online são:
 
 ### 2.4 Ambiente de Trabalho
 
-O sistema será uma aplicação web, acessada por meio de navegador de internet. O desenvolvimento utilizará Java e o framework Spring Boot, com banco de dados relacional para armazenamento das informações. O código será mantido no GitHub.
+O sistema é uma aplicação web, acessada por navegador de internet, e é executado por uma aplicação Java 21 com o framework Spring Boot, construída com Gradle. O banco de dados relacional varia conforme o ambiente: H2 em arquivo no profile local, H2 em memória no profile test e PostgreSQL no profile prod, com a conexão configurada por variáveis de ambiente. A aplicação é empacotada em Docker e implantada no Render, e o serviço Resend é usado para o envio de e-mails. O código é mantido no GitHub.
 
 ### 2.5 Design e Implementação: Restrições
 
-- Utilização da linguagem Java;
-- Utilização do framework Spring Boot;
-- Utilização de banco de dados;
-- Sistema acessado por navegador web;
+- Utilização da linguagem Java 21 e do framework Spring Boot, com Gradle como ferramenta de build;
+- Utilização de banco de dados relacional: H2 nos ambientes local e de teste e PostgreSQL em produção;
+- Sistema acessado por navegador web, com as telas servidas pela própria aplicação;
+- Empacotamento em Docker e implantação no Render;
+- Utilização do serviço Resend para o envio de e-mails de recuperação de senha;
 - Utilização do GitHub como repositório de código;
 - Utilização do método Kanban via GitHub para gerenciamento do fluxo de desenvolvimento;
 - Necessidade de garantir a confidencialidade das informações dos atendimentos psicológicos;
@@ -97,16 +99,16 @@ Serão entregues, junto com a versão de produção, os seguintes artefatos:
 | Manual do profissional | Profissionais do PAP | PDF, cobrindo agenda, registro de atendimento e análise de adaptações |
 | Manual do administrador | Setor administrativo | PDF, cobrindo gestão de profissionais, horários e relatórios |
 | Perguntas frequentes (FAQ) | Todos | Página dentro do sistema |
-| Documentação da API | Equipe técnica | Swagger/OpenAPI gerado pelo Spring Boot |
+| Documentação da API | Equipe técnica | Contrato da API (arquivo CONTRATO-BACKEND.md), com rotas, perfis de acesso e regras de segurança |
 | README do repositório | Equipe técnica | Markdown no GitHub, com instruções de execução |
 
 Todos os textos voltados ao usuário final serão redigidos em português brasileiro, em linguagem acessível.
 
 ### 2.7 Suposições e Dependências
 
-**Suposições:** o PAP Online será acessado por meio de navegador web e utilizará banco de dados para armazenamento das informações. Seu desenvolvimento seguirá o cronograma estabelecido e contará com pesquisas e coleta de dados para levantamento das informações necessárias.
+**Suposições:** o PAP Online será acessado por meio de navegador web e utilizará banco de dados para armazenamento das informações. O desenvolvimento seguirá o cronograma estabelecido e contará com pesquisas e coleta de dados para o levantamento das informações necessárias. Presume-se ainda que a coordenação do PAP aprove o texto do termo de consentimento antes do uso real do sistema.
 
-**Dependências:** o funcionamento do sistema depende da utilização de Java, Spring Boot e banco de dados, além do GitHub para armazenamento dos códigos e gerenciamento do projeto. Também depende da participação dos setores envolvidos no PAP para o fornecimento das informações necessárias.
+**Dependências:** o funcionamento do sistema depende de Java 21, Spring Boot, Gradle e de um banco de dados (PostgreSQL em produção), além do GitHub para o código, do Docker e do Render para a implantação e do serviço Resend para o envio de e-mails. Também depende da participação dos setores envolvidos no PAP para o fornecimento das informações necessárias e da validação institucional do vínculo dos estudantes.
 
 ## 3. Requisitos do Sistema
 
@@ -114,7 +116,7 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 
 | ID | Requisito | Descrição | Prioridade |
 | --- | --- | --- | --- |
-| RF01 | Cadastro | O usuário deve se cadastrar na plataforma informando nome, matrícula e vínculo (estudantes), e-mail, telefone e senha, e aceitar o termo de consentimento, para ter acesso às funcionalidades. | ALTA |
+| RF01 | Cadastro | O usuário deve se cadastrar na plataforma informando nome, matrícula, vínculo e curso (estudantes), e-mail, telefone e senha, e aceitar o termo de consentimento, para ter acesso às funcionalidades. | ALTA |
 | RF02 | Login | O usuário deve entrar na plataforma informando e-mail ou telefone e senha. | ALTA |
 | RF03 | Enviar mensagem | O usuário Aluno pode enviar mensagem ao usuário Profissional, e vice-versa. | MÉDIA |
 | RF04 | Receber mensagem | O sistema deve exibir, na aba de conversa, a mensagem enviada pelo outro usuário. | MÉDIA |
@@ -132,7 +134,7 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 | RF16 | Painel | O sistema deve ter um painel de acompanhamento dos atendimentos do usuário. | ALTA |
 | RF17 | Excluir conta | O usuário pode excluir a conta criada no sistema. | ALTA |
 | RF18 | Cancelar consulta | O usuário pode cancelar a consulta marcada. | ALTA |
-| RF19 | Finalizar consulta | O usuário Profissional pode finalizar a consulta quando ela terminar. | ALTA |
+| RF19 | Finalizar consulta | O usuário Profissional pode finalizar a consulta, passando-a ao status REALIZADO, quando ela terminar. | ALTA |
 | RF20 | Descrição da consulta | A consulta deve ter uma descrição com horário, data, nome do profissional e tipo da consulta. | ALTA |
 | RF21 | Histórico | O sistema deve ter uma tela de histórico com as consultas já realizadas pelo usuário. | ALTA |
 | RF22 | Recuperar senha | O sistema deve permitir redefinir a senha por link ou código enviado ao e-mail cadastrado, com validade máxima de 30 minutos. | ALTA |
@@ -145,9 +147,9 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 | RF29 | Consultar histórico do aluno | O usuário Profissional pode consultar o histórico dos atendimentos dos estudantes sob sua responsabilidade. | ALTA |
 | RF30 | Gerenciar profissionais | O usuário Administrador pode cadastrar, editar e inativar profissionais e definir suas permissões e áreas de atuação. | ALTA |
 | RF31 | Gerar relatórios | O usuário Administrador pode gerar relatórios quantitativos por período, área, status e curso, exportáveis em PDF e CSV, respeitando a RGN15. | MÉDIA |
-| RF32 | Registrar falta | O sistema deve registrar automaticamente como falta o atendimento não finalizado pelo profissional até 24 horas após o horário agendado, aplicando a RGN05. | MÉDIA |
+| RF32 | Registrar falta | O sistema deve registrar automaticamente como falta o atendimento não finalizado pelo profissional até 24 horas após o término do horário agendado, aplicando a RGN05. | MÉDIA |
 | RF33 | Aceitar termo de consentimento | O sistema deve apresentar o Termo de Consentimento (LGPD) no cadastro e registrar o aceite com data, hora e versão do termo. | ALTA |
-| RF34 | Registrar log de auditoria | O sistema deve registrar em log os acessos e as alterações em registros de atendimento, identificando usuário, ação, data e hora. | ALTA |
+| RF34 | Registrar auditoria de atendimento | O sistema deve registrar, na entidade AuditoriaAtendimento, o usuário, a ação, o atendimento afetado e a data e hora de cada consulta ou alteração de atendimento, sem permitir a alteração ou a exclusão desses registros pela aplicação. | ALTA |
 
 ### 3.2 Requisitos Não Funcionais
 
@@ -163,7 +165,7 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 | RNF08 | Compatibilidade | O sistema deve funcionar nas duas versões mais recentes do Chrome, Firefox, Edge e Safari, com layout responsivo a partir de 360px de largura. | ALTA |
 | RNF09 | Manutenibilidade | O código deve seguir as convenções Java, adotar arquitetura em camadas (controller, service, repository) e manter cobertura mínima de 60% de testes unitários nas regras de negócio. | MÉDIA |
 | RNF10 | Auditabilidade | Todo acesso a registros de atendimento deve ser gravado em log imutável, mantido por no mínimo 12 meses. | ALTA |
-| RNF11 | Portabilidade | A aplicação deve ser executável em ambiente Linux com JVM 17 ou superior, sem configuração manual do sistema operacional. | MÉDIA |
+| RNF11 | Portabilidade e implantação | A aplicação deve ser executável com Java 21, empacotada em contêiner Docker, com a configuração do ambiente de produção fornecida por variáveis de ambiente, sem ajuste manual do sistema operacional. | MÉDIA |
 
 ### 3.3 Regras de Negócio
 
@@ -171,7 +173,7 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 | --- | --- | --- |
 | RGN01 | RF01, RF13 | A senha deverá conter no mínimo 8 caracteres, entre letras maiúsculas, minúsculas e números. |
 | RGN02 | RF01 | Apenas pessoas com vínculo ativo com a Unifor (graduação ou pós-graduação) podem se cadastrar como Estudante. O vínculo deve ser validado no cadastro. |
-| RGN03 | RF08 | Cada estudante pode manter no máximo um atendimento agendado em aberto por área de serviço (Psicologia e Psicopedagogia contam separadamente). Novo agendamento na mesma área só é liberado após a finalização ou o cancelamento do anterior. |
+| RGN03 | RF08 | Cada estudante pode manter no máximo um atendimento agendado em aberto por área de serviço (Psicologia e Psicopedagogia contam separadamente). Novo agendamento na mesma área só é liberado após o atendimento anterior atingir o status REALIZADO, ser cancelado ou ser registrado como falta. |
 | RGN04 | RF18, RF23 | O cancelamento e a remarcação pelo estudante devem ser feitos com antecedência mínima de 24 horas. Após esse prazo, o cancelamento é registrado como falta. |
 | RGN05 | RF08, RF32 | O registro de 3 faltas não justificadas no mesmo semestre letivo suspende novos agendamentos pelo sistema. A liberação depende de contato com a coordenação do PAP. |
 | RGN06 | RF28, RF29 | O conteúdo do registro de atendimento (prontuário) é visível exclusivamente ao profissional responsável. O setor administrativo acessa apenas dados de agenda, nunca o conteúdo clínico. Base: Resolução CFP nº 11/2018. |
@@ -182,11 +184,11 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 | RGN11 | RF03, RF04 | O chat é um canal assíncrono de comunicação, não sendo canal de emergência nem de atendimento em tempo real. Essa informação deve ficar permanente na tela de conversa, junto com os contatos CVV (188) e SAMU (192). |
 | RGN12 | RF03, RF04 | O chat só é habilitado entre um estudante e os profissionais que tenham ou tenham tido atendimento vinculado a ele. Não há chat entre estudantes. |
 | RGN13 | RF26 | As solicitações de adaptação devem ser analisadas em até 5 dias úteis a partir do envio. O sistema deve sinalizar as que ultrapassarem o prazo. |
-| RGN14 | RF19, RF28 | Após a finalização do atendimento, o registro não pode ser editado nem excluído. Correções são feitas por novo registro anexado ao original, com data e autor. |
+| RGN14 | RF19, RF28 | Após o atendimento atingir o status REALIZADO, o registro não pode ser editado nem excluído. Correções são feitas por novo registro anexado ao original, com data e autor. |
 | RGN15 | RF31 | Relatórios gerenciais exibem apenas dados agregados e anonimizados. Nenhum relatório pode identificar estudantes individualmente. |
 | RGN16 | RF27 | Os horários disponíveis respeitam o calendário acadêmico e o expediente da Unifor. Feriados e recessos bloqueiam a agenda automaticamente. |
 | RGN17 | RF30 | O cadastro de profissionais e a atribuição de permissões são feitos exclusivamente pelo perfil Administrador. Não há autocadastro de profissional. |
-| RGN18 | RF19 | O atendimento só pode ser finalizado pelo profissional responsável, e somente após o início do horário agendado. |
+| RGN18 | RF19 | O atendimento só pode ser marcado como REALIZADO pelo profissional responsável, e somente após o início do horário agendado. |
 
 ## 4. Casos de Uso
 
@@ -224,23 +226,23 @@ Todos os textos voltados ao usuário final serão redigidos em português brasil
 
 **Figura 2 — Diagrama de classes do PAP Online.** \[Inserir aqui a imagem do diagrama de classes.\]
 
-Entidades principais do domínio:
+Entidades principais do domínio, conforme o código (os campos completos estão nas classes do pacote entidades):
 
-- **Usuario:** id, nome, email, telefone, senhaHash, fotoUrl, perfil, ativo, dataCadastro.
-- **Estudante** (herda de Usuario): matricula, curso, semestre, qtdFaltasSemestre.
-- **Profissional** (herda de Usuario): registroConselho, area, especialidade.
-- **Administrador** (herda de Usuario).
-- **AreaServico:** id, nome, descricao.
-- **HorarioDisponivel:** id, profissionalId, dataHoraInicio, dataHoraFim, publicado.
-- **Atendimento:** id, estudanteId, profissionalId, horarioId, dataHora, modalidade, status, dataCriacao.
-- **RegistroAtendimento:** id, atendimentoId, conteudo, dataRegistro, autorId, registroOriginalId.
-- **SolicitacaoAdaptacao:** id, estudanteId, tipo, justificativa, status, dataEnvio, dataAnalise, parecer, profissionalAnalistaId.
-- **Anexo:** id, solicitacaoId, nomeArquivo, caminho, tipoMime, tamanho.
-- **Conversa:** id, estudanteId, profissionalId, dataCriacao.
-- **Mensagem:** id, conversaId, remetenteId, conteudo, dataEnvio, lida.
-- **Notificacao:** id, usuarioId, tipo, titulo, mensagem, dataEnvio, lida.
-- **TermoConsentimento:** id, usuarioId, versaoTermo, dataAceite.
-- **LogAuditoria:** id, usuarioId, acao, entidade, entidadeId, dataHora.
+- **Usuario** (base de Aluno, Profissional e Administrador): nome, e-mail, telefone, senha (guardada como hash), foto, ativo e data de cadastro.
+- **Aluno:** matrícula, curso, vínculo e aceite do termo de consentimento (versão e data).
+- **Profissional:** CRP, cargo e área de atuação.
+- **Administrador:** cargo.
+- **AreaServico:** nome e descrição.
+- **HorarioDisponivel:** profissional, data, hora de início e de fim, disponível, bloqueado e motivo do bloqueio.
+- **Atendimento:** aluno, profissional, área, horário, data e hora de início e de fim, modalidade, local e status (AGENDADO, REALIZADO, CANCELADO ou FALTA).
+- **SolicitacaoAdaptacao:** aluno, área (opcional), protocolo, tipo, justificativa, status, data de envio, prazo do parecer e parecer.
+- **Anexo:** documento enviado em uma solicitação de adaptação.
+- **Conversa** e **Mensagem:** troca de mensagens entre aluno e profissional.
+- **Notificacao:** aviso individual ao usuário, com indicador de leitura.
+- **AvisoInstitucional:** comunicado publicado pelo administrador, com categoria, público-alvo e status.
+- **AuditoriaAtendimento:** registro de acessos e alterações em atendimentos, protegido contra alteração e exclusão pela aplicação.
+- **TokenRecuperacaoSenha:** código de recuperação de senha, guardado como hash.
+- **RegistroAtendimento** (prevista, ainda não implementada): conteúdo clínico do atendimento (RF28).
 
 ## 6. Arquitetura do Projeto
 
@@ -250,7 +252,7 @@ A arquitetura do projeto PAP Online será baseada no padrão MVC (Model, View, C
 - **Visão:** representa basicamente a interface com o usuário. É utilizada para receber a entrada dos dados e apresentar o resultado. No PAP Online, corresponde à interface web acessada pelo navegador, adaptada a cada perfil: Estudante, Profissional do PAP e Administrador.
 - **Controle:** representa a forma como a aplicação reage aos estímulos do usuário e determina o fluxo de apresentação, servindo de camada intermediária entre a Visão e o Modelo. No PAP Online, é implementada pelos Controllers do Spring, que recebem as requisições HTTP, as encaminham ao Modelo e devolvem a resposta processada.
 
-O sistema será desenvolvido como uma aplicação única (monólito modular): as três camadas convivem em um mesmo projeto, são implantadas juntas e se organizam internamente por módulos de domínio (usuário, agendamento, atendimento, adaptação, chat, notificação e relatório). Tecnicamente, a camada de Modelo se divide em Service (regras de negócio) e Repository (persistência). Essa escolha reduz a complexidade de infraestrutura e é compatível com o tamanho da equipe e do prazo do projeto.
+O sistema é desenvolvido como uma aplicação única (monólito): as três camadas convivem no mesmo projeto e são implantadas juntas. O código é organizado em pacotes por camada (config, controller, dto, entidades, repository, service e util), com um serviço para cada domínio (usuário, atendimento, horário, solicitação de adaptação, conversa, notificação, aviso e relatório). Tecnicamente, a camada de Modelo se divide em Service (regras de negócio) e Repository (persistência com Spring Data JPA), e as rotas de usuário e de relatórios trocam dados com a Visão por meio de DTOs, sem expor as entidades. O front-end é composto por páginas HTML estáticas servidas pela própria aplicação. O banco de dados varia por profile: H2 em arquivo no ambiente local, H2 em memória nos testes e PostgreSQL em produção, com a conexão configurada por variáveis de ambiente. A aplicação é empacotada em Docker e implantada no Render, e o Resend envia os e-mails.
 
 **Figura 3 — Arquitetura do PAP Online.** \[Inserir aqui a imagem da arquitetura.\]
 
@@ -279,9 +281,17 @@ O sistema será desenvolvido como uma aplicação única (monólito modular): as
 | Responsivo | Interface que adapta seu layout ao tamanho da tela do dispositivo. |
 | Spring Boot | Framework Java para construção de aplicações web e APIs. |
 | SRS | Software Requirements Specification. Este documento. |
-| Status do atendimento | Situação do atendimento: Agendado, Finalizado, Cancelado ou Falta. |
+| Status do atendimento | Situação do atendimento: AGENDADO, REALIZADO, CANCELADO ou FALTA. |
 | Unifor | Universidade de Fortaleza. |
 | WCAG | Web Content Accessibility Guidelines, diretrizes internacionais de acessibilidade web. |
+| Docker | Tecnologia que empacota a aplicação e suas dependências em um contêiner executável. |
+| Gradle | Ferramenta de build e de gerenciamento de dependências do projeto Java. |
+| H2 | Banco de dados relacional leve, usado em arquivo no ambiente local e em memória nos testes. |
+| PostgreSQL | Banco de dados relacional usado no ambiente de produção. |
+| Profile | Conjunto de configurações do Spring para cada ambiente: local, test e prod. |
+| REALIZADO | Status do atendimento já efetuado e finalizado pelo profissional responsável. |
+| Render | Plataforma de nuvem na qual a aplicação é implantada. |
+| Resend | Serviço de envio de e-mails, usado na recuperação de senha. |
 
 ## 8. Apêndice B: Modelos de Análise
 
@@ -293,19 +303,48 @@ O sistema será desenvolvido como uma aplicação única (monólito modular): as
 | Diagrama de estados do atendimento | Transições de status do atendimento |
 | Diagrama de estados da solicitação de adaptação | Transições de status da solicitação |
 
-**Estados do atendimento:** Agendado, que pode passar para Finalizado, Cancelado (pelo aluno ou pelo profissional) ou Falta (automático, 24 horas após o horário sem finalização).
+**Estados do atendimento:** AGENDADO, que pode passar para REALIZADO, CANCELADO (pelo aluno ou pelo profissional) ou FALTA (automático, 24 horas após o término do atendimento sem finalização).
 
 **Estados da solicitação de adaptação:** Enviada, que passa para Em análise; de Em análise, pode ir para Deferida, Indeferida ou Pendente de documentação; de Pendente de documentação, retorna para Em análise.
 
-## 9. Aprovação
+## 9. Apêndice C: Estado de implementação
 
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   ***/***/\_\_\_\_\_\_
+A tabela resume o que o código entrega hoje, com base no arquivo CONTRATO-BACKEND.md. Os requisitos deste documento continuam valendo; os marcados como Parcial ou Pendente ficam para as próximas etapas.
+
+| Tipo | Implementado | Parcial | Pendente |
+| --- | --- | --- | --- |
+| Requisitos funcionais (34) | RF04, RF10, RF13, RF19, RF25, RF33 | RF01, RF02, RF03, RF05, RF06, RF07, RF08, RF09, RF11, RF12, RF14, RF15, RF16, RF17, RF18, RF20, RF21, RF22, RF23, RF24, RF26, RF27, RF29, RF30, RF31, RF32, RF34 | RF28 |
+| Requisitos não funcionais (11) | RNF03, RNF11 | RNF02, RNF04, RNF09, RNF10 | RNF01, RNF05, RNF06, RNF07, RNF08 |
+| Regras de negócio (18) | RGN01, RGN03, RGN04, RGN07, RGN09, RGN10, RGN11, RGN12, RGN15, RGN17, RGN18 | RGN05, RGN06, RGN08, RGN13, RGN14 | RGN02, RGN16 |
+
+Principais lacunas:
+
+| Item | Lacuna |
+| --- | --- |
+| RF28, RGN14 | Não existe registro clínico do atendimento: faltam a entidade, a tela de registro e as correções por novo registro. |
+| RF29 | O profissional consulta os atendimentos vinculados, mas não há histórico com prontuário. |
+| RF31 | A exportação é apenas em CSV, com filtros de período e área; faltam PDF e filtros por status e curso. |
+| RF14, RF15 | O perfil tem nome e foto por URL; falta o envio de imagem. |
+| RF17, RGN08 | A conta é anonimizada, mas faltam o fluxo completo de direitos da LGPD e a política de retenção de cinco anos no banco. |
+| RGN02 | Não há integração com a Unifor para validar o vínculo ativo. |
+| RGN05 | Não diferencia faltas justificadas nem usa o calendário acadêmico. |
+| RGN13, RGN16 | O prazo em dias úteis não considera feriados e não há sinalização automática de atraso; o calendário de feriados e recessos não existe. |
+| RF24, RF26 | A área da solicitação é opcional, e falta o fluxo de atribuição pela coordenação. |
+| RNF01, RNF05 a RNF08 | Não há medições de desempenho, usabilidade, acessibilidade e compatibilidade, nem disponibilidade e backup comprovados. |
+| RNF02 | O HTTPS depende do Render e do proxy; a execução local não força TLS. |
+| RNF09 | Há testes automatizados, mas a cobertura mínima de 60% não foi medida. |
+| RF33, RGN07 | O texto do termo é provisório e aguarda aprovação da coordenação; o encarregado ainda está por preencher. |
+| Banco de dados | O schema de produção é criado pelo Hibernate, sem migrations versionadas; deve ser revisado antes de guardar dados reais. |
+
+## 10. Aprovação
+
+Assinatura: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_    Data: \_\_\_\_/\_\_\_\_/\_\_\_\_\_\_
 
 **Cliente**
 
 Nome: \<Nome do Cliente>
 
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   ***/***/\_\_\_\_\_\_
+Assinatura: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_    Data: \_\_\_\_/\_\_\_\_/\_\_\_\_\_\_
 
 **Gerente do Projeto**
 

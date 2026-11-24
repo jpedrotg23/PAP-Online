@@ -418,8 +418,6 @@
           Área
           <select id="filtroArea">
             <option value="all">Todas as áreas</option>
-            <option value="Psicologia">Psicologia</option>
-            <option value="Psicopedagogia">Psicopedagogia</option>
           </select>
         </label>
         <button class="rel-btn-exportar" type="button" id="btnExportar">
@@ -505,8 +503,8 @@
         </section>
 
         <section class="rel-card">
-          <h2>Cursos com mais atendimentos</h2>
-          <p>Top 5 cursos dos alunos atendidos.</p>
+          <h2>Atendimentos por área</h2>
+          <p>Quantidade de atendimentos por área de serviço no período.</p>
           <div id="topCursos">
             <div class="rel-empty">
               <b>Carregando…</b>
@@ -566,22 +564,11 @@
   (function () {
     'use strict';
 
-    // Pré-requisitos no backend:
-    //   GET   /auth/session
-    //   GET   /atendimentos
-    //   GET   /solicitacoes
-    //   GET   /alunos
-    //   GET   /profissionais
-    //   GET   /notificacoes/usuario/{id}/count
+    // Endpoints utilizados: /auth/session, /areas, /relatorios/resumo,
+    // /relatorios/atendimentos.csv e /notificacoes/usuario/{id}/count.
 
     const state = {
       usuario: null,
-      atendimentos: [],
-      solicitacoes: [],
-      alunos: [],
-      profissionais: [],
-      alunosCache: {},
-      profissionaisCache: {},
       filtroPeriodo: '6m',
       filtroArea: 'all'
     };
@@ -633,29 +620,11 @@
       }
     }
 
-    function filtrarPorPeriodo() {
-      const inicio = periodoInicio(state.filtroPeriodo);
-      return state.atendimentos.filter(a => new Date(a.dataHoraInicio) >= inicio);
-    }
-
-    function filtrarPorArea(lista) {
-      if (state.filtroArea === 'all') return lista;
-      const alvo = state.filtroArea.toLowerCase();
-      // "psicologia" -> "psico" (sem acento); "psicopedagogia" -> "psicop" (ambíguo com "psico")
-      const chave = alvo.startsWith('psicopedag') ? 'psicopedag' : 'psicolog';
-      return lista.filter(a => {
-        const prof = state.profissionaisCache[a.profissionalId];
-        if (!prof) return false;
-        // Remove acentos do cargo antes de comparar
-        const cargo = (prof.cargo || '')
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase();
-        return cargo.includes(chave);
-      });
-    }
-
-    function dadosFiltrados() {
-      return filtrarPorArea(filtrarPorPeriodo());
+    function formatarDataLocal(data) {
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const dia = String(data.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
     }
 
     // ---------- 1. Usuário ----------
@@ -695,23 +664,33 @@
     }
 
     // ---------- 3. Carregar dados ----------
+    async function carregarAreas() {
+      const select = document.getElementById('filtroArea');
+      const resposta = await fetch('/areas', { credentials: 'include' });
+      if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+      const areas = await resposta.json();
+      const valorAtual = select.value;
+      select.replaceChildren(new Option('Todas as áreas', 'all'));
+      areas.forEach(area => select.add(new Option(area.nome, String(area.id))));
+      if ([...select.options].some(option => option.value === valorAtual)) {
+        select.value = valorAtual;
+      }
+    }
+
     async function carregarDados() {
       try {
-        const [rAtend, rSol, rAlunos, rProf] = await Promise.all([
-          fetch('/atendimentos', { credentials: 'include' }),
-          fetch('/solicitacoes', { credentials: 'include' }),
-          fetch('/alunos', { credentials: 'include' }),
-          fetch('/profissionais', { credentials: 'include' })
-        ]);
+        const params = new URLSearchParams();
+        if (state.filtroPeriodo !== 'all') {
+          const inicio = periodoInicio(state.filtroPeriodo);
+          params.set('de', formatarDataLocal(inicio));
+        }
+        if (state.filtroArea !== 'all') {
+          params.set('areaId', state.filtroArea);
+        }
 
-        if (rAtend.ok) state.atendimentos = await rAtend.json();
-        if (rSol.ok) state.solicitacoes = await rSol.json();
-        if (rAlunos.ok) state.alunos = await rAlunos.json();
-        if (rProf.ok) state.profissionais = await rProf.json();
-
-        // Cache
-        state.alunos.forEach(a => { state.alunosCache[a.id] = a; });
-        state.profissionais.forEach(p => { state.profissionaisCache[p.id] = p; });
+        const r = await fetch('/relatorios/resumo?' + params.toString(), { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        state.resumo = await r.json();
 
         atualizarTudo();
       } catch (e) {
@@ -721,30 +700,26 @@
 
     // ---------- 4. Atualizar tudo ----------
     function atualizarTudo() {
-      const atendimentos = dadosFiltrados();
-      atualizarStats(atendimentos);
-      renderizarGraficoMensal(atendimentos);
-      renderizarDistribuicaoStatus(atendimentos);
-      renderizarTopProfissionais(atendimentos);
-      renderizarTopCursos(atendimentos);
-      renderizarTabelaProfissionais(atendimentos);
+      atualizarStats();
+      renderizarGraficoMensal();
+      renderizarDistribuicaoStatus();
+      renderizarTopProfissionais();
+      renderizarAtendimentosPorArea();
+      renderizarTabelaProfissionais();
     }
 
     // ---------- 5. Stats ----------
-    function atualizarStats(atendimentos) {
-      const total = atendimentos.length;
-      const realizados = atendimentos.filter(a => a.status === 'REALIZADO').length;
-      const faltas = atendimentos.filter(a => a.status === 'FALTA').length;
+    function atualizarStats() {
+      const status = state.resumo?.atendimentosPorStatus || {};
+      const total = Object.values(status).reduce((soma, qtd) => soma + qtd, 0);
+      const realizados = status.REALIZADO || 0;
+      const faltas = state.resumo?.faltas || 0;
 
       const base = realizados + faltas;
       const taxaComp = base > 0 ? Math.round((realizados / base) * 100) : 0;
       const taxaFalta = base > 0 ? Math.round((faltas / base) * 100) : 0;
 
-      // Solicitações deferidas no período (usa dataParecer)
-      const inicio = periodoInicio(state.filtroPeriodo);
-      const deferidas = state.solicitacoes.filter(s =>
-              s.status === 'DEFERIDA' && s.dataParecer && new Date(s.dataParecer) >= inicio
-      ).length;
+      const deferidas = state.resumo?.solicitacoesPorStatus?.DEFERIDA || 0;
 
       set('statTotal', String(total));
       set('statTotalDetalhe', total === 0 ? 'nenhum no período' : 'no período selecionado');
@@ -760,14 +735,16 @@
     }
 
     // ---------- 6. Gráfico mensal ----------
-    function renderizarGraficoMensal(atendimentos) {
+    function renderizarGraficoMensal() {
       const container = document.getElementById('graficoLinha');
       set('subtituloGrafico',
               state.filtroPeriodo === 'all'
                       ? 'Quantidade de atendimentos por mês.'
                       : `Atendimentos por mês no período selecionado.`);
 
-      if (!atendimentos.length) {
+      const grupos = state.resumo?.atendimentosPorPeriodo || {};
+      const temDados = Object.values(grupos).some(qtd => qtd > 0);
+      if (!temDados) {
         container.innerHTML = `
         <div class="rel-empty">
           <b>Nenhum atendimento no período</b>
@@ -776,27 +753,31 @@
         return;
       }
 
-      // Agrupa por mês/ano
-      const grupos = {};
-      atendimentos.forEach(a => {
-        const d = new Date(a.dataHoraInicio);
-        const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        grupos[chave] = (grupos[chave] || 0) + 1;
-      });
 
-      // Gera últimos 6 meses (ou todos os existentes se período for 'all')
       const meses = [];
-      const agora = new Date();
-      let numMeses = state.filtroPeriodo === 'all' ? Object.keys(grupos).length : 6;
-      if (state.filtroPeriodo === '12m') numMeses = 12;
-      if (state.filtroPeriodo === '3m') numMeses = 3;
-      if (state.filtroPeriodo === '30d') numMeses = 2;
+      const chaves = state.filtroPeriodo === 'all'
+              ? Object.keys(grupos).sort()
+              : null;
+      if (chaves) {
+        chaves.forEach(chave => {
+          const [ano, mes] = chave.split('-').map(Number);
+          const d = new Date(ano, mes - 1, 1);
+          const mesNome = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+          meses.push({ chave, nome: mesNome.charAt(0).toUpperCase() + mesNome.slice(1), valor: grupos[chave] });
+        });
+      } else {
+        const agora = new Date();
+        let numMeses = 6;
+        if (state.filtroPeriodo === '12m') numMeses = 12;
+        if (state.filtroPeriodo === '3m') numMeses = 3;
+        if (state.filtroPeriodo === '30d') numMeses = 2;
 
-      for (let i = numMeses - 1; i >= 0; i--) {
-        const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-        const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        const mesNome = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-        meses.push({ chave, nome: mesNome.charAt(0).toUpperCase() + mesNome.slice(1), valor: grupos[chave] || 0 });
+        for (let i = numMeses - 1; i >= 0; i--) {
+          const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+          const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const mesNome = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+          meses.push({ chave, nome: mesNome.charAt(0).toUpperCase() + mesNome.slice(1), valor: grupos[chave] || 0 });
+        }
       }
 
       const maxValor = Math.max(...meses.map(m => m.valor), 1);
@@ -852,10 +833,12 @@
     }
 
     // ---------- 7. Distribuição por status ----------
-    function renderizarDistribuicaoStatus(atendimentos) {
+    function renderizarDistribuicaoStatus() {
       const container = document.getElementById('distribuicaoStatus');
+      const contagem = state.resumo?.atendimentosPorStatus || {};
+      const total = Object.values(contagem).reduce((soma, qtd) => soma + qtd, 0);
 
-      if (!atendimentos.length) {
+      if (!total) {
         container.innerHTML = `
         <div class="rel-empty">
           <b>Nenhum atendimento no período</b>
@@ -864,11 +847,6 @@
         return;
       }
 
-      const total = atendimentos.length;
-      const contagem = {};
-      atendimentos.forEach(a => {
-        contagem[a.status] = (contagem[a.status] || 0) + 1;
-      });
 
       const ordem = ['REALIZADO', 'CONFIRMADO', 'AGENDADO', 'CANCELADO', 'FALTA'];
 
@@ -892,10 +870,11 @@
     }
 
     // ---------- 8. Top profissionais ----------
-    function renderizarTopProfissionais(atendimentos) {
+    function renderizarTopProfissionais() {
       const container = document.getElementById('topProfissionais');
+      const ranking = (state.resumo?.profissionais || []).slice().sort((a, b) => b.quantidadeTotal - a.quantidadeTotal).slice(0, 5);
 
-      if (!atendimentos.length) {
+      if (!ranking.length) {
         container.innerHTML = `
         <div class="rel-empty">
           <b>Nenhum atendimento no período</b>
@@ -903,23 +882,6 @@
         </div>`;
         return;
       }
-
-      const contagem = {};
-      atendimentos.forEach(a => {
-        contagem[a.profissionalId] = (contagem[a.profissionalId] || 0) + 1;
-      });
-
-      const ranking = Object.entries(contagem)
-              .map(([id, total]) => {
-                const prof = state.profissionaisCache[Number(id)];
-                return {
-                  nome: prof?.nome || 'Profissional #' + id,
-                  crp: prof?.crp || '',
-                  total
-                };
-              })
-              .sort((a, b) => b.total - a.total)
-              .slice(0, 5);
 
       container.innerHTML = `<div class="rel-ranking">${ranking.map((p, i) => `
       <div class="rel-ranking-item">
@@ -927,18 +889,19 @@
         <span class="rel-ranking-avatar">${iniciais(p.nome)}</span>
         <div class="rel-ranking-info">
           <p class="rel-ranking-nome">${escapeHtml(p.nome)}</p>
-          <p class="rel-ranking-detalhe">${escapeHtml(p.crp || 'CRP não informado')}</p>
+          <p class="rel-ranking-detalhe">Quantidade agregada</p>
         </div>
-        <span class="rel-ranking-valor">${p.total}</span>
+        <span class="rel-ranking-valor">${p.quantidadeTotal}</span>
       </div>
     `).join('')}</div>`;
     }
 
-    // ---------- 9. Top cursos ----------
-    function renderizarTopCursos(atendimentos) {
+    // ---------- 9. Atendimentos por área ----------
+    function renderizarAtendimentosPorArea() {
       const container = document.getElementById('topCursos');
+      const ranking = (state.resumo?.atendimentosPorArea || []).slice().sort((a, b) => b.quantidade - a.quantidade).slice(0, 5);
 
-      if (!atendimentos.length) {
+      if (!ranking.length) {
         container.innerHTML = `
         <div class="rel-empty">
           <b>Nenhum atendimento no período</b>
@@ -947,27 +910,16 @@
         return;
       }
 
-      const contagem = {};
-      atendimentos.forEach(a => {
-        const aluno = state.alunosCache[a.alunoId];
-        const curso = aluno?.curso || 'Não informado';
-        contagem[curso] = (contagem[curso] || 0) + 1;
-      });
-
-      const ranking = Object.entries(contagem)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 5);
-
-      const max = ranking[0]?.[1] || 1;
+      const max = ranking[0]?.quantidade || 1;
       const cores = ['blue', 'green', 'purple', 'orange', 'red'];
 
-      container.innerHTML = `<div class="rel-barras-h">${ranking.map(([curso, total], i) => {
-        const pct = Math.round((total / max) * 100);
+      container.innerHTML = `<div class="rel-barras-h">${ranking.map((area, i) => {
+        const pct = Math.round((area.quantidade / max) * 100);
         return `
         <div class="rel-barra-item">
           <div class="rel-barra-topo">
-            <span class="rel-barra-nome">${escapeHtml(curso)}</span>
-            <span class="rel-barra-valor">${total}</span>
+            <span class="rel-barra-nome">${escapeHtml(area.nome)}</span>
+            <span class="rel-barra-valor">${area.quantidade}</span>
           </div>
           <div class="rel-barra-trilha">
             <div class="rel-barra-fill ${cores[i] || 'blue'}" style="width:${pct}%"></div>
@@ -978,10 +930,11 @@
     }
 
     // ---------- 10. Tabela por profissional ----------
-    function renderizarTabelaProfissionais(atendimentos) {
+    function renderizarTabelaProfissionais() {
       const tbody = document.getElementById('tabelaProfissionais');
+      const linhas = (state.resumo?.profissionais || []).slice();
 
-      if (!atendimentos.length) {
+      if (!linhas.length) {
         tbody.innerHTML = `
         <tr>
           <td colspan="6">
@@ -994,33 +947,6 @@
         return;
       }
 
-      // Agrupa por profissional
-      const porProf = {};
-      atendimentos.forEach(a => {
-        if (!porProf[a.profissionalId]) {
-          porProf[a.profissionalId] = { total: 0, realizados: 0, faltas: 0, cancelados: 0 };
-        }
-        const p = porProf[a.profissionalId];
-        p.total++;
-        if (a.status === 'REALIZADO') p.realizados++;
-        if (a.status === 'FALTA') p.faltas++;
-        if (a.status === 'CANCELADO') p.cancelados++;
-      });
-
-      const linhas = Object.entries(porProf)
-              .map(([id, dados]) => {
-                const prof = state.profissionaisCache[Number(id)];
-                const base = dados.realizados + dados.faltas;
-                const taxa = base > 0 ? Math.round((dados.realizados / base) * 100) : 0;
-                return {
-                  nome: prof?.nome || 'Profissional #' + id,
-                  crp: prof?.crp || '',
-                  ...dados,
-                  taxa
-                };
-              })
-              .sort((a, b) => b.total - a.total);
-
       tbody.innerHTML = linhas.map(l => `
       <tr>
         <td>
@@ -1028,48 +954,37 @@
             <span class="rel-ranking-avatar">${iniciais(l.nome)}</span>
             <div>
               <p style="font-weight:700;color:#102249;margin:0 0 2px;font-size:12px">${escapeHtml(l.nome)}</p>
-              <p style="font-size:10px;color:#94a0b3;margin:0">${escapeHtml(l.crp || '—')}</p>
+              <p style="font-size:10px;color:#94a0b3;margin:0">Profissional</p>
             </div>
           </div>
         </td>
-        <td class="rel-tabela-numero">${l.total}</td>
-        <td class="rel-tabela-numero">${l.realizados}</td>
+        <td class="rel-tabela-numero">${l.quantidadeTotal}</td>
+        <td class="rel-tabela-numero">${l.quantidadesPorStatus.REALIZADO || 0}</td>
         <td class="rel-tabela-numero">${l.faltas}</td>
-        <td class="rel-tabela-numero">${l.cancelados}</td>
-        <td class="rel-tabela-numero">${l.taxa}%</td>
+        <td class="rel-tabela-numero">${l.quantidadesPorStatus.CANCELADO || 0}</td>
+        <td class="rel-tabela-numero">${(() => { const base=(l.quantidadesPorStatus.REALIZADO||0)+l.faltas; return base ? Math.round((l.quantidadesPorStatus.REALIZADO||0)/base*100) : 0; })()}%</td>
       </tr>
     `).join('');
     }
 
     // ---------- 11. Exportar CSV ----------
-    function exportarCSV() {
-      const atendimentos = dadosFiltrados();
-
-      if (!atendimentos.length) {
-        alert('Nenhum dado para exportar com os filtros atuais.');
-        return;
+    async function exportarCSV() {
+      const params = new URLSearchParams();
+      if (state.filtroPeriodo !== 'all') {
+        params.set('de', formatarDataLocal(periodoInicio(state.filtroPeriodo)));
+      }
+      if (state.filtroArea !== 'all') {
+        params.set('areaId', state.filtroArea);
       }
 
-      const linhas = [['ID', 'Data/Hora', 'Aluno', 'Profissional', 'Área', 'Modalidade', 'Status']];
-
-      atendimentos.forEach(a => {
-        const aluno = state.alunosCache[a.alunoId];
-        const prof = state.profissionaisCache[a.profissionalId];
-        linhas.push([
-          a.id,
-          new Date(a.dataHoraInicio).toLocaleString('pt-BR'),
-          aluno?.nome || 'ID ' + a.alunoId,
-          prof?.nome || 'ID ' + a.profissionalId,
-          prof?.cargo || '',
-          a.modalidade || '',
-          STATUS_LABEL[a.status] || a.status
-        ]);
+      const r = await fetch('/relatorios/atendimentos.csv?' + params.toString(), {
+        credentials: 'include'
       });
-
-      const escapar = (v) => `"${String(v).replace(/"/g, '""')}"`;
-      const csv = linhas.map(linha => linha.map(escapar).join(';')).join('\r\n');
-
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      if (!r.ok) {
+        alert('Não foi possível exportar o relatório.');
+        return;
+      }
+      const blob = await r.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1084,12 +999,12 @@
     function ligarEventos() {
       document.getElementById('filtroPeriodo').addEventListener('change', (e) => {
         state.filtroPeriodo = e.target.value;
-        atualizarTudo();
+        carregarDados();
       });
 
       document.getElementById('filtroArea').addEventListener('change', (e) => {
         state.filtroArea = e.target.value;
-        atualizarTudo();
+        carregarDados();
       });
 
       document.getElementById('btnExportar').addEventListener('click', exportarCSV);
@@ -1102,10 +1017,12 @@
       const u = await carregarUsuario();
       if (!u) return;
 
-      await Promise.allSettled([
-        carregarDados(),
-        carregarNotificacoes()
-      ]);
+      try {
+        await carregarAreas();
+      } catch (e) {
+        console.error('Erro ao carregar áreas', e);
+      }
+      await Promise.allSettled([carregarDados(), carregarNotificacoes()]);
     });
   })();
 </script>
